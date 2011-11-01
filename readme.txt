@@ -2,7 +2,7 @@
 
 == About ==
 
-Aims to be a MMO engine.
+Aims to be (another stab at) a MMO engine.
 
 
 == License ==
