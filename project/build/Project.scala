@@ -11,6 +11,9 @@ class Project(info: ProjectInfo) extends DefaultProject(info) with IdeaProject w
   // Simplex libs
 //  def simplex3dJars = descendents("lib" / "simplex3d", "*.jar")
 
-//  override def unmanagedClasspath = super.unmanagedClasspath +++ simplex3dJars
+  // Logging
+  def loggingJars = descendents("lib" / "logging", "*.jar")
+
+  override def unmanagedClasspath = super.unmanagedClasspath +++ loggingJars
   
 }
