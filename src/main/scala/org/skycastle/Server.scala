@@ -16,7 +16,7 @@ object Server extends Logging {
 
     // TODO: Find other servers in the cluster and connect to them, listening to incoming events
 
-    // TODO: Start listening for connecting clients
+    // TODO: Start listening for connecting clients, and running simulation update code.
 
   }
 
