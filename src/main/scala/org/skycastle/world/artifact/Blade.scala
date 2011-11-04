@@ -1,6 +1,7 @@
 package org.skycastle.world.artifact
 
 import org.skycastle.world.material.{Iron, Material}
+import org.skycastle.world.shape.{BladeShape, Shape}
 
 /**
  * For swords, daggers, knifes
@@ -8,6 +9,7 @@ import org.skycastle.world.material.{Iron, Material}
 class Blade extends Item {
 
   val material: Material = Iron
+  val shape: Shape = new BladeShape()
 
   val length = p('length, 0.8)
   val width = p('width, 0.1)

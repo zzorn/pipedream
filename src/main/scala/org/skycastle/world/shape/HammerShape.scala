@@ -3,7 +3,7 @@ package org.skycastle.world.shape
 /**
  * 
  */
-class HammerHeadShape extends Shape {
+class HammerShape extends Shape {
 
   val radius = p('width, 0.05)
   val length = p('width, 0.2)
