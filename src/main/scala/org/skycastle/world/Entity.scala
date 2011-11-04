@@ -19,6 +19,7 @@ trait Entity extends Bean {
     _id = newId
   }
 
-  
+
+  // TODO: Appearance
 
 }

@@ -4,6 +4,8 @@ package org.skycastle.world.material
  * 
  */
 
-class Iron extends Material {
+object Iron extends Element {
+
+  density := 5
 
 }

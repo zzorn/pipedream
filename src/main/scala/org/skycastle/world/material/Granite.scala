@@ -4,6 +4,9 @@ package org.skycastle.world.material
  * 
  */
 
-class Granite extends Material {
+object Granite extends Element {
+
+  density := 4
+
 
 }
