@@ -12,6 +12,11 @@ class Hammer extends Item {
   val headShape: Shape = new HammerShape()
   val handleShape: Shape = new HandleShape()
 
+  val bash  = action() // An attack
+  val forge = action() //
+  val nail  = action() //
+
+
   def shape = CombinedShape(headShape, handleShape)
 
 
