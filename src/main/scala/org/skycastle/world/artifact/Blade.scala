@@ -8,18 +8,16 @@ import org.skycastle.world.shape.{BladeShape, Shape}
  */
 class Blade extends Item {
 
-  val material: Material = Iron
-  val shape: Shape = new BladeShape()
-
-  val length = p('length, 0.8)
-  val width = p('width, 0.1)
-  val curvature = p('curvature, 0.3) // 1 = full circle back, 0 = no curvature, -1 full circle forward
+  var material: Material = Iron
+  val shape = p('shape, new BladeShape())
+  val name = p('name, "blade")
 
   val slash  = action() // Cutting action.  Available if the blade has an edge.
   val thrust = action() // Piercing action.  Available if the blade has a point.
   val parry  = action() // Block incoming hits
 
   def getMass = mass()
+  def getShape = shape()
 
   // name (TODO: Infer from field name),
   // difficulty,

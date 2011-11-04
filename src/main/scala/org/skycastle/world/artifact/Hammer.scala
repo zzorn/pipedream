@@ -17,7 +17,7 @@ class Hammer extends Item {
   val nail  = action() //
 
 
-  def shape = CombinedShape(headShape, handleShape)
+  def getShape = CombinedShape(headShape, handleShape)
 
 
 }
