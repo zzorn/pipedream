@@ -21,10 +21,10 @@ object Server extends Logging {
 
 
     // Testing scheduler..
-    Scheduler.addRegularTask(interval = 2000){duration => println("Tick"+ duration)}
-    Scheduler.addRegularTask(1000, 2000){duration => println("Tock"+duration)}
-    Scheduler.addSingleTask(10000){println("Bongg!"); Thread.sleep(2235) }
-    Scheduler.addVariableTask(3000){duration => println("Brick! " + duration); (math.random * 10000).longValue()}
+    Scheduler.addRegularTask(interval = 2){duration => println("Tick "+ duration)}
+    Scheduler.addRegularTask(1, 2){duration => println("Tock "+duration)}
+    Scheduler.addSingleTask(10){println("Bongg!"); Thread.sleep(2235) }
+    Scheduler.addVariableTask(3){duration => println("Brick! " + duration); (math.random * 10).floatValue()}
     Scheduler.loop()
   }
 

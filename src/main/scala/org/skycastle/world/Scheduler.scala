@@ -17,39 +17,43 @@ object Scheduler {
   private val tasksToReAdd = new ArrayList[Task]()
 
   /**
-   * Add a task that is called once after the specified time.
+   * Add a task that is called once after the specified seconds.
+   *
    * Returns a references to the task that can be used to remove it.
    */
-  def addSingleTask(waitTime: Long = 0)(callback: => Unit): TaskRef = {
-    require(callback _ != null, "Callback should not be null")
-
-    val task = SingleTask(System.currentTimeMillis() + waitTime, callback _ )
+  def addSingleTask(waitTime: Float = 0)(callback: => Unit): TaskRef = {
+    val task = SingleTask(calculateStartTime(waitTime), callback _ )
     tasks add task
     task
   }
 
   /**
-   * Add a task that is called at regular intervals, starting after the specified time (pass in 0 to start immediately).
+   * Add a task that is called at regular intervals (specified in seconds),
+   * starting after the specified time (pass in 0 to start immediately).
+   * The callback is passed the number of seconds since the last call to it, or 0 if it has not been called before.
+   *
    * Returns a references to the task that can be used to remove it.
    */
-  def addRegularTask(waitTime: Long = 0, interval: Long = 1000)(callback: (Long) => Unit): TaskRef = {
+  def addRegularTask(waitTime: Float = 0, interval: Float = 1)(callback: (Float) => Unit): TaskRef = {
     require(interval > 0, "Interval should be positive")
     require(callback != null, "Callback should not be null")
 
-    val task = RegularTask(System.currentTimeMillis() + waitTime, interval, callback)
+    val task = RegularTask(calculateStartTime(waitTime), (interval * 1000).toLong, callback)
     tasks add task
     task
   }
 
   /**
-   * Add a task that returns number of milliseconds until it should be called again, or <= 0 if it should not
-   * be called anymore, starting after the specified time (pass in 0 to start immediately).
+   * Add a task that is passed the number of seconds since the last call to it, or 0 if it has not been called before,
+   * and should return the number of seconds until it should be called again, or less than zero if it should not be called again.
+   * Starts after the specified waittime in seconds (pass 0 to start immediately).
+   *
    * Returns a references to the task that can be used to remove it.
    */
-  def addVariableTask(waitTime: Long = 0)(callback: (Long) => Long): TaskRef = {
+  def addVariableTask(waitTime: Float = 0)(callback: (Float) => Float): TaskRef = {
     require(callback != null, "Callback should not be null")
 
-    val task = VariableTask(System.currentTimeMillis() + waitTime, callback)
+    val task = VariableTask(calculateStartTime(waitTime), callback)
     tasks add task
     task
   }
@@ -63,8 +67,9 @@ object Scheduler {
 
   /**
    * Invokes any tasks that were scheduled to be run now or earlier.
+   * Returns milliseconds to next event, or a fixed number if no next event is scheduled.
    */
-  def update() {
+  def update(): Long = {
     val currentTime = System.currentTimeMillis()
 
     while(tasks.peek != null && tasks.peek.time <= currentTime) {
@@ -75,15 +80,17 @@ object Scheduler {
 
     tasksToReAdd foreach {t => tasks.add(t) }
     tasksToReAdd.clear()
+
+    if (tasks.peek == null) 100 else tasks.peek.time - currentTime
   }
 
   /**
-   * Constantly updates tasks, allowing other threads to do work in between updates.
+   * Updates tasks, sleeping between updates.
    */
   def loop() {
     while (true) {
-      update()
-      Thread.`yield`()
+      val timeToNextEvent = update()
+      Thread.sleep(timeToNextEvent)
     }
   }
 
@@ -94,6 +101,10 @@ object Scheduler {
     while (true) {
       update()
     }
+  }
+
+  private def calculateStartTime(waitTime: Float): Long = {
+    System.currentTimeMillis() + (waitTime * 1000).toLong
   }
 
 
@@ -107,8 +118,8 @@ object Scheduler {
   private abstract class RepeatingTask extends Task {
     var lastTime: Long = 0
 
-    protected final def calculateDuration(currentTime: Long): Long = {
-      val duration = if (lastTime == 0) 0 else currentTime - lastTime
+    protected final def calculateDuration(currentTime: Long): Float = {
+      val duration = if (lastTime == 0) 0.0f else (currentTime - lastTime) / 1000.0f
       lastTime = currentTime
       duration
     }
@@ -122,7 +133,7 @@ object Scheduler {
     }
   }
 
-  private final case class RegularTask(var time: Long, interval: Long, callback: (Long) => Unit) extends RepeatingTask {
+  private final case class RegularTask(var time: Long, interval: Long, callback: (Float) => Unit) extends RepeatingTask {
     def invoke(currentTime: Long): Boolean =  {
       val duration = calculateDuration(currentTime)
 
@@ -133,14 +144,14 @@ object Scheduler {
     }
   }
 
-  private final case class VariableTask(var time: Long, callback: (Long) => Long) extends RepeatingTask {
+  private final case class VariableTask(var time: Long, callback: (Float) => Float) extends RepeatingTask {
     def invoke(currentTime: Long): Boolean =  {
       val duration = calculateDuration(currentTime)
 
       val interval = callback(duration)
 
       if (interval > 0) {
-        time = currentTime + interval
+        time = currentTime + (interval * 1000).toLong
         true
       }
       else {
