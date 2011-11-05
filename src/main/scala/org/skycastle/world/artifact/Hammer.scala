@@ -13,7 +13,7 @@ class Hammer extends Item {
   val handleShape: Shape = new HandleShape()
 
   val bash  = action() // An attack
-  val forge = action() //
+  val forge = action() // Target an item that is under construction and needs forging to progress it forward.  Takes some time, and requires suitable other tools, such as forge
   val nail  = action() //
 
 

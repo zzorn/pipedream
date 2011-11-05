@@ -36,6 +36,17 @@ object ItemSpike {
     sword.concrete := true
 
     // The smith works on the sword (using a hammer and other tools, as well as a forge) and the server updates the progress
+    // The tools used can be a workshop, workbench, or just portable set of tools.
+    // The most suitable tools available are used depending on the work phase
+    // Several work phases can be next available ones.
+    // A work phase needs its raw materials before it can begin.
+    // Work phases can change depending on success of earlier ones, or other factors.
+    // This way works can easily scale up to larger structures, e.g. houses, that consist of many parts, and that
+    // can be worked on by many people.
+    
+
+
+
     sword.progress := 0.1
     sword.progress := 0.3
     sword.progress := 0.7
