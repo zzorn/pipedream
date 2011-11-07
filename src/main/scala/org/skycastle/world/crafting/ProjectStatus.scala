@@ -4,12 +4,11 @@ package org.skycastle.world.crafting
  * 
  */
 
-trait ProjectStatus {
-
+abstract class ProjectStatus(val isFunctional: Boolean) {
 }
 
-object Planned extends ProjectStatus
-object UnderConstruction extends ProjectStatus
-object Completed extends ProjectStatus
-object Destroyed extends ProjectStatus
+object Planned extends ProjectStatus(false)
+object UnderConstruction extends ProjectStatus(false)
+object Completed extends ProjectStatus(true)
+object Destroyed extends ProjectStatus(false)
 
