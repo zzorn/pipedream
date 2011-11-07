@@ -13,6 +13,8 @@ object ItemSpike {
 
     // Prototyping crafting scenario
 
+    // TODO: Rewrite with work approach
+
 
     // Smith decides to make an epic vorpal blade
     // First he starts the design with a basic sword template
@@ -33,7 +35,7 @@ object ItemSpike {
     // Now the ingredients for the sword are consumed, and actual work on the sword starts, the server marks it as concrete
     // After this, the design can no longer be customized, and is fixed.
     // The sword is not yet usable however, work is just beginning!
-    sword.concrete := true
+    //sword.concrete := true
 
     // The smith works on the sword (using a hammer and other tools, as well as a forge) and the server updates the progress
     // The tools used can be a workshop, workbench, or just portable set of tools.
@@ -47,21 +49,21 @@ object ItemSpike {
 
 
 
-    sword.progress := 0.1
-    sword.progress := 0.3
-    sword.progress := 0.7
+    //sword.progress := 0.1
+    //sword.progress := 0.3
+    //sword.progress := 0.7
 
     // The smith goes of doing something else, putting the half finished sword in his backpack.
     // Later he resumes work on it
-    sword.progress := 0.9
-    sword.progress := 0.95
-    sword.progress := 0.999
-    sword.progress := 1.0
+    //sword.progress := 0.9
+    //sword.progress := 0.95
+    //sword.progress := 0.999
+    //sword.progress := 1.0
 
     // The sword is now completed, and a quality of it is fixed, based on the success of the smiths skill
     // checks during the work progress.  If the quality is too low, the sword is scrap metal, and can not be used.
-    sword.completed := true
-    sword.quality   := 1.2 // Quality succeeded quite well, the sword will have 20% higher performance overall.
+    //sword.completed := true
+    //sword.quality   := 1.2 // Quality succeeded quite well, the sword will have 20% higher performance overall.
 
     // The can now be wielded and used!  Lets give it a swing:
     sword.slash
@@ -76,7 +78,7 @@ object ItemSpike {
 
     // Ack, the sword got toasted in dragonfire and chewed by lizards.  It's quite warped and worn, and beyond repair
     sword.wear := 1
-    sword.broken := true
+    //sword.broken := true
 
     // The smith melts it down for scrap metal, which he uses again in his next project
     // TODO: How?  Some take apart function?  Or just toss it in something hot?  Or use a hammer on it to take it apart?

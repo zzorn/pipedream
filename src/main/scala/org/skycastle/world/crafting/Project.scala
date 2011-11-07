@@ -6,6 +6,7 @@ import org.skycastle.world.space.Space
 import java.util.HashMap
 import org.skycastle.world.{EntityId, WorkReq, Entity, EntityReq}
 import java.lang.IllegalStateException
+import org.skycastle.util.MultiSet
 
 /**
  * Something under construction or repair.  Most artifacts are projects.
@@ -14,39 +15,41 @@ import java.lang.IllegalStateException
  */
 // TODO: Space with slots for required parts
 // TODO: Composite projects?
+// TODO: Need to enumerate all part and work requirements up front, or it will be hard to e.g. estimate cost for a project.
+//    But only some of the work (and parts?) might be possible to provide at a certain time, if they depend on each other
+//    Some work may involve e.g. digging up earth, but that becomes a task of moving the soil to some location or input.
+// TODO: How to express moving work, or e.g. lumbering or mining or packet transport, or soldiering, etc..
 trait Project {
 
-  private val parts = new HashMap[EntityId, Entity]()
-
   private var _status: ProjectStatus = Planned
-  private var _neededParts: List[EntityReq] = Nil
-  private var _neededWork: List[WorkReq] = Nil
+  private var _neededParts: MultiSet[EntityReq] = new MultiSet[EntityReq]()
+  private var _neededWork: MultiSet[Work] = new MultiSet[Work]()
   private var _progress = 0.0
 
-  def neededWork: List[WorkReq] = _neededWork
-
-  def neededParts: List[EntityReq] = _neededParts
+  def neededWork: Map[Work, Int] = _neededWork.map
+  def neededParts: Map[EntityReq, Int] = _neededParts.map
 
   def status: ProjectStatus = _status
 
-  def addWork(work: Work): Boolean = {
-    _neededWork.find( r => r.matches(work) ) match {
-      case Some(r) =>
-        _neededWork = _neededWork.filterNot( _ == r)
-        updateProgress()
-        true
-      case None =>
-        false
+  def provideWork(work: Work, amount: Int = 1): Boolean = {
+    if (_neededWork(work) > 0) {
+      _neededWork.decrease(work, amount)
+      updateProgress()
+      true
     }
+    else false
   }
 
-  def addPart(part: Entity): Boolean = {
-    neededParts.find( r => r.matches(part) ) match {
+  def providePart(part: Entity, amount: Int  = 1): Boolean = {
+    neededParts.keySet.find( r => r.matches(part) ) match {
       case Some(r) =>
-        part.delete()
-        _neededParts = _neededParts.filterNot( _ == r)
-        updateProgress()
-        true
+        if (_neededParts(r) > 0) {
+          _neededParts.decrease(r, amount)
+          part.delete()
+          updateProgress()
+          true
+        }
+        false
       case None =>
         false
     }
@@ -60,20 +63,15 @@ trait Project {
 
   private def updateProgress() {
 
-    _neededParts :::= updateNeededParts()
-    _neededWork :::= updateNeededWork()
-
     if (_neededParts.isEmpty && _neededWork.isEmpty) {
       _status = Completed
+      _progress = 1
       onCompleted()
     }
 
     // TODO
 
   }
-
-  protected def updateNeededWork(): List[WorkReq]
-  protected def updateNeededParts(): List[EntityReq]
 
   protected def onCompleted() {}
 

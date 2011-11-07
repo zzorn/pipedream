@@ -10,7 +10,7 @@ trait Space extends Entity {
   private var _containedMass = 0.0
 
   private val entityListener: EntityListener = new EntityListener {
-    def onMassChange(entity: Entity, oldMass: Double, newMass: Double) {
+    override def onMassChange(entity: Entity, oldMass: Double, newMass: Double) {
       changeMass(newMass - oldMass)
     }
   }
@@ -50,7 +50,7 @@ trait Space extends Entity {
   }
 
   override def getMass: Double = {
-    super.getMass + containedMass
+    containedMass
   }
 
   def containedMass: Double = _containedMass

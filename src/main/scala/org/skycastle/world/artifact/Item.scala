@@ -16,11 +16,9 @@ trait Item extends Entity with Project {
   def material: Material
   def getShape: Shape
 
-  val quality = p('quality, 1.0) // Quality 1.0 is normal quality, 0 is unusable, broken, 2 is two times better at things than a normal one, etc.
-
   val wear = p('wear, 0.0) // Amount of wear and tear, at 1 the item breaks.
 
   val mass = p('mass, 1)
 
-  
+  def getMass = mass()
 }

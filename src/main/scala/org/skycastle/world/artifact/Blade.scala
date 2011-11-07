@@ -16,7 +16,6 @@ class Blade extends Item {
   val thrust = action() // Piercing action.  Available if the blade has a point.
   val parry  = action() // Block incoming hits
 
-  def getMass = mass()
   def getShape = shape()
 
   // name (TODO: Infer from field name),
