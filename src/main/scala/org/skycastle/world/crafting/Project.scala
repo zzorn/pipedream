@@ -4,7 +4,7 @@ import org.skycastle.world.artifact.Item
 import org.scalaprops.Bean._
 import org.skycastle.world.space.Space
 import java.util.HashMap
-import org.skycastle.world.{EntityId, WorkReq, Entity, EntityReq}
+import org.skycastle.world.{EntityId, Entity, EntityReq}
 import java.lang.IllegalStateException
 import org.skycastle.util.MultiSet
 
@@ -26,12 +26,34 @@ trait Project {
   private var _neededWork: MultiSet[Work] = new MultiSet[Work]()
   private var _progress = 0.0
 
+  def addRequiredWork(work: Work, amount: Int) {
+    _neededWork.increase(work, amount)
+  }
+
+  def removeRequiredWork(work: Work, amount: Int) {
+    _neededWork.decrease(work, amount)
+  }
+
+  /**
+   * All currently known needed work items.
+   */
   def neededWork: Map[Work, Int] = _neededWork.map
+
+  /**
+   * All currently known needed parts.
+   */
   def neededParts: Map[EntityReq, Int] = _neededParts.map
+
+  // TODO: Some kind of products or waste or such collection too?  That need to be carried away or carried somewhere?
 
   def status: ProjectStatus = _status
 
-  def provideWork(work: Work, amount: Int = 1): Boolean = {
+  /**
+   * The next available Work item needed.
+   */
+  def nextNeeded: Option[Work] = _neededWork.firstKey
+
+  def provideWork(work: Work, success: Double, amount: Int = 1): Boolean = {
     if (_neededWork(work) > 0) {
       _neededWork.decrease(work, amount)
       updateProgress()

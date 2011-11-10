@@ -1,6 +1,8 @@
 package org.skycastle
 
+import util.MultiSet
 import world.artifact.Blade
+import world.crafting.{Completed, Planned, Work}
 import world.material.Iron
 
 /**
@@ -15,6 +17,14 @@ object ItemSpike {
 
     // TODO: Rewrite with work approach
 
+    val ms = new MultiSet[String]()
+    assert(ms.isEmpty)
+    ms.increase("foo")
+    assert(!ms.isEmpty)
+    assert(ms("foo") == 1)
+
+
+
 
     // Smith decides to make an epic vorpal blade
     // First he starts the design with a basic sword template
@@ -26,6 +36,13 @@ object ItemSpike {
     sword.shape().length     := 1.3
     sword.material            = Iron
     sword.name               := "Vorpal Serpent"
+
+    // TODO: How needed work is calculated?
+    sword.addRequiredWork(new Work('hammer, 'smithing, 0.001, 2, 1.4), 4)
+    sword.addRequiredWork(new Work('heat, 'smithing, time = 5), 3)
+    sword.addRequiredWork(new Work('knot, 'leatherworking, time = 2), 2)
+
+    // TODO: Add needed parts
 
     // At this point the sword is just a design, not yet an item in the game world, although it uses the same class
     // (TODO: Or should it use a different one?  Why?)
@@ -45,25 +62,29 @@ object ItemSpike {
     // Work phases can change depending on success of earlier ones, or other factors.
     // This way works can easily scale up to larger structures, e.g. houses, that consist of many parts, and that
     // can be worked on by many people.
-    
 
+    // TODO: Tools, skills, required parts
 
+    assert(sword.status == Planned)
 
-    //sword.progress := 0.1
-    //sword.progress := 0.3
-    //sword.progress := 0.7
+    var needed = sword.nextNeeded
+    while (needed != None) {
+      val skill = needed.get.skill
+      val skillCheck = 0.4 // TODO: Check
+      println("Using skill " + skill + " to " + needed.get.workType + " the blade, with success " + skillCheck)
+      val used = sword.provideWork(needed.get, skillCheck)
+      println("Work used: " + used)
+      Thread.sleep((needed.get.time * 1000).toLong)
+      needed = sword.nextNeeded
+    }
 
-    // The smith goes of doing something else, putting the half finished sword in his backpack.
-    // Later he resumes work on it
-    //sword.progress := 0.9
-    //sword.progress := 0.95
-    //sword.progress := 0.999
-    //sword.progress := 1.0
+    // (The smith goes of doing something else, putting the half finished sword in his backpack.
+    // Later he resumes work on it)
 
-    // The sword is now completed, and a quality of it is fixed, based on the success of the smiths skill
-    // checks during the work progress.  If the quality is too low, the sword is scrap metal, and can not be used.
-    //sword.completed := true
-    //sword.quality   := 1.2 // Quality succeeded quite well, the sword will have 20% higher performance overall.
+    // The sword is now completed, [and a quality of it is fixed, based on the success of the smiths skill
+    // checks during the work progress.  If the quality is too low, the sword is scrap metal, and can not be used. - quality design still open]
+    assert(sword.status.isFunctional)
+    assert(sword.status == Completed)
 
     // The can now be wielded and used!  Lets give it a swing:
     sword.slash
