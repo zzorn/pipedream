@@ -1,6 +1,7 @@
 package org.skycastle
 
-import util.MultiSet
+import util.{Under, Over, Target, MultiSet}
+import world.action.{ChangeTemperatureAction, ToolAction, Hit}
 import world.artifact.Blade
 import world.crafting.{Completed, Planned, Work}
 import world.material.Iron
@@ -38,9 +39,10 @@ object ItemSpike {
     sword.name               := "Vorpal Serpent"
 
     // TODO: How needed work is calculated?
-    sword.addRequiredWork(new Work('hammer, 'smithing, 0.001, 2, 1.4), 4)
-    sword.addRequiredWork(new Work('heat, 'smithing, time = 5), 3)
-    sword.addRequiredWork(new Work('knot, 'leatherworking, time = 2), 2)
+    // TODO: How to calculate channeling time for actions?
+    sword.addRequiredWork(Work(ToolAction(Hit, force = Over(2), sharpness = Under(0.5)), 'smithing, 2), 4)
+    sword.addRequiredWork(Work(ChangeTemperatureAction(400), 'smithing), 3)
+//TODO: Leatherworking action    sword.addRequiredWork(Work('knot, 'leatherworking, time = 2), 2)
 
     // TODO: Add needed parts
 
@@ -74,7 +76,7 @@ object ItemSpike {
       println("Using skill " + skill + " to " + needed.get.workType + " the blade, with success " + skillCheck)
       val used = sword.provideWork(needed.get, skillCheck)
       println("Work used: " + used)
-      Thread.sleep((needed.get.time * 1000).toLong)
+      Thread.sleep(1000)
       needed = sword.nextNeeded
     }
 
