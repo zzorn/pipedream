@@ -18,13 +18,6 @@ object ItemSpike {
 
     // TODO: Rewrite with work approach
 
-    val ms = new MultiSet[String]()
-    assert(ms.isEmpty)
-    ms.increase("foo")
-    assert(!ms.isEmpty)
-    assert(ms("foo") == 1)
-
-
 
 
     // Smith decides to make an epic vorpal blade
@@ -38,10 +31,10 @@ object ItemSpike {
     sword.material            = Iron
     sword.name               := "Vorpal Serpent"
 
-    // TODO: How needed work is calculated?
+    // TODO: How needed work is calculated? - make it possible to have the project update needed work, and maybe some pseudoagile system for estimating remaining work (speed so far etc?)
     // TODO: How to calculate channeling time for actions?
-    sword.addRequiredWork(Work(ToolAction(Hit, force = Over(2), sharpness = Under(0.5)), 'smithing, 2), 4)
-    sword.addRequiredWork(Work(ChangeTemperatureAction(400), 'smithing), 3)
+    sword.addRequiredWork(Work('smithing, ToolAction(Hit, force = Over(2), sharpness = Under(0.5)), 2), 4)
+    sword.addRequiredWork(Work('smithing, ChangeTemperatureAction(400)), 3)
 //TODO: Leatherworking action    sword.addRequiredWork(Work('knot, 'leatherworking, time = 2), 2)
 
     // TODO: Add needed parts
