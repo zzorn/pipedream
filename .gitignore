@@ -1,8 +1,46 @@
-.idea
-*.*~
+# use glob syntax.
+syntax: glob
+*.ser
+*.class
+*~
+*.bak
+#*.off
+*.old
+
+# eclipse conf file
+.settings
+.classpath
+.project
+.manager
+.scala_dependencies
+
+# idea
+.idea/
 *.iml
-out/
+
+# building
 target/
+build/
+out/
+null/
+temp/
+dist/
+test-output/
+build.log
+
+# other scm
+.svn
+.CVS
+.hg*
+
+# switch to regexp syntax.
+#  syntax: regexp
+#  ^\.pc/
+
+# JMonkey engine downloaded libraries
+lib*.so
+
+# SBT project files
 project/boot/
 project/boot/target/
 project/plugins/src_managed/
@@ -10,5 +48,3 @@ project/plugins/lib/managed/
 project/plugins/target/
 project/plugins/project/
 lib_managed/
-*.log
-lib*.so
