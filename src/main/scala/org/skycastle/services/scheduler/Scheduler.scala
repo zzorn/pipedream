@@ -1,4 +1,4 @@
-package org.skycastle.world
+package org.skycastle.services.scheduler
 
 import java.util.{ArrayList, PriorityQueue}
 import scala.collection.JavaConversions._
@@ -22,7 +22,7 @@ object Scheduler {
    * Returns a references to the task that can be used to remove it.
    */
   def addSingleTask(waitTime: Float = 0)(callback: => Unit): TaskRef = {
-    val task = SingleTask(calculateStartTime(waitTime), callback _ )
+    val task = SingleTask(calculateStartTime(waitTime), callback _)
     tasks add task
     task
   }
@@ -72,13 +72,15 @@ object Scheduler {
   def update(): Long = {
     val currentTime = System.currentTimeMillis()
 
-    while(tasks.peek != null && tasks.peek.time <= currentTime) {
+    while (tasks.peek != null && tasks.peek.time <= currentTime) {
       val task = tasks.poll
       val reAdd = task.invoke(currentTime)
       if (reAdd) tasksToReAdd.add(task)
     }
 
-    tasksToReAdd foreach {t => tasks.add(t) }
+    tasksToReAdd foreach {
+      t => tasks.add(t)
+    }
     tasksToReAdd.clear()
 
     if (tasks.peek == null) 100 else tasks.peek.time - currentTime
@@ -110,7 +112,9 @@ object Scheduler {
 
   private trait Task extends Comparable[Task] with TaskRef {
     def time: Long
+
     final def compareTo(o: Task) = if (time < o.time) -1 else if (time > o.time) 1 else 0
+
     def invoke(currentTime: Long): Boolean
 
   }
@@ -125,7 +129,7 @@ object Scheduler {
     }
 
   }
-  
+
   private final case class SingleTask(time: Long, callback: () => Unit) extends Task {
     def invoke(currentTime: Long): Boolean = {
       callback()
@@ -134,7 +138,7 @@ object Scheduler {
   }
 
   private final case class RegularTask(var time: Long, interval: Long, callback: (Float) => Unit) extends RepeatingTask {
-    def invoke(currentTime: Long): Boolean =  {
+    def invoke(currentTime: Long): Boolean = {
       val duration = calculateDuration(currentTime)
 
       callback(duration)
@@ -145,7 +149,7 @@ object Scheduler {
   }
 
   private final case class VariableTask(var time: Long, callback: (Float) => Float) extends RepeatingTask {
-    def invoke(currentTime: Long): Boolean =  {
+    def invoke(currentTime: Long): Boolean = {
       val duration = calculateDuration(currentTime)
 
       val interval = callback(duration)
