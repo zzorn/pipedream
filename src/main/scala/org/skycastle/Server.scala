@@ -1,8 +1,11 @@
 package org.skycastle
 
+import guice.SkycastleModule
+import services.scheduler.Scheduler
 import util.Logging
-import world.Scheduler
 import org.apache.log4j.PropertyConfigurator
+import actors.Scheduler
+import com.google.inject.{Injector, Guice}
 
 /**
  * Starts a new server.
@@ -15,6 +18,9 @@ object Server extends Logging {
 
     log.info("Starting Skycastle Server")
 
+    log.info("  Configuring guice")
+    val injector: Injector = Guice.createInjector(new SkycastleModule())
+
     // TODO: Read config from command line parameters or default location
 
     // TODO: Load previous state from data storage 
@@ -23,13 +29,14 @@ object Server extends Logging {
 
     // TODO: Start listening for connecting clients, and running simulation update code.
 
+    val scheduler: Scheduler = injector.getInstance(classOf[Scheduler])
 
     // Testing scheduler..
-    Scheduler.addRegularTask(interval = 2){duration => println("Tick "+ duration)}
-    Scheduler.addRegularTask(1, 2){duration => println("Tock "+duration)}
-    Scheduler.addSingleTask(10){println("Bongg!"); Thread.sleep(2235) }
-    Scheduler.addVariableTask(3){duration => println("Brick! " + duration); (math.random * 10).floatValue()}
-    Scheduler.loop()
+    scheduler.addRegularTask(interval = 2){duration => println("Tick "+ duration)}
+    scheduler.addRegularTask(1, 2){duration => println("Tock "+duration)}
+    scheduler.addSingleTask(10){println("Bongg!"); Thread.sleep(2235) }
+    scheduler.addVariableTask(3){duration => println("Brick! " + duration); (math.random * 10).floatValue()}
+    scheduler.loop()
 
   }
 

@@ -1,6 +1,6 @@
 package org.skycastle
 
-import util.{Under, Over, Target, MultiSet}
+import util.{Over, Under}
 import world.action.{ChangeTemperatureAction, ToolAction, Hit}
 import world.artifact.Blade
 import world.crafting.{Completed, Planned, Work}
