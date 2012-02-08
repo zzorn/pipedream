@@ -15,3 +15,15 @@ libraryDependencies += "log4j" % "log4j" % "1.2.16"
 
 libraryDependencies += "com.google.inject" % "guice" % "3.0"
 
+libraryDependencies += "redis.clients" % "jedis" % "2.0.0"
+
+libraryDependencies += "com.dyuproject.protostuff" % "protostuff-api" % "1.0.4"
+
+libraryDependencies += "com.dyuproject.protostuff" % "protostuff-runtime" % "1.0.4"
+
+libraryDependencies += "com.dyuproject.protostuff" % "protostuff-core" % "1.0.4"
+
+libraryDependencies += "com.dyuproject.protostuff" % "protostuff-collectionschema" % "1.0.4"
+
+
+libraryDependencies += "com.dyuproject.protostuff" % "protostuff-collectionschema" % "1.0.4"

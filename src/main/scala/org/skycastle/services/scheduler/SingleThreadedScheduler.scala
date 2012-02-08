@@ -2,10 +2,12 @@ package org.skycastle.services.scheduler
 
 import java.util.{ArrayList, PriorityQueue}
 import scala.collection.JavaConversions._
+import com.google.inject.Singleton
 
 /**
  * Single threaded implementation of a Scheduler.
  */
+@Singleton
 class SingleThreadedScheduler extends Scheduler {
 
   private val tasks: PriorityQueue[Task] = new PriorityQueue[Task]
