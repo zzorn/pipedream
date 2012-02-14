@@ -61,22 +61,22 @@ trait Entity extends Bean {
 
   // TODO: Appearance
 
-  /**
-   * Should only be called from the space the entity is added to.
-   */
-  private [world] def setSpace(newSpace: Space) {
-    _space = newSpace
-  }
-
-
   protected def notifyMassChange(oldMass: Double, newMass: Double) {
     val entity = this
     listeners foreach {l => l.onMassChange(entity, oldMass, newMass)}
   }
 
+
   protected def notifyDeleted() {
     val entity = this
     listeners foreach {l => l.onDeleted(entity)}
+  }
+
+  /**
+   * Should only be called from the space the entity is added to.
+   */
+  private [world] def setSpace(newSpace: Space) {
+    _space = newSpace
   }
 
 }
