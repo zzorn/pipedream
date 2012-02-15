@@ -7,7 +7,7 @@ import world.crafting.{Completed, Planned, Work}
 import world.material.Iron
 
 /**
- * 
+ *
  */
 
 object ItemSpike {

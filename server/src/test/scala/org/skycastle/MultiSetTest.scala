@@ -1,13 +1,14 @@
-package org.skycastle.util
+package org.skycastle
 
 import java.lang.IllegalArgumentException
 import org.scalatest.FunSuite
 import org.scalaprops.exporter.{BeanExporter, JsonBeanExporter}
 import org.scalaprops.parser.{JsonBeanParser, BeanParser}
+import util.MultiSet
 
-object MultiSetTest /*extends FunSuite*/ {
+class MultiSetTest extends FunSuite {
 
-  def main(args: Array[String]) {
+  test("Multiset") {
     val ms = new MultiSet[String]()
     assert(ms.isEmpty)
     ms.increase("foo")
@@ -16,7 +17,6 @@ object MultiSetTest /*extends FunSuite*/ {
     println("No assertions, test ok")
   }
 
-/*
   test("Addition") {
 
     val ms = new MultiSet[String]()
@@ -29,5 +29,4 @@ object MultiSetTest /*extends FunSuite*/ {
     ms("foo") === 1
 
   }
-*/
 }
