@@ -48,3 +48,7 @@ project/plugins/lib/managed/
 project/plugins/target/
 project/plugins/project/
 lib_managed/
+
+# Running
+*.log
+
