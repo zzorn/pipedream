@@ -17,12 +17,16 @@ import com.jme3.terrain.noise.modulator.NoiseModulator
 import com.jme3.terrain.noise.ShaderUtils
 import com.jme3.terrain.noise.basis.FilteredBasis
 
-// for exercise 2
 import com.jme3.terrain.heightmap.ImageBasedHeightMap
 import com.jme3.texture.Texture
 import com.jme3.texture.Texture.WrapMode
 import java.util.ArrayList
 import java.util.List
+import com.jme3.water.WaterFilter
+import com.jme3.post.FilterPostProcessor
+import com.jme3.audio.AudioNode
+import com.jme3.system.AppSettings
+import com.jme3.util.SkyFactory
 
 
 /**
@@ -44,14 +48,23 @@ object TerrainTest extends SimpleApplication  {
   private var smooth: SmoothFilter   = null
   private var iterate: IterativeFilter = null
 
+  private var fpp: FilterPostProcessor = null
+  private var water: WaterFilter = null
+  private var lightDir = new Vector3f(-4.9f, -1.3f, 5.9f) // same as light source
+  private var initialWaterHeight = 0.8f // choose a value for your scene
 
   def main(args: Array[String]) {
+    val settings: AppSettings = new AppSettings(true)
+    settings.setFrameRate(60)
+    settings.setVSync(true)
+    setSettings(settings);
     start()
   }
 
   @Override
   def simpleInitApp() {
-    flyCam.setMoveSpeed(400)
+
+    flyCam.setMoveSpeed(80)
 
     // TERRAIN TEXTURE material
     mat_terrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
@@ -140,16 +153,30 @@ object TerrainTest extends SimpleApplication  {
     this.terrain = new TerrainGrid("terrain", patchSize, maxVisibleSize, new FractalTileLoader(ground, 256f));
   
     this.terrain.setMaterial(this.mat_terrain);
-    this.terrain.setLocalTranslation(0, 0, 0);
-    this.terrain.setLocalScale(2f, 2f, 2f);
+    this.terrain.setLocalTranslation(0, -120f, 0);
+    this.terrain.setLocalScale(1f, 1f, 1f);
     this.rootNode.attachChild(this.terrain);
   
     val control = new TerrainLodControl(this.terrain, this.getCamera());
     control.setLodCalculator(new DistanceLodCalculator(patchSize, 2.7f)); // patch size, and a multiplier
     this.terrain.addControl(control);
-  
-  
-  
+
+    // Water
+    fpp = new FilterPostProcessor(assetManager);
+    water = new WaterFilter(rootNode, lightDir);
+    water.setWaterHeight(initialWaterHeight);
+    fpp.addFilter(water);
+    viewPort.addProcessor(fpp);
+
+    // Sound
+ /* Chops on ubuntu
+    val waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
+    waves.setLooping(true);
+    audioRenderer.playSource(waves);
+     */
+
+    createSky()
+
     this.getCamera().setLocation(new Vector3f(0, 300, 0));
   
     this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
@@ -158,5 +185,19 @@ object TerrainTest extends SimpleApplication  {
 
   override def simpleUpdate(tpf: Float) {
   }
+
+
+  private def createSky() {
+    val west = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
+    val east = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
+    val north = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
+    val south = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
+    val up = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
+    val down = assetManager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
+
+    val sky = SkyFactory.createSky(assetManager, west, east, north, south, up, down);
+    rootNode.attachChild(sky);
+  }
+
 }
 
