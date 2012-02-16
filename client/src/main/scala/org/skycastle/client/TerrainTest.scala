@@ -64,7 +64,7 @@ object TerrainTest extends SimpleApplication  {
   @Override
   def simpleInitApp() {
 
-    flyCam.setMoveSpeed(80)
+    flyCam.setMoveSpeed(40)
 
     // TERRAIN TEXTURE material
     mat_terrain = new Material(this.assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
@@ -162,9 +162,18 @@ object TerrainTest extends SimpleApplication  {
     this.terrain.addControl(control);
 
     // Water
-    fpp = new FilterPostProcessor(assetManager);
+
     water = new WaterFilter(rootNode, lightDir);
     water.setWaterHeight(initialWaterHeight);
+    water.setSpeed(0.6f)
+    water.setWaveScale(0.001f)
+    water.setDeepWaterColor(new ColorRGBA(0.0001f, 0.00196f, 0.145f,1.0f))
+    water.setWaterColor(new ColorRGBA(0.1f, 0.11f, 0.145f,1.0f))
+    water.setWaterTransparency(0.2f)
+    water.setUseFoam(false)
+
+
+    fpp = new FilterPostProcessor(assetManager);
     fpp.addFilter(water);
     viewPort.addProcessor(fpp);
 
