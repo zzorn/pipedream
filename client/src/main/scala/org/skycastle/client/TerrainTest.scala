@@ -8,11 +8,8 @@ import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
 import com.jme3.terrain.heightmap.HillHeightMap
 import com.jme3.bullet.control.CharacterControl
 import com.jme3.terrain.noise.fractal.FractalSum
-import com.jme3.terrain.noise.filter.{IterativeFilter, SmoothFilter, OptimizedErode, PerturbFilter}
 import com.jme3.app.state.ScreenshotAppState
-import com.jme3.math.{Vector3f, ColorRGBA}
 import com.jme3.terrain.geomipmap.grid.FractalTileLoader
-import com.jme3.terrain.geomipmap.{TerrainGrid, TerrainLodControl, TerrainQuad}
 import com.jme3.terrain.noise.modulator.NoiseModulator
 import com.jme3.terrain.noise.ShaderUtils
 import com.jme3.terrain.noise.basis.FilteredBasis
@@ -27,6 +24,9 @@ import com.jme3.post.FilterPostProcessor
 import com.jme3.audio.AudioNode
 import com.jme3.system.AppSettings
 import com.jme3.util.SkyFactory
+import com.jme3.terrain.noise.filter._
+import com.jme3.terrain.geomipmap.{TerrainGrid, TerrainLodControl, TerrainQuad}
+import com.jme3.math.{Vector3f, ColorRGBA}
 
 
 /**
@@ -154,7 +154,7 @@ object TerrainTest extends SimpleApplication  {
   
     this.terrain.setMaterial(this.mat_terrain);
     this.terrain.setLocalTranslation(0, -120f, 0);
-    this.terrain.setLocalScale(1f, 1f, 1f);
+    this.terrain.setLocalScale(10f, 1f, 10f);
     this.rootNode.attachChild(this.terrain);
   
     val control = new TerrainLodControl(this.terrain, this.getCamera());
@@ -178,11 +178,11 @@ object TerrainTest extends SimpleApplication  {
     viewPort.addProcessor(fpp);
 
     // Sound
- /* Chops on ubuntu
+ // Chops on ubuntu 11.10
     val waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
     waves.setLooping(true);
     audioRenderer.playSource(waves);
-     */
+   
 
     createSky()
 
