@@ -14,7 +14,7 @@ trait TerrainFunction {
 
   def setHeight(xzCoordinate: Vector2f, height: Float)
 
-  def setHeights(xz: java.util.List[Vector2f], height: java.util.List[Float]) {
+  def setHeights(xz: java.util.List[Vector2f], height: java.util.List[java.lang.Float]) {
     require(xz.size()== height.size())
 
     var i = 0
@@ -28,7 +28,7 @@ trait TerrainFunction {
     setHeight(xzCoordinate, getHeight(xzCoordinate) + delta)
   }
 
-  def adjustHeights(xz: java.util.List[Vector2f], height: java.util.List[Float]) {
+  def adjustHeights(xz: java.util.List[Vector2f], height: java.util.List[java.lang.Float]) {
     require(xz.size() == height.size)
 
     var i = 0

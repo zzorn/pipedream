@@ -15,7 +15,7 @@ class ClipmapTerrain(terrainFunction: TerrainFunction,
                      levelCount: Int = 4,
                      levelVertexSideCount: Int = 32,
                      innerLevelSize: Int = 16,
-                     vertexCountScale: Int = 2) extends Node with Terrain {
+                     vertexCountScale: Int = 2) extends Node /* with Terrain */ {
   // Preconditions
   require(levelCount >= 1, "There should be at least one level")
   require(levelVertexSideCount >= 5, "There should be at least five vertexes along the sides of each level")
@@ -67,17 +67,19 @@ class ClipmapTerrain(terrainFunction: TerrainFunction,
   def getMaterial = null
   def getMaterial(worldLocation: Vector3f) = null
 
-  
+  /*
   // Delegated height queries
-  def getHeight(xz: Vector2f) = terrainFunction.getHeight(xz)
-  def getNormal(xz: Vector2f) = terrainFunction.getNormal(xz)
-  def getHeightmapHeight(xz: Vector2f) = terrainFunction.getHeight(xz)
-  def setHeight(xzCoordinate: Vector2f, height: Float) {terrainFunction.setHeight(xzCoordinate, height)}
-  def setHeight(xz: List[Vector2f], height: List[Float]) {terrainFunction.setHeights(xz, height)}
-  def adjustHeight(xzCoordinate: Vector2f, delta: Float) {terrainFunction.adjustHeight(xzCoordinate, delta)}
-  def adjustHeight(xz: List[Vector2f], height: List[Float]) {terrainFunction.adjustHeights(xz, height)}
-  def getHeightMap = null
-  def getMaxLod = 1
-  def getTerrainSize = levelVertexSideCount // TODO: Is this ok?  What is it used for?
-  def getNumMajorSubdivisions = levelCount // TODO: Is this ok?  What is it used for?
+  override def getHeight(xz: Vector2f) = terrainFunction.getHeight(xz)
+  override def getNormal(xz: Vector2f) = terrainFunction.getNormal(xz)
+  override def getHeightmapHeight(xz: Vector2f) = terrainFunction.getHeight(xz)
+  override def setHeight(xz: java.util.List[Vector2f], height: java.util.List[Float]) {terrainFunction.setHeights(xz, height)}
+  // TODO: For some unknown reason, these do not work:
+  //  override def setHeight(xzCoordinate: Vector2f, height: Float): Unit = {terrainFunction.setHeight(xzCoordinate, height)}
+  //  def adjustHeight(xzCoordinate: Vector2f, delta: Float) {terrainFunction.adjustHeight(xzCoordinate, delta)}
+  override def adjustHeight(xz: java.util.List[Vector2f], height: java.util.List[Float]) {terrainFunction.adjustHeights(xz, height)}
+  override def getHeightMap = null
+  override def getMaxLod = 1
+  override def getTerrainSize = levelVertexSideCount // TODO: Is this ok?  What is it used for?
+  override def getNumMajorSubdivisions = levelCount // TODO: Is this ok?  What is it used for?
+  */
 }
