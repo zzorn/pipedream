@@ -6,45 +6,60 @@ import java.util.List
 import com.jme3.terrain.geomipmap.lodcalc.LodCalculator
 import com.jme3.math.{Vector2f, Vector3f}
 import java.lang.Float
+import com.jme3.material.Material
+import com.jme3.asset.AssetManager
 
 /**
  * A terrain based on the clipmap algorithm, to allow very long distance views at low cost.
  */
 class ClipmapTerrain(terrainFunction: TerrainFunction,
-                     smallestVertexDistance: Float = 1,
+                     material: Material,
+                     assetManager: AssetManager,
+                     smallestVertexDistance: Double = 1,
                      levelCount: Int = 4,
-                     levelVertexSideCount: Int = 32,
-                     innerLevelSize: Int = 16,
-                     vertexCountScale: Int = 2) extends Node /* with Terrain */ {
+                     blockCellCount: Int = 32) extends Node /* with Terrain */ {
   // Preconditions
   require(levelCount >= 1, "There should be at least one level")
-  require(levelVertexSideCount >= 5, "There should be at least five vertexes along the sides of each level")
-  require(innerLevelSize >= 1)
-  require(innerLevelSize < levelVertexSideCount)
+  require(blockCellCount >= 1, "There should be at least one cell along the sides of each block")
   require(smallestVertexDistance > 0)
-  require(vertexCountScale >= 2)
+
+  val sideBlockCount: Int = 8
+  val holeBlockCount: Int = 4
 
   private var outermostLevel: LodLevel = null
   private var innermostLevel: LodLevel = null
 
-  setupLodLevels()
+  setupLodLevels(material)
 
-  private def setupLodLevels() {
+  private def setupLodLevels(material: Material) {
 
-    var levelVertexDistance = smallestVertexDistance;
-    var level = new LodLevel(levelVertexDistance, levelVertexSideCount)
-    var prevLevel: LodLevel = null
+    var levelScale = sideBlockCount / holeBlockCount
+    var blockWorldSize = smallestVertexDistance * (blockCellCount);
+    var level = new LodLevel(blockWorldSize, blockCellCount, sideBlockCount, holeBlockCount, terrainFunction, material)
+    var prevLevel: LodLevel = level
     innermostLevel = level
+    attachChild(innermostLevel.getSpatial(assetManager))
 
     // Loop from innermost to outermost level
-    for (i <- 1 to levelCount) {
-      levelVertexDistance *= vertexCountScale
-      level = new LodLevel(levelVertexDistance, levelVertexSideCount, prevLevel)
+    for (i <- 1 until levelCount) {
+      blockWorldSize *= levelScale
+      level = new LodLevel(
+        blockWorldSize,
+        blockCellCount,
+        sideBlockCount,
+        holeBlockCount,
+        terrainFunction,
+        material,
+        innerLevel = prevLevel,
+        xOffset = 0,
+        zOffset = 0)
       if (prevLevel != null) prevLevel.outerLevel = level
       prevLevel = level
+      attachChild(level.getSpatial(assetManager))
     }
 
     outermostLevel = level
+
   }
 
   // TODO: Add rendered meshes as child nodes
@@ -64,8 +79,8 @@ class ClipmapTerrain(terrainFunction: TerrainFunction,
   }
 
   // TODO: material
-  def getMaterial = null
-  def getMaterial(worldLocation: Vector3f) = null
+  def getMaterial = material
+  def getMaterial(worldLocation: Vector3f) = material
 
   /*
   // Delegated height queries
@@ -79,7 +94,7 @@ class ClipmapTerrain(terrainFunction: TerrainFunction,
   override def adjustHeight(xz: java.util.List[Vector2f], height: java.util.List[Float]) {terrainFunction.adjustHeights(xz, height)}
   override def getHeightMap = null
   override def getMaxLod = 1
-  override def getTerrainSize = levelVertexSideCount // TODO: Is this ok?  What is it used for?
+  override def getTerrainSize = blockCellCount // TODO: Is this ok?  What is it used for?
   override def getNumMajorSubdivisions = levelCount // TODO: Is this ok?  What is it used for?
   */
 }

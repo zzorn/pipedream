@@ -20,8 +20,10 @@ import com.jme3.math.{ColorRGBA, Vector3f}
 import com.jme3.audio.AudioNode
 import com.jme3.util.SkyFactory
 import com.jme3.asset.AssetManager
-import com.jme3.scene.{Node, Spatial}
-import terrain.TerrainBlock
+import com.jme3.scene.{Geometry, Node, Spatial}
+import com.jme3.scene.shape.Box
+import com.jme3.light.DirectionalLight
+import terrain.{ClipmapTerrain, TestTerrainFunction, TerrainBlock}
 
 /**
  *
@@ -32,21 +34,34 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   private val dirtScale = 16;
   private val rockScale = 128;
 
+  private val wireframe = false
+  private val limitFps= true
+
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f) // same as light source
   private val initialWaterHeight = 0.8f // choose a value for your scene
 
   def main(args: Array[String]) {
     val settings: AppSettings = new AppSettings(true)
-    settings.setFrameRate(60)
-    settings.setVSync(true)
+    if (limitFps) {
+      settings.setFrameRate(60)
+      settings.setVSync(true)
+    }
     setSettings(settings);
     start()
+  }
+
+  def createLight: DirectionalLight = {
+    val sun = new DirectionalLight();
+    sun.setDirection(new Vector3f(1, 0, -2).normalizeLocal());
+    sun.setColor(ColorRGBA.White);
+    sun
   }
 
   @Override
   def simpleInitApp() {
 
     flyCam.setMoveSpeed(40)
+    getCamera.setFrustumFar(30000) // 30 km
 
     // Allow screenshots
     this.stateManager.attach(new ScreenshotAppState());
@@ -57,12 +72,23 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     val groundFunction = createGround
     val terrain = createTerrain(groundFunction, terrainMaterial)
      */
-    val block= new TerrainBlock()
-    val terrain = block.createBlock(assetManager)
+    val terrainMaterial = if (wireframe) createWireframeMaterial(assetManager) else createSimpleTerrainMaterial(getAssetManager)
+
+//    val block= new TerrainBlock(terrainMaterial, new TestTerrainFunction(), 1000, 1000, 1000, 1000)
+//    val terrain = block.getGeometry(assetManager)
+    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.5, 8, 32)
+
     this.rootNode.attachChild(terrain);
 
+    // Refpoint
+    val box = new Geometry("box", new Box(1, 1, 1))
+    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat.setColor("Color", ColorRGBA.Red);
+    box.setMaterial(mat)
+    rootNode.attachChild(box)
+
     // Water
-    //viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, initialWaterHeight));
+    viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 30));
 
     // Sound
     // Chops on ubuntu 11.10
@@ -75,6 +101,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     // Sky
     this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
     rootNode.attachChild(createSky(assetManager))
+
+    rootNode.addLight(createLight);
 
     // Start pos
     this.getCamera().setLocation(new Vector3f(0, 5, 10));
@@ -138,6 +166,23 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     terrain
   }
 
+  def createSimpleTerrainMaterial(assetManager: AssetManager): Material = {
+//    val mat_terrain = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+    val mat_terrain = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//    mat_terrain.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/splat/grass.jpg"));
+    mat_terrain.setTexture("ColorMap", assetManager.loadTexture("Textures/Terrain/splat/grass.jpg"));
+    mat_terrain
+  }
+
+  def createWireframeMaterial(assetManager: AssetManager): Material =  {
+    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat.setColor("Color", ColorRGBA.Green);
+
+    // Wireframe mode
+    mat.getAdditionalRenderState.setWireframe(true);
+    mat
+  }
+
   def createTerrainMaterial(assetManager: AssetManager, grassScale: Float, dirtScale: Float, rockScale: Float): Material = {
     // TERRAIN TEXTURE material
     val mat_terrain = new Material(assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
@@ -184,12 +229,13 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   def createWater(assetManager: AssetManager, rootNode: Node, lightDir: Vector3f, initialWaterHeight: Float): FilterPostProcessor = {
     val water = new WaterFilter(rootNode, lightDir);
     water.setWaterHeight(initialWaterHeight);
-    water.setSpeed(0.6f)
-    water.setWaveScale(0.001f)
-    water.setDeepWaterColor(new ColorRGBA(0.0001f, 0.00196f, 0.145f, 1.0f))
-    water.setWaterColor(new ColorRGBA(0.1f, 0.11f, 0.145f, 1.0f))
-    water.setWaterTransparency(0.2f)
-    water.setUseFoam(false)
+    //water.setSpeed(0.6f)
+    //water.setWaveScale(0.001f)
+    //water.setDeepWaterColor(new ColorRGBA(0.0001f, 0.00196f, 0.145f, 1.0f))
+    //water.setWaterColor(new ColorRGBA(0.1f, 0.11f, 0.145f, 1.0f))
+    //water.setWaterTransparency(0.2f)
+    //water.setUseFoam(false)
+    water.setFoamIntensity(1f)
 
     val fpp = new FilterPostProcessor(assetManager);
     fpp.addFilter(water);
