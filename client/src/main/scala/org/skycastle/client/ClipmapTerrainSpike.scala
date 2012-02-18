@@ -24,6 +24,7 @@ import com.jme3.scene.{Geometry, Node, Spatial}
 import com.jme3.scene.shape.Box
 import com.jme3.light.DirectionalLight
 import terrain.{ClipmapTerrain, TestTerrainFunction, TerrainBlock}
+import com.jme3.post.filters.FogFilter
 
 /**
  *
@@ -34,6 +35,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   private val dirtScale = 16;
   private val rockScale = 128;
 
+  private val waterOn = true
   private val wireframe = false
   private val limitFps= true
 
@@ -50,18 +52,11 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     start()
   }
 
-  def createLight: DirectionalLight = {
-    val sun = new DirectionalLight();
-    sun.setDirection(new Vector3f(1, 0, -2).normalizeLocal());
-    sun.setColor(ColorRGBA.White);
-    sun
-  }
-
   @Override
   def simpleInitApp() {
 
-    flyCam.setMoveSpeed(40)
-    getCamera.setFrustumFar(30000) // 30 km
+    flyCam.setMoveSpeed(1000)
+    getCamera.setFrustumFar(32000)
 
     // Allow screenshots
     this.stateManager.attach(new ScreenshotAppState());
@@ -76,7 +71,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
 //    val block= new TerrainBlock(terrainMaterial, new TestTerrainFunction(), 1000, 1000, 1000, 1000)
 //    val terrain = block.getGeometry(assetManager)
-    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.5, 8, 32)
+    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.25, 11, 32)
 
     this.rootNode.attachChild(terrain);
 
@@ -87,8 +82,13 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     box.setMaterial(mat)
     rootNode.attachChild(box)
 
+    // Fog
+    //  viewPort.addProcessor(createFog(assetManager));
+
     // Water
-    viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 30));
+    if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0));
+
+
 
     // Sound
     // Chops on ubuntu 11.10
@@ -100,13 +100,31 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     // Sky
     this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
-    rootNode.attachChild(createSky(assetManager))
+//    rootNode.attachChild(createSky(assetManager))
 
     rootNode.addLight(createLight);
 
     // Start pos
-    this.getCamera().setLocation(new Vector3f(0, 5, 10));
+    this.getCamera().setLocation(new Vector3f(0, 100, 10));
 
+  }
+
+  def createLight: DirectionalLight = {
+    val sun = new DirectionalLight();
+    sun.setDirection(new Vector3f(1, 0, -2).normalizeLocal());
+    sun.setColor(ColorRGBA.White);
+    sun
+  }
+
+  def createFog(manager: AssetManager): FilterPostProcessor = {
+    val fpp = new FilterPostProcessor(manager);
+    //fpp.setNumSamples(4);
+    val fog = new FogFilter();
+    fog.setFogColor(new ColorRGBA(0.2f, 0.4f, 0.7f, 1.0f));
+    fog.setFogDistance(5000);
+    fog.setFogDensity(1.1f);
+    fpp.addFilter(fog);
+    fpp
   }
 
   def createGround: FilteredBasis = {

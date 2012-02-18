@@ -8,6 +8,8 @@ import com.jme3.scene.{Node, Spatial}
  * A mesh at a specific level of detail, optionally with a hole in the middle for an inner level,
  * and optionally surrounded by an outer level.
  */
+// TODO: Update method that is notified of camera movement, moves the lod level if needed, loads / removes blocks,
+// forwards update info to contained lod,
 class LodLevel(blockWorldSize: Double,
                blockCellCount: Int, 
                sideBlockCount: Int,
