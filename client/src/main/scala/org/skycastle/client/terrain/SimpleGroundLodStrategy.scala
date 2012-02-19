@@ -2,24 +2,56 @@ package org.skycastle.client.terrain
 
 import javax.vecmath.Vector3d
 import org.skycastle.utils.MathUtils
+import java.util.HashSet
 
 /**
  *
  */
-class SimpleGroundLodStrategy(baseHalvingDistance: Double = 50, hysteresis: Double = 0.25) extends GroundLodStrategy {
+class SimpleGroundLodStrategy(blocksToTransition: Double = 2, hysteresis: Double = 0.5) extends GroundLodStrategy {
+  require(hysteresis >= 0, "Hysteresis should be in range 0.., but it was " + hysteresis)
 
-  def checkBlock(cameraPos: Vector3d, blockCenter: Vector3d, pos: BlockPos, blockWorldSize: Double): LodCheckResult = {
+  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: TerrainFunction, sizeSettings: GroundSizeSettings): LodCheckResult = {
 
-    val idealDistance = baseHalvingDistance * math.pow(2, pos.lodLevel)
-    val minDistance = idealDistance * (1.0 - hysteresis)
-    val maxDistance = idealDistance * (1.0 + hysteresis)
+    val blockSize = sizeSettings.calculateBlockSize(blockPos)
+    val blockCenter = sizeSettings.calculateCenterPos(blockPos, terrainFunction, blockSize)
+    val distance: Double = math.max(0, MathUtils.distance(cameraPos, blockCenter))
 
-    val distanceToBlock: Double = MathUtils.distance(cameraPos, blockCenter) - blockWorldSize * 0.5
+    val idealDistance = blocksToTransition * blockSize
+    val splitDistance = idealDistance - blockSize * hysteresis
+    val mergeDistance = idealDistance + blockSize * hysteresis
 
-    if (distanceToBlock < minDistance) SplitBlock
-    else if (distanceToBlock > maxDistance) MergeBlock
-    else if (distanceToBlock <= idealDistance) KeepOrAppearBlock
+    if (distance < splitDistance) SplitBlock
+    else if (distance > mergeDistance) MergeBlock
+    else if (distance <= idealDistance) KeepOrAppearBlock
     else JustKeepBlock
+  }
+
+
+  def getRootBlocks(cameraPos: Vector3d, existingBlocks: java.util.Set[BlockPos], sizeSettings: GroundSizeSettings): java.util.Set[BlockPos] = {
+    
+    val newFoundBlocks = new HashSet[BlockPos]()
+    
+    val blockScanRadius = math.ceil(blocksToTransition).toInt
+
+    val blockAtCamera = sizeSettings.blockPosAt(cameraPos, sizeSettings.maxLodLevel)
+
+    var z = blockAtCamera.zPos - blockScanRadius
+    var x = 0
+    val endZ = blockAtCamera.zPos + blockScanRadius
+    val endX = blockAtCamera.xPos + blockScanRadius
+    while (z < endZ) {
+      x = blockAtCamera.xPos - blockScanRadius
+      while (x < endX) {
+        val blockPos = BlockPosCache(sizeSettings.maxLodLevel, x, z)
+        if (!existingBlocks.contains(blockPos)) newFoundBlocks.add(blockPos)
+        
+        x += 1
+      }
+
+      z += 1
+    }
+
+    newFoundBlocks
   }
 
 }

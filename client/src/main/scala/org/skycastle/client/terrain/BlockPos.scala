@@ -8,12 +8,6 @@ import java.util.{HashMap, HashSet}
  */
 case class BlockPos(lodLevel: Int, xPos: Int, zPos: Int) {
 
-  def calculateCenterPos(blockSize: Double, terrainFunction: TerrainFunction): Vector3d = {
-    val centerX = blockSize * (xPos + 0.5)
-    val centerZ = blockSize * (zPos + 0.5)
-    val centerY = terrainFunction.getHeight(centerX, centerZ)
-    new Vector3d(centerX, centerY, centerZ)
-  }
 
   /**
    * Blocks on the same level as this block, including diagonal blocks

@@ -31,22 +31,10 @@ class TerrainBlock(
 
   def worldSize: Double = (xExtent + zExtent) / 2
 
-  lazy val blockCenter: Vector3d = calculateCenter
   private var block: Geometry = null;
 
   block = createBlock()
   attachChild(block)
-
-
-  def calculateCenter: Vector3d = {
-    blockPos.calculateCenterPos(xExtent, heightFunction)
-    /*
-    val x = xOffset + xExtent * xSize / 2.0
-    val z = zOffset + zExtent * zSize / 2.0
-    val y = heightFunction.getHeight(x, z)
-    new Vector3d(x, y, z)
-    */
-  }
 
   def getGeometry(assetManager: AssetManager): Spatial = {
     this

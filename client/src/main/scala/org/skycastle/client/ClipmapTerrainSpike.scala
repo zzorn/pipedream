@@ -77,11 +77,9 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     val smallestCellSize: Double = 0.25
     val maxLodLevel: Int = 6
     val terrain = new Ground(
-      cellCount,
-      smallestCellSize,
+      new GroundSizeSettings(),
       terrainFunction,
       new FunctionalTerrainBlockSource(terrainFunction, terrainMaterial, cellCount, smallestCellSize),
-      maxLodLevel,
       getCamera,
       new SimpleGroundLodStrategy(cellCount*smallestCellSize*2, 0.25))
 

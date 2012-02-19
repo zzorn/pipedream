@@ -1,13 +1,19 @@
 package org.skycastle.client.terrain
 
 import javax.vecmath.Vector3d
+import java.util.{HashSet, HashMap}
 
 /**
  * Check wether to split or merge or do nothing for a block at a specific level of detail and position, given the camera position.
  */
 trait GroundLodStrategy {
 
-  def checkBlock(cameraPos: Vector3d, blockCenter: Vector3d, pos: BlockPos, worldSize: Double): LodCheckResult
+  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: TerrainFunction, sizeSettings: GroundSizeSettings): LodCheckResult
+
+  /**
+   * @return the root blocks that should be added.
+   */
+  def getRootBlocks(cameraPos: Vector3d, existingBlocks: java.util.Set[BlockPos], sizeSettings: GroundSizeSettings): java.util.Set[BlockPos]
 
 }
 
@@ -20,9 +26,14 @@ sealed trait LodCheckResult
 sealed trait AppearBlock extends LodCheckResult
 
 /**
- * Indicates that if the block exists, it should be merged if possible.
+ * Indicates that if the block is at root level, it should be removed
  */
-case object MergeBlock extends LodCheckResult
+sealed trait RemoveBlock extends LodCheckResult
+
+/**
+ * Indicates that if the block exists, it should be merged if possible, or removed if it is at root level.
+ */
+case object MergeBlock extends LodCheckResult with RemoveBlock
 
 /**
  * Indicates that if the block exists, it should be split.
