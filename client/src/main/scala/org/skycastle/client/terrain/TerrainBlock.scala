@@ -4,14 +4,16 @@ import com.jme3.scene.VertexBuffer.Type
 import com.jme3.util.BufferUtils
 import com.jme3.material.Material
 import com.jme3.math.{ColorRGBA, Vector2f, Vector3f}
-import com.jme3.scene.{Spatial, Geometry, Mesh}
 import com.jme3.asset.AssetManager
 import java.util.{Arrays, ArrayList}
+import javax.vecmath.Vector3d
+import com.jme3.scene.{Node, Spatial, Geometry, Mesh}
 
 /**
  *
  */
 class TerrainBlock(
+      val blockPos: BlockPos,
       terrainMaterial: Material,
       heightFunction: TerrainFunction,
       xSize: Int,
@@ -19,10 +21,29 @@ class TerrainBlock(
       xExtent: Double,
       zExtent: Double,
       xOffset: Double = 0,
-      zOffset: Double = 0) {
+      zOffset: Double = 0) extends Node {
+
+  def freeResources() {
+
+  }
+
+
+  // TODO: make it extend node.
 
   private var block: Geometry = null;
-  
+
+  lazy val blockCenter: Vector3d = calculateCenter
+
+  def calculateCenter: Vector3d = {
+    blockPos.calculateCenterPos(xExtent, heightFunction)
+    /*
+    val x = xOffset + xExtent * xSize / 2.0
+    val z = zOffset + zExtent * zSize / 2.0
+    val y = heightFunction.getHeight(x, z)
+    new Vector3d(x, y, z)
+    */
+  }
+
   def getGeometry(assetManager: AssetManager): Geometry = {
     if (block == null) block = createBlock(assetManager)
     block
@@ -65,7 +86,7 @@ class TerrainBlock(
       while (x < xSize) {
 
         // Point location
-        val wy = heightFunction.height(wx, wz)
+        val wy = heightFunction.getHeight(wx, wz)
         vertices(i) = new Vector3f(wx.toFloat, wy.toFloat, wz.toFloat)
 
         // Texture location

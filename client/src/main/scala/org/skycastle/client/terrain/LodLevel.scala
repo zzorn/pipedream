@@ -77,6 +77,7 @@ class LodLevel(blockWorldSize: Double,
     val cellWorldSize: Double = blockWorldSize / blockCellCount
     val vertexCount: Int = blockCellCount + 1
     new TerrainBlock(
+      BlockPos(0,0,0),
       material,
       terrainFunction,
       vertexCount + marginSize,

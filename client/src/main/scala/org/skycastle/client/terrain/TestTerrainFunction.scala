@@ -10,7 +10,7 @@ class TestTerrainFunction extends TerrainFunction {
 
   val up = new Vector3f(0, 1, 0)
 
-  def height(x: Double, z: Double): Double = {
+  def getHeight(x: Double, z: Double): Double = {
     math.sin(x * 1.0 / 5.23) * 0.8543 +
     math.sin(z * 1.0 / 5.123) * 0.634 +
     math.sin(z * 1.0 / 84.23) * 30 +
@@ -19,7 +19,7 @@ class TestTerrainFunction extends TerrainFunction {
     math.sin(x * 1.0 / 1403.34) * 100
   }
 
-  def normal(x: Double, y: Double) = up
+  def getNormal(x: Double, y: Double) = up
 
 
 }
