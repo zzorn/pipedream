@@ -7,7 +7,7 @@ import javax.vecmath.Vector3d
  */
 trait GroundLodStrategy {
 
-  def checkBlock(cameraPos: Vector3d, blockCenter: Vector3d, pos: BlockPos): LodCheckResult
+  def checkBlock(cameraPos: Vector3d, blockCenter: Vector3d, pos: BlockPos, worldSize: Double): LodCheckResult
 
 }
 

@@ -21,18 +21,22 @@ class TerrainBlock(
       xExtent: Double,
       zExtent: Double,
       xOffset: Double = 0,
-      zOffset: Double = 0) extends Node {
+      zOffset: Double = 0) extends Node("TerrainBlock") {
 
   def freeResources() {
+    detachAllChildren()
 
+    // TODO: Anything else?
   }
 
-
-  // TODO: make it extend node.
-
-  private var block: Geometry = null;
+  def worldSize: Double = (xExtent + zExtent) / 2
 
   lazy val blockCenter: Vector3d = calculateCenter
+  private var block: Geometry = null;
+
+  block = createBlock()
+  attachChild(block)
+
 
   def calculateCenter: Vector3d = {
     blockPos.calculateCenterPos(xExtent, heightFunction)
@@ -44,12 +48,11 @@ class TerrainBlock(
     */
   }
 
-  def getGeometry(assetManager: AssetManager): Geometry = {
-    if (block == null) block = createBlock(assetManager)
-    block
+  def getGeometry(assetManager: AssetManager): Spatial = {
+    this
   }
   
-  private def createBlock(assetManager: AssetManager): Geometry = {
+  private def createBlock(): Geometry = {
 
     // 3D Mesh
     val mesh = new Mesh()

@@ -23,8 +23,8 @@ import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
 import com.jme3.scene.shape.Box
 import com.jme3.light.DirectionalLight
-import terrain.{ClipmapTerrain, TestTerrainFunction, TerrainBlock}
 import com.jme3.post.filters.FogFilter
+import terrain._
 
 /**
  *
@@ -35,8 +35,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   private val dirtScale = 16;
   private val rockScale = 128;
 
-  private val waterOn = true
-  private val wireframe = false
+  private val waterOn = false
+  private val wireframe = true
   private val limitFps= true
 
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f) // same as light source
@@ -55,7 +55,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   @Override
   def simpleInitApp() {
 
-    flyCam.setMoveSpeed(1000)
+    flyCam.setMoveSpeed(100)
     getCamera.setFrustumFar(32000)
 
     // Allow screenshots
@@ -71,7 +71,19 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
 //    val block= new TerrainBlock(terrainMaterial, new TestTerrainFunction(), 1000, 1000, 1000, 1000)
 //    val terrain = block.getGeometry(assetManager)
-    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.25, 11, 32)
+//    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.25, 11, 32)
+    val terrainFunction: TestTerrainFunction = new TestTerrainFunction
+    val cellCount: Int = 16
+    val smallestCellSize: Double = 0.25
+    val maxLodLevel: Int = 6
+    val terrain = new Ground(
+      cellCount,
+      smallestCellSize,
+      terrainFunction,
+      new FunctionalTerrainBlockSource(terrainFunction, terrainMaterial, cellCount, smallestCellSize),
+      maxLodLevel,
+      getCamera,
+      new SimpleGroundLodStrategy(cellCount*smallestCellSize*2, 0.25))
 
     this.rootNode.attachChild(terrain);
 
@@ -99,7 +111,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     */
 
     // Sky
-    this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
+    this.viewPort.setBackgroundColor(new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));
+//    this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 //    rootNode.attachChild(createSky(assetManager))
 
     rootNode.addLight(createLight);

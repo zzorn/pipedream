@@ -16,8 +16,16 @@ import java.util.{Collections, HashSet, ArrayList, HashMap}
 /**
  *
  */
-class Ground(blockCellSize: Int, 
-             finestLodBlockSize: Double,
+
+// TODO: Split decision should not be based on distance to center of a grid, but to the center of the possible closest fine grained block
+
+// TODO: Grid for top level blocks
+//         -- appear block when distance to closest edge less than DTop, disappear when distance to closest larger than DTop+hysteresis
+// TODO: Quadtree for smaller
+//         -- Split a block when distance to its closest edge less than BlockLod, merge when distance to closest child over BlockLod+hysteresis
+
+class Ground(blockCellCount: Int,
+             smallestCellSize: Double,
              var terrainFunction: TerrainFunction,
              source: TerrainBlockSource,
              maxLod: Int = 10,
@@ -36,9 +44,9 @@ class Ground(blockCellSize: Int,
   private val ongoingTasks = new HashMap[BlockPos, GroundUpdateTask]()
   private val completedTasks = new HashSet[BlockPos]()
 
-  private val maxLodBlockSize = finestLodBlockSize * math.pow(2, maxLod)
+  private val maxLodBlockSize = blockCellCount * smallestCellSize * math.pow(2, maxLod)
 
-  var minUpdateDistance: Double = 2
+  var minUpdateDistance: Double = 1
 
   if (camera != null) addControl(new GroundCameraControl(camera));
 
@@ -50,8 +58,8 @@ class Ground(blockCellSize: Int,
       lastUpdatePos.set(cameraPos)
 
       updateBlocks()
-
     }
+
   }
 
   /**
@@ -112,7 +120,7 @@ class Ground(blockCellSize: Int,
     blocks.entrySet() foreach {
       entry =>
         // Check if we should split or merge blocks
-        groundLodStrategy.checkBlock(cameraPos, entry.getValue.blockCenter, entry.getKey) match {
+        groundLodStrategy.checkBlock(cameraPos, entry.getValue.blockCenter, entry.getKey, entry.getValue.worldSize) match {
           case MergeBlock => blocksToMerge.add(entry.getKey)
           case SplitBlock => blocksToSplit.add(entry.getKey)
           case _: KeepBlock => // Do nothing, keep block unchanged
@@ -161,7 +169,7 @@ class Ground(blockCellSize: Int,
             if (!coveredMaxLodBlocks.contains(neighbor) && !checkedMaxLodBlocks.contains(neighbor)) {
               checkedMaxLodBlocks.add(neighbor)
               val center = neighbor.calculateCenterPos(maxLodBlockSize, terrainFunction)
-              groundLodStrategy.checkBlock(cameraPos, center, neighbor) match {
+              groundLodStrategy.checkBlock(cameraPos, center, neighbor, maxLodBlockSize) match {
                 case _ : AppearBlock =>
                   // Create new top level block
                   tasksUpdated ||= addTask(new BlockAdd(neighbor, source))
