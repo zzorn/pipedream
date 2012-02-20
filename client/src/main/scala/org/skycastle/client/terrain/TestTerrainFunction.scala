@@ -19,7 +19,6 @@ class TestTerrainFunction extends TerrainFunction {
     math.sin(x * 1.0 / 1403.34) * 100
   }
 
-  def getNormal(x: Double, y: Double) = up
 
 
 }

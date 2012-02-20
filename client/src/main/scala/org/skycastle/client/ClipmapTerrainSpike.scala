@@ -16,25 +16,26 @@ import com.jme3.terrain.noise.basis.FilteredBasis
 import com.jme3.terrain.geomipmap.grid.FractalTileLoader
 import com.jme3.terrain.geomipmap.{TerrainLodControl, TerrainGrid, TerrainQuad}
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
-import com.jme3.math.{ColorRGBA, Vector3f}
 import com.jme3.audio.AudioNode
 import com.jme3.util.SkyFactory
 import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
 import com.jme3.scene.shape.Box
-import com.jme3.light.DirectionalLight
 import com.jme3.post.filters.FogFilter
 import terrain._
 import com.jme3.texture.Texture
+import com.jme3.light.{AmbientLight, DirectionalLight}
+import com.jme3.math.{ColorRGBA, Vector3f}
 
 /**
  *
  */
 object ClipmapTerrainSpike extends SimpleApplication  {
 
-  private val waterOn = true
+  private val waterOn = false
   private val wireframe = false
   private val limitFps= false
+  private val lightingOn = !waterOn
 
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
 
@@ -44,6 +45,10 @@ object ClipmapTerrainSpike extends SimpleApplication  {
       settings.setFrameRate(60)
       settings.setVSync(true)
     }
+    else {
+      settings.setFrameRate(-1)
+      settings.setVSync(false)
+    }
     setSettings(settings);
     start()
   }
@@ -51,7 +56,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   @Override
   def simpleInitApp() {
 
-    flyCam.setMoveSpeed(100)
+    flyCam.setMoveSpeed(200)
     getCamera.setFrustumFar(32000)
 
     // Allow screenshots
@@ -87,7 +92,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     rootNode.attachChild(box)
 
     // Fog
-    //  viewPort.addProcessor(createFog(assetManager));
+    if(lightingOn) viewPort.addProcessor(createFog(assetManager))
 
     // Water
     if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0));
@@ -103,31 +108,38 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     */
 
     // Sky
-    this.viewPort.setBackgroundColor(new ColorRGBA(0.2f, 0.2f, 0.2f, 1f));
+    this.viewPort.setBackgroundColor(new ColorRGBA(0.3f, 0.3f, 0.3f, 1f));
 //    this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
 //    rootNode.attachChild(createSky(assetManager))
 
-    rootNode.addLight(createLight);
+    createLight(rootNode)
 
     // Start pos
     this.getCamera().setLocation(new Vector3f(0, 100, 10));
 
   }
 
-  def createLight: DirectionalLight = {
+  def createLight(node: Node) {
     val sun = new DirectionalLight();
-    sun.setDirection(new Vector3f(1, 0, -2).normalizeLocal());
-    sun.setColor(ColorRGBA.White);
-    sun
+    val sunDir: Vector3f = new Vector3f(1, -1, -2).normalizeLocal()
+    sun.setDirection(sunDir);
+    sun.setColor(new ColorRGBA(1f, 0.9f, 0.7f, 1f));
+    node.addLight(sun)
+
+    val ambient = new DirectionalLight();
+    ambient.setDirection(new Vector3f(-1, -1, 2).normalizeLocal());
+    ambient.setColor(new ColorRGBA(0.2f, 0.4f, 0.6f, 1f))
+    node.addLight(ambient)
+
   }
 
   def createFog(manager: AssetManager): FilterPostProcessor = {
     val fpp = new FilterPostProcessor(manager);
     //fpp.setNumSamples(4);
     val fog = new FogFilter();
-    fog.setFogColor(new ColorRGBA(0.2f, 0.4f, 0.7f, 1.0f));
-    fog.setFogDistance(5000);
-    fog.setFogDensity(1.1f);
+    fog.setFogColor(new ColorRGBA(0.3f, 0.5f, 0.8f, 1.0f));
+    fog.setFogDistance(30000);
+    fog.setFogDensity(1.2f);
     fpp.addFilter(fog);
     fpp
   }
@@ -190,12 +202,19 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   }
 
   def createSimpleTerrainMaterial(assetManager: AssetManager): Material = {
-//    val mat_terrain = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-    val mat_terrain = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//    mat_terrain.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/splat/grass.jpg"));
     val texture: Texture = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg")
     texture.setWrap(Texture.WrapMode.Repeat)
-    mat_terrain.setTexture("ColorMap", texture);
+
+    var mat_terrain: Material = null
+    if (lightingOn) {
+      mat_terrain = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md")
+      mat_terrain.setTexture("DiffuseMap", texture);
+    }
+    else {
+      mat_terrain = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md")
+      mat_terrain.setTexture("ColorMap", texture);
+    }
+
     mat_terrain
   }
 

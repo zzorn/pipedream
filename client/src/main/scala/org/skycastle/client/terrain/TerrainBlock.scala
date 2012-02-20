@@ -3,11 +3,11 @@ package org.skycastle.client.terrain
 import com.jme3.scene.VertexBuffer.Type
 import com.jme3.util.BufferUtils
 import com.jme3.material.Material
-import com.jme3.math.{ColorRGBA, Vector2f, Vector3f}
 import com.jme3.asset.AssetManager
 import java.util.{Arrays, ArrayList}
 import javax.vecmath.Vector3d
 import com.jme3.scene.{Node, Spatial, Geometry, Mesh}
+import com.jme3.math.{Vector3f, ColorRGBA, Vector2f}
 
 /**
  *
@@ -48,13 +48,7 @@ class TerrainBlock(
     val totalVertexCount: Int = vertexSize * vertexSize
     val vertices = new Array[Vector3f](totalVertexCount)
     val texCoords = new Array[Vector2f](totalVertexCount)
-
-    // Cell index
-    var i = 0
-    
-    // Cell coords
-    var x: Int = 0
-    var z: Int = 1
+    val normals = new Array[Vector3f](totalVertexCount)
 
     def wrap(c: Int): Int = (c + vertexSize) % vertexSize
     def index(xi: Int, zi: Int): Int = wrap(zi) * vertexSize + wrap(xi)
@@ -63,10 +57,8 @@ class TerrainBlock(
     val cellSize = sizeSettings.calculateCellSize(blockPos.lodLevel)
     val blockSize = sizeSettings.calculateBlockSize(blockPos)
     val (wxOffset, wzOffset) = sizeSettings.calculateTopLeft(blockPos, blockSize)
-    val wxStart = wxOffset
-    val wzStart = wzOffset
-    val wxEnd = wxOffset + blockSize
-    val wzEnd = wzOffset + blockSize
+    val wxStart = wxOffset - cellSize
+    val wzStart = wzOffset - cellSize
     var wx = wxStart
     var wz = wzStart
     val wxd = cellSize
@@ -78,12 +70,14 @@ class TerrainBlock(
     var tu = (wx*tempTextureScale).toFloat
     var tv = (wz*tempTextureScale).toFloat
 
-    while (z < vertexSize - 1) {
-      i = index(1, z)
-      x = 1
+    var i = 0
+    var x: Int = 0
+    var z: Int = 0
+    while (z < vertexSize) {
+      x = 0
       wx =  wxStart
       tu = (wx*tempTextureScale).toFloat
-      while (x < vertexSize - 1) {
+      while (x < vertexSize) {
 
         // Point location
         val wy = terrainFunction.getHeight(wx, wz)
@@ -92,8 +86,6 @@ class TerrainBlock(
         // Texture location
         //texCoords(i) = new Vector2f(tu, tv)
         texCoords(i) = new Vector2f(tu, tv)
-
-        // TODO: Normal
 
         i += 1
         x += 1
@@ -112,32 +104,66 @@ class TerrainBlock(
     require(index(-2,0) == vertexSize-2)
     require(index(-1,-1) == vertexSize*vertexSize-1)
 
+    // Calculate normals
+    val invCellSize = (1.0 / cellSize).toFloat
+    var xn = 0
+    var zn = 1
+    var normalIndex = 0
+    while (zn < vertexSize - 1) {
+      xn = 1
+      normalIndex = zn * vertexSize + xn
+      while (xn < vertexSize - 1) {
+        
+        val xd = vertices(normalIndex + 1).y           - vertices(normalIndex - 1).y
+        val zd = vertices(normalIndex + vertexSize).y  - vertices(normalIndex - vertexSize).y
+
+        normals(normalIndex) = new Vector3f(-xd * invCellSize, 2, zd * invCellSize).normalizeLocal()
+
+        xn += 1
+        normalIndex += 1
+      }
+      zn += 1
+    }
+
+
     // Sleeves
+    val edgeStartX = wxOffset
+    val edgeStartZ = wzOffset
+    val edgeEndX   = wxOffset + blockSize
+    val edgeEndZ   = wzOffset + blockSize
+
     val sleeveDownPull = (cellSize * sleeveDownPullFactor).toFloat
-    z = 1
-    wz = wzStart
-    while (z < vertexSize - 1) {
-      vertices(index( 0, z)) = new Vector3f(wxStart.toFloat, vertices(index( 1, z)).y - sleeveDownPull, wz.toFloat)
-      vertices(index(-1, z)) = new Vector3f(wxEnd.toFloat,   vertices(index(-2, z)).y - sleeveDownPull, wz.toFloat)
+
+    def copySleeveVertex(targetX: Int, targetZ: Int, sourceX : Int, sourceZ : Int, posX: Double, posZ: Double) {
+      vertices(index(targetX, targetZ)) = new Vector3f(posX.toFloat, vertices(index(sourceX, sourceZ)).y - sleeveDownPull, posZ.toFloat)
+      normals(index(targetX, targetZ)) = normals(index(sourceX, sourceZ))
+    }
+
+    z = 0
+    wz = edgeStartZ
+    while (z < vertexSize) {
+      copySleeveVertex( 0, z, 1, z, edgeStartX, wz)
+      copySleeveVertex(-1, z,-2, z, edgeEndX, wz)
       z += 1
       wz += wzd
     }
 
-    x = 1
-    wx = wxStart
-    while (x < vertexSize - 1) {
-      vertices(index(x,  0)) = new Vector3f(wx.toFloat, vertices(index(x,  1)).y - sleeveDownPull, wzStart.toFloat)
-      vertices(index(x, -1)) = new Vector3f(wx.toFloat, vertices(index(x, -2)).y - sleeveDownPull, wzEnd.toFloat)
+    x = 0
+    wx = edgeStartX
+    while (x < vertexSize) {
+      copySleeveVertex( x,  0, x,  1, wx, edgeStartZ)
+      copySleeveVertex( x, -1, x, -2, wx, edgeEndZ)
       x += 1
       wx += wxd
     }
 
     // Sleeve corners
-    vertices(index( 0, 0)) = new Vector3f(wxStart.toFloat, vertices(index( 1, 1)).y - sleeveDownPull, wzStart.toFloat)
-    vertices(index(-1, 0)) = new Vector3f(wxEnd.toFloat,   vertices(index(-2, 1)).y - sleeveDownPull, wzStart.toFloat)
-    vertices(index( 0,-1)) = new Vector3f(wxStart.toFloat, vertices(index( 1,-2)).y - sleeveDownPull, wzEnd.toFloat)
-    vertices(index(-1,-1)) = new Vector3f(wxEnd.toFloat,   vertices(index(-2,-2)).y - sleeveDownPull, wzEnd.toFloat)
-
+    /*
+    copySleeveVertex( 0,  0,  1,  1, edgeStartX, edgeStartZ)
+    copySleeveVertex(-1,  0, -2,  1, edgeEndX,   edgeStartZ)
+    copySleeveVertex( 0, -1,  1, -2, edgeStartX, edgeEndZ)
+    copySleeveVertex(-1, -1, -2, -2, edgeEndX,   edgeEndZ)
+    */
 
 
     // Triangles connecting points
@@ -219,6 +245,7 @@ class TerrainBlock(
     mesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(vertices: _*));
     mesh.setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoords: _*));
     mesh.setBuffer(Type.Index,    1, BufferUtils.createIntBuffer(indexes: _*));
+    mesh.setBuffer(Type.Normal,   3, BufferUtils.createFloatBuffer(normals: _*));
     mesh.updateBound();
 
     mesh.setStatic()
