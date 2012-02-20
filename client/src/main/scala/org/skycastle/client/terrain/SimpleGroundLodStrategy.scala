@@ -30,7 +30,7 @@ class SimpleGroundLodStrategy(blocksToTransition: Double = 2, hysteresis: Double
   def getRootBlocks(cameraPos: Vector3d, existingBlocks: java.util.Set[BlockPos], sizeSettings: GroundSizeSettings): java.util.Set[BlockPos] = {
     
     val newFoundBlocks = new HashSet[BlockPos]()
-    
+
     val blockScanRadius = math.ceil(blocksToTransition).toInt
 
     val blockAtCamera = sizeSettings.blockPosAt(cameraPos, sizeSettings.maxLodLevel)

@@ -15,21 +15,15 @@ import com.jme3.scene.{Node, Spatial, Geometry, Mesh}
 class TerrainBlock(
       val blockPos: BlockPos,
       terrainMaterial: Material,
-      heightFunction: TerrainFunction,
-      xSize: Int,
-      zSize: Int,
-      xExtent: Double,
-      zExtent: Double,
-      xOffset: Double = 0,
-      zOffset: Double = 0) extends Node("TerrainBlock") {
+      terrainFunction: TerrainFunction,
+      sizeSettings: GroundSizeSettings,
+      sleeveDownPullFactor: Float = 0.1f) extends Node("TerrainBlock") {
 
   def freeResources() {
     detachAllChildren()
 
     // TODO: Anything else?
   }
-
-  def worldSize: Double = (xExtent + zExtent) / 2
 
   private var block: Geometry = null;
 
@@ -42,47 +36,64 @@ class TerrainBlock(
   
   private def createBlock(): Geometry = {
 
+    val tempTextureScale = 1.0/256;
+
     // 3D Mesh
     val mesh = new Mesh()
 
 
     // Data arrays
-    val vertexCount: Int = xSize * zSize
-    val vertices = new Array[Vector3f](vertexCount)
-    val texCoords = new Array[Vector2f](vertexCount)
+    val cellCount: Int = sizeSettings.blockCellCount
+    val vertexSize = cellCount + 1 + 2
+    val totalVertexCount: Int = vertexSize * vertexSize
+    val vertices = new Array[Vector3f](totalVertexCount)
+    val texCoords = new Array[Vector2f](totalVertexCount)
 
     // Cell index
     var i = 0
     
     // Cell coords
-    var x = 0
-    var z = 0
-    
+    var x: Int = 0
+    var z: Int = 1
+
+    def wrap(c: Int): Int = (c + vertexSize) % vertexSize
+    def index(xi: Int, zi: Int): Int = wrap(zi) * vertexSize + wrap(xi)
+
     // World coords
-    var wx = xOffset
-    var wz = zOffset
-    val wxd = xExtent / (xSize - 1)
-    val wzd = zExtent / (zSize - 1)
-    
+    val cellSize = sizeSettings.calculateCellSize(blockPos.lodLevel)
+    val blockSize = sizeSettings.calculateBlockSize(blockPos)
+    val (wxOffset, wzOffset) = sizeSettings.calculateTopLeft(blockPos, blockSize)
+    val wxStart = wxOffset
+    val wzStart = wzOffset
+    val wxEnd = wxOffset + blockSize
+    val wzEnd = wzOffset + blockSize
+    var wx = wxStart
+    var wz = wzStart
+    val wxd = cellSize
+    val wzd = cellSize
+
     // Texture coords
-    var tu = 0f
-    var tv = 0f
-    val tud = 1f / xSize
-    val tvd = 1f / zSize
-    
-    while (z < zSize) {
-      x = 0
-      wx = xOffset.toFloat
-      tu = 0f
-      while (x < xSize) {
+    val tud = (cellSize*tempTextureScale).toFloat
+    val tvd = (cellSize*tempTextureScale).toFloat
+    var tu = (wx*tempTextureScale).toFloat
+    var tv = (wz*tempTextureScale).toFloat
+
+    while (z < vertexSize - 1) {
+      i = index(1, z)
+      x = 1
+      wx =  wxStart
+      tu = (wx*tempTextureScale).toFloat
+      while (x < vertexSize - 1) {
 
         // Point location
-        val wy = heightFunction.getHeight(wx, wz)
+        val wy = terrainFunction.getHeight(wx, wz)
         vertices(i) = new Vector3f(wx.toFloat, wy.toFloat, wz.toFloat)
 
         // Texture location
+        //texCoords(i) = new Vector2f(tu, tv)
         texCoords(i) = new Vector2f(tu, tv)
 
+        // TODO: Normal
 
         i += 1
         x += 1
@@ -93,8 +104,42 @@ class TerrainBlock(
       wz += wzd
       tv += tvd
     }
-    
-    
+
+
+    require(index( 0,0) == 0)
+    require(index( 1,0) == 1)
+    require(index(-1,0) == vertexSize-1)
+    require(index(-2,0) == vertexSize-2)
+    require(index(-1,-1) == vertexSize*vertexSize-1)
+
+    // Sleeves
+    val sleeveDownPull = (cellSize * sleeveDownPullFactor).toFloat
+    z = 1
+    wz = wzStart
+    while (z < vertexSize - 1) {
+      vertices(index( 0, z)) = new Vector3f(wxStart.toFloat, vertices(index( 1, z)).y - sleeveDownPull, wz.toFloat)
+      vertices(index(-1, z)) = new Vector3f(wxEnd.toFloat,   vertices(index(-2, z)).y - sleeveDownPull, wz.toFloat)
+      z += 1
+      wz += wzd
+    }
+
+    x = 1
+    wx = wxStart
+    while (x < vertexSize - 1) {
+      vertices(index(x,  0)) = new Vector3f(wx.toFloat, vertices(index(x,  1)).y - sleeveDownPull, wzStart.toFloat)
+      vertices(index(x, -1)) = new Vector3f(wx.toFloat, vertices(index(x, -2)).y - sleeveDownPull, wzEnd.toFloat)
+      x += 1
+      wx += wxd
+    }
+
+    // Sleeve corners
+    vertices(index( 0, 0)) = new Vector3f(wxStart.toFloat, vertices(index( 1, 1)).y - sleeveDownPull, wzStart.toFloat)
+    vertices(index(-1, 0)) = new Vector3f(wxEnd.toFloat,   vertices(index(-2, 1)).y - sleeveDownPull, wzStart.toFloat)
+    vertices(index( 0,-1)) = new Vector3f(wxStart.toFloat, vertices(index( 1,-2)).y - sleeveDownPull, wzEnd.toFloat)
+    vertices(index(-1,-1)) = new Vector3f(wxEnd.toFloat,   vertices(index(-2,-2)).y - sleeveDownPull, wzEnd.toFloat)
+
+
+
     // Triangles connecting points
     /*
       Triangles should be counter-clockwise
@@ -123,9 +168,8 @@ class TerrainBlock(
           3,
           6
      */
-    val xCellCount: Int = xSize - 1
-    val zCellCount: Int = zSize - 1
-    val indexCount = 2 + xCellCount * zCellCount * 2 + (zCellCount - 1) * 3
+    val sleevedCellCount = cellCount + 2
+    val indexCount = 2 + sleevedCellCount * sleevedCellCount * 2 + (sleevedCellCount - 1) * 3
     val indexes = new Array[Int](indexCount)
     mesh.setMode(Mesh.Mode.TriangleStrip)
     //val indexes = Array[Int](0,3,1,4,2,5,5,5,8,4,7,3,6)
@@ -140,30 +184,30 @@ class TerrainBlock(
 
     // Add initial indexes
     addIndex(0)
-    addIndex(xSize)
+    addIndex(vertexSize)
 
-    while (zCell < zCellCount) {
+    while (zCell < sleevedCellCount) {
       xCell = 0
-      while (xCell < xCellCount) {
+      while (xCell < sleevedCellCount) {
 
         // From left to right on even rows, right to left on odd rows
-        val vertexIndex = if (zCell % 2 == 0) xSize * zCell + xCell + 1 else xSize * zCell + xSize - xCell - 2
+        val vertexIndex = if (zCell % 2 == 0) vertexSize * zCell + xCell + 1 else vertexSize * zCell + vertexSize - xCell - 2
 
         addIndex(vertexIndex)
-        addIndex(vertexIndex + xSize)
+        addIndex(vertexIndex + vertexSize)
 
         xCell += 1
       }
 
       zCell += 1
 
-      if (zCell < zCellCount) {
+      if (zCell < sleevedCellCount) {
         // Add some empty degenerate triangles to tie together consecutive rows
-        val vertexIndex = if (zCell % 2 == 0) zCell * xSize else zCell * xSize + xSize - 1
+        val vertexIndex = if (zCell % 2 == 0) zCell * vertexSize else zCell * vertexSize + vertexSize - 1
 
         addIndex(vertexIndex)
         addIndex(vertexIndex)
-        addIndex(vertexIndex + xSize)
+        addIndex(vertexIndex + vertexSize)
       }
     }
 

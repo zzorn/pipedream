@@ -44,7 +44,7 @@ class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource
   }
 
   def split() {
-    if (isLeaf) {
+    if (isLeaf && pos.lodLevel > 0) {
       // Create children
       children = new Array[GroundTree](4)
       var i = 0

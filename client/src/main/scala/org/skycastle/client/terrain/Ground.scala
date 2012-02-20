@@ -32,6 +32,7 @@ class Ground(sizeSettings: GroundSizeSettings,
               ) extends Node { 
 
   private val rootGrid = new HashMap[BlockPos, GroundTree]()
+  private val rootBlocksToRemove = new HashSet[BlockPos]()
   private val cameraPos = new Vector3d(0,0,0)
   private val lastUpdatePos = new Vector3d(0,0,0)
 
@@ -56,30 +57,49 @@ class Ground(sizeSettings: GroundSizeSettings,
    * Should be called regularly.
    */
   def updateBlocks() {
-    // Check if existing root blocks should be removed
-    rootGrid.keySet() foreach { rootPos =>
-      groundLodStrategy.checkBlock(cameraPos, rootPos, terrainFunction, sizeSettings) match {
-        case _ : RemoveBlock =>
-          rootGrid(rootPos).remove()
-          rootGrid.remove(rootPos)
-        case _ => // No action
-      }
-
-    }
+    // Check if old root blocks should be removed
+    checkRootBlocksToBeRemoved()
 
     // Check if new root blocks should be added
-    val newRootBlocks = groundLodStrategy.getRootBlocks(cameraPos, rootGrid.keySet(), sizeSettings)
-    newRootBlocks foreach { newBlockPos =>
-      val groundTree: GroundTree = new GroundTree(newBlockPos, this, source)
-      rootGrid.put(newBlockPos, groundTree)
-      groundTree.createTerrain()
-    }
+    checkRootBlocksToAdd
     
     // Update internal structure of current root blocks
-    rootGrid.values() foreach { rootTree =>
-      rootTree.update(cameraPos, groundLodStrategy, terrainFunction, sizeSettings)
-    }
+    updateRootBlocks
+  }
 
+  private def checkRootBlocksToBeRemoved() {
+    rootBlocksToRemove.clear()
+    rootGrid.keySet() foreach {
+      rootPos =>
+        groundLodStrategy.checkBlock(cameraPos, rootPos, terrainFunction, sizeSettings) match {
+          case _: RemoveBlock =>
+            rootBlocksToRemove.add(rootPos)
+          case _ => // No action
+        }
+    }
+    rootBlocksToRemove foreach {
+      rootPos =>
+        rootGrid(rootPos).remove()
+        rootGrid.remove(rootPos)
+    }
+    rootBlocksToRemove.clear()
+  }
+
+  private def checkRootBlocksToAdd {
+    val newRootBlocks = groundLodStrategy.getRootBlocks(cameraPos, rootGrid.keySet(), sizeSettings)
+    newRootBlocks foreach {
+      newBlockPos =>
+        val groundTree: GroundTree = new GroundTree(newBlockPos, this, source)
+        rootGrid.put(newBlockPos, groundTree)
+        groundTree.createTerrain()
+    }
+  }
+
+  private def updateRootBlocks {
+    rootGrid.values() foreach {
+      rootTree =>
+        rootTree.update(cameraPos, groundLodStrategy, terrainFunction, sizeSettings)
+    }
   }
 
 

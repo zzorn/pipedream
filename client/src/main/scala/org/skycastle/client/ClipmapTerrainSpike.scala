@@ -25,22 +25,18 @@ import com.jme3.scene.shape.Box
 import com.jme3.light.DirectionalLight
 import com.jme3.post.filters.FogFilter
 import terrain._
+import com.jme3.texture.Texture
 
 /**
  *
  */
 object ClipmapTerrainSpike extends SimpleApplication  {
 
-  private val grassScale = 64;
-  private val dirtScale = 16;
-  private val rockScale = 128;
+  private val waterOn = true
+  private val wireframe = false
+  private val limitFps= false
 
-  private val waterOn = false
-  private val wireframe = true
-  private val limitFps= true
-
-  private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f) // same as light source
-  private val initialWaterHeight = 0.8f // choose a value for your scene
+  private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
 
   def main(args: Array[String]) {
     val settings: AppSettings = new AppSettings(true)
@@ -73,15 +69,13 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 //    val terrain = block.getGeometry(assetManager)
 //    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.25, 11, 32)
     val terrainFunction: TestTerrainFunction = new TestTerrainFunction
-    val cellCount: Int = 16
-    val smallestCellSize: Double = 0.25
-    val maxLodLevel: Int = 6
+    val sizeSettings: GroundSizeSettings = new GroundSizeSettings(32, 0.5, 10)
     val terrain = new Ground(
-      new GroundSizeSettings(),
+      sizeSettings,
       terrainFunction,
-      new FunctionalTerrainBlockSource(terrainFunction, terrainMaterial, cellCount, smallestCellSize),
+      new FunctionalTerrainBlockSource(terrainFunction, terrainMaterial, sizeSettings),
       getCamera,
-      new SimpleGroundLodStrategy(cellCount*smallestCellSize*2, 0.25))
+      new SimpleGroundLodStrategy(2, 0.25))
 
     this.rootNode.attachChild(terrain);
 
@@ -199,7 +193,9 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 //    val mat_terrain = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
     val mat_terrain = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
 //    mat_terrain.setTexture("DiffuseMap", assetManager.loadTexture("Textures/Terrain/splat/grass.jpg"));
-    mat_terrain.setTexture("ColorMap", assetManager.loadTexture("Textures/Terrain/splat/grass.jpg"));
+    val texture: Texture = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg")
+    texture.setWrap(Texture.WrapMode.Repeat)
+    mat_terrain.setTexture("ColorMap", texture);
     mat_terrain
   }
 

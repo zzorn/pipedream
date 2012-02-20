@@ -26,6 +26,14 @@ case class GroundSizeSettings(blockCellCount: Int = 32,
     blockCellCount * finestCellSize * math.pow(2, lodLevel)
   }
 
+  def calculateCellSize(lodLevel: Int): Double = {
+    finestCellSize * math.pow(2, lodLevel)
+  }
+
+  def powScale(lodLevel: Int): Double = {
+    math.pow(2, lodLevel)
+  }
+
   def calculateCenterPos(blockPos: BlockPos, terrainFunction: TerrainFunction): Vector3d = {
     calculateCenterPos(blockPos, terrainFunction, calculateBlockSize(blockPos))
   }
@@ -35,6 +43,12 @@ case class GroundSizeSettings(blockCellCount: Int = 32,
     val centerZ = blockSize * (blockPos.zPos + 0.5)
     val centerY = terrainFunction.getHeight(centerX, centerZ)
     new Vector3d(centerX, centerY, centerZ)
+  }
+
+  def calculateTopLeft(blockPos: BlockPos, blockSize: Double): (Double, Double) = {
+    val x = blockSize * blockPos.xPos
+    val z = blockSize * blockPos.zPos
+    (x, z)
   }
 
 }
