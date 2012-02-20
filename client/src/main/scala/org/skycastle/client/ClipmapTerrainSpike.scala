@@ -37,6 +37,9 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   private val limitFps= false
   private val lightingOn = !waterOn
 
+  private val startX = 33010
+  private val startZ = -100000
+
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
 
   def main(args: Array[String]) {
@@ -57,7 +60,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   def simpleInitApp() {
 
     flyCam.setMoveSpeed(200)
-    getCamera.setFrustumFar(32000)
+    getCamera.setFrustumFar(320000)
 
     // Allow screenshots
     this.stateManager.attach(new ScreenshotAppState());
@@ -74,7 +77,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 //    val terrain = block.getGeometry(assetManager)
 //    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.25, 11, 32)
     val terrainFunction: TestTerrainFunction = new TestTerrainFunction
-    val sizeSettings: GroundSizeSettings = new GroundSizeSettings(32, 0.5, 10)
+    val sizeSettings: GroundSizeSettings = new GroundSizeSettings(32,1, 12)
     val terrain = new Ground(
       sizeSettings,
       terrainFunction,
@@ -115,7 +118,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     createLight(rootNode)
 
     // Start pos
-    this.getCamera().setLocation(new Vector3f(0, 100, 10));
+    this.getCamera().setLocation(new Vector3f(startX, terrainFunction.getHeight(startX,startZ).toFloat +2, startZ));
 
   }
 
@@ -138,8 +141,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     //fpp.setNumSamples(4);
     val fog = new FogFilter();
     fog.setFogColor(new ColorRGBA(0.3f, 0.5f, 0.8f, 1.0f));
-    fog.setFogDistance(30000);
-    fog.setFogDensity(1.2f);
+    fog.setFogDistance(50000);
+    fog.setFogDensity(1.5f);
     fpp.addFilter(fog);
     fpp
   }
