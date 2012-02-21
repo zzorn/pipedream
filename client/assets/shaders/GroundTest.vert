@@ -5,10 +5,12 @@ uniform mat4 g_WorldViewProjectionMatrix;
 
 //The attribute inPosition is the Object space position of the vertex
 attribute vec3 inPosition;
+attribute vec4 inTexCoord2;
+attribute vec2 inTexCoord;
 
 varying vec2 texCoord;
+varying vec4 textureStrengths;
 
-attribute vec2 inTexCoord;
 
 void main(){
     //Transformation of the object space coordinate to projection space
@@ -21,4 +23,5 @@ void main(){
     gl_Position = g_WorldViewProjectionMatrix * vec4(inPosition, 1.0);
 
     texCoord = inTexCoord;
+    textureStrengths = inTexCoord2;
 }

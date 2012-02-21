@@ -38,6 +38,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   private val limitFps= false
   private val lightingOn = !waterOn
 
+  private val movementSpeed: Float = 1000
+
   private val startX = 33010
   private val startZ = -100000
 
@@ -62,7 +64,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     assetManager.registerLocator("assets", classOf[FileLocator])
 
-    flyCam.setMoveSpeed(200)
+    flyCam.setMoveSpeed(movementSpeed)
     getCamera.setFrustumFar(320000)
 
     // Allow screenshots

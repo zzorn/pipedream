@@ -14,9 +14,8 @@ case class MaterialLayer(deepness: Double,
                          carve: Fun2d,
                          height: Fun2d) extends Layer {
 
-  def calculate(x: Double, z: Double, pointData: TerrainPointData) {
-    pointData.carve(x, z)
-  }
+  def calculate(x: Double, z: Double, materialDataOut: GroundMaterial) {
 
+  }
 }
 

@@ -15,17 +15,17 @@ final case class TerrainPointData() {
   for (i <- 0 until maxNumberOfMaterials) {
     groundMaterials(i) = new GroundMaterial()
   }
-
-
-
-
 }
 
+final case class PointData(var strength: Double = 1,
+                           var redAdjust: Double = 0,
+                           var greenAdjust: Double = 0,
+                           var blueAdjust: Double = 0)
+
 final class GroundMaterial() {
-  var height: Double = 0
-  var strength: Double = 1
   var texture: Symbol = null
   var colorAdjust: ColorRGBA  = ColorRGBA.White
+  var strength: Double = 1
   var stretchX: Double = 1
   var stretchZ: Double = 1
   var scaleY: Double = 1

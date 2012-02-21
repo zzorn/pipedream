@@ -4,10 +4,13 @@ import com.jme3.scene.VertexBuffer.Type
 import com.jme3.util.BufferUtils
 import com.jme3.material.Material
 import com.jme3.asset.AssetManager
-import java.util.{Arrays, ArrayList}
+import definition.{PointData, GroundMaterial}
 import javax.vecmath.Vector3d
 import com.jme3.scene.{Node, Spatial, Geometry, Mesh}
-import com.jme3.math.{Vector3f, ColorRGBA, Vector2f}
+import com.jme3.texture.Texture
+import java.util.{HashMap, HashSet, Arrays, ArrayList}
+import com.jme3.math.{Vector4f, Vector3f, ColorRGBA, Vector2f}
+import java.nio.FloatBuffer
 
 /**
  *
@@ -36,7 +39,13 @@ class TerrainBlock(
   
   private def createBlock(): Geometry = {
 
-    val tempTextureScale = 1.0/256;
+    val tempTextureScale = 1.0/100;
+
+    val textureNames = Array('twisty_grass, 'regolith, 'sand)
+    val pointDataOut = new HashMap[Symbol, PointData]()
+    textureNames foreach { name =>
+      pointDataOut.put(name, new PointData())
+    }
 
     // 3D Mesh
     val mesh = new Mesh()
@@ -49,6 +58,7 @@ class TerrainBlock(
     val vertices = new Array[Vector3f](totalVertexCount)
     val texCoords = new Array[Vector2f](totalVertexCount)
     val normals = new Array[Vector3f](totalVertexCount)
+    val textureStrengths = new Array[Float](totalVertexCount*4)
 
     def wrap(c: Int): Int = (c + vertexSize) % vertexSize
     def index(xi: Int, zi: Int): Int = wrap(zi) * vertexSize + wrap(xi)
@@ -79,13 +89,22 @@ class TerrainBlock(
       tu = (wx*tempTextureScale).toFloat
       while (x < vertexSize) {
 
+        // Get point data
+        val wy = terrainFunction.getHeightAndTextures(wx, wz, pointDataOut)
+
         // Point location
-        val wy = terrainFunction.getHeight(wx, wz)
+        //val wy = terrainFunction.getHeight(wx, wz)
         vertices(i) = new Vector3f(wx.toFloat, wy.toFloat, wz.toFloat)
 
         // Texture location
         //texCoords(i) = new Vector2f(tu, tv)
         texCoords(i) = new Vector2f(tu, tv)
+
+        // Set texture properties
+        textureStrengths(i * 4 + 0) = pointDataOut.get(textureNames(0)).strength.toFloat
+        textureStrengths(i * 4 + 1) = pointDataOut.get(textureNames(1)).strength.toFloat
+        textureStrengths(i * 4 + 2) = pointDataOut.get(textureNames(2)).strength.toFloat
+//        textureStrengths(i * 4 + 3) = pointDataOut.get(textureNames(3)).strength.toFloat
 
         i += 1
         x += 1
@@ -242,10 +261,12 @@ class TerrainBlock(
 
 
     // Store in buffer
-    mesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(vertices: _*));
-    mesh.setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoords: _*));
-    mesh.setBuffer(Type.Index,    1, BufferUtils.createIntBuffer(indexes: _*));
-    mesh.setBuffer(Type.Normal,   3, BufferUtils.createFloatBuffer(normals: _*));
+    mesh.setBuffer(Type.Position, 3,  BufferUtils.createFloatBuffer(vertices: _*));
+    mesh.setBuffer(Type.TexCoord, 2,  BufferUtils.createFloatBuffer(texCoords: _*));
+    mesh.setBuffer(Type.Index,    1,  BufferUtils.createIntBuffer(indexes: _*));
+    mesh.setBuffer(Type.Normal,   3,  BufferUtils.createFloatBuffer(normals: _*));
+    // NOTE: JME3 doesn't support custom vertex shader attributes, so we have to resort to misusing the ones it defines...
+    mesh.setBuffer(Type.TexCoord2, 4, BufferUtils.createFloatBuffer(textureStrengths: _*));
     mesh.updateBound();
 
     mesh.setStatic()
@@ -263,6 +284,7 @@ class TerrainBlock(
 
     geo
   }
+
 
 
 }

@@ -1,5 +1,7 @@
 
 varying vec2 texCoord;
+varying vec4 textureStrengths;
+
 
 uniform sampler2D m_Ecotope1Map;
 uniform sampler2D m_Ecotope2Map;
@@ -17,9 +19,14 @@ void main(){
     vec4 color2 = texture2D(m_Ecotope2Map, texCoord);
     vec4 color3 = texture2D(m_Ecotope3Map, texCoord);
 
+/*
     float eco1str =     mod(texCoord.x, 10.0) / 10.0;
     float eco2str = 1 - mod(texCoord.x, 10.0) / 10.0;
     float eco3str =     mod(texCoord.y, 10.0) / 10.0;
+*/
+    float eco1str = textureStrengths.x;
+    float eco2str = textureStrengths.y;
+    float eco3str = textureStrengths.z;
 
     float ecotope1Str = color1.a * eco1str;
     float ecotope2Str = color2.a * eco2str;
