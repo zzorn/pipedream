@@ -26,6 +26,7 @@ import terrain._
 import com.jme3.texture.Texture
 import com.jme3.light.{AmbientLight, DirectionalLight}
 import com.jme3.math.{ColorRGBA, Vector3f}
+import com.jme3.asset.plugins.FileLocator
 
 /**
  *
@@ -58,6 +59,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
   @Override
   def simpleInitApp() {
+
+    assetManager.registerLocator("assets", classOf[FileLocator])
 
     flyCam.setMoveSpeed(200)
     getCamera.setFrustumFar(320000)
@@ -205,17 +208,26 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   }
 
   def createSimpleTerrainMaterial(assetManager: AssetManager): Material = {
-    val texture: Texture = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg")
-    texture.setWrap(Texture.WrapMode.Repeat)
+    //val texture1: Texture = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg")
+    val texture1: Texture = assetManager.loadTexture("textures/twisty_grass.png")
+    val texture2: Texture = assetManager.loadTexture("textures/regolith.png")
+    val texture3: Texture = assetManager.loadTexture("textures/sand.png")
+    texture1.setWrap(Texture.WrapMode.Repeat)
+    texture2.setWrap(Texture.WrapMode.Repeat)
+    texture3.setWrap(Texture.WrapMode.Repeat)
 
     var mat_terrain: Material = null
     if (lightingOn) {
-      mat_terrain = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md")
-      mat_terrain.setTexture("DiffuseMap", texture);
+      //mat_terrain = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md")
+      //mat_terrain.setTexture("DiffuseMap", texture1);
+      mat_terrain = new Material(assetManager, "shaders/GroundTest.j3md")
+      mat_terrain.setTexture("Ecotope1Map", texture1);
+      mat_terrain.setTexture("Ecotope2Map", texture2);
+      mat_terrain.setTexture("Ecotope3Map", texture3);
     }
     else {
       mat_terrain = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md")
-      mat_terrain.setTexture("ColorMap", texture);
+      mat_terrain.setTexture("ColorMap", texture1);
     }
 
     mat_terrain
