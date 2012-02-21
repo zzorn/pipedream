@@ -5,7 +5,7 @@ import com.jme3.material.Material
 /**
  *
  */
-class FunctionalTerrainBlockSource(terrainFunction: TerrainFunction,
+class FunctionalTerrainBlockSource(terrainFunction: Terrain,
                                    material: Material,
                                    sizeSettings: GroundSizeSettings) extends TerrainBlockSource {
   

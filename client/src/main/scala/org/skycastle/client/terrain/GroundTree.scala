@@ -19,7 +19,7 @@ class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource
   def isLeaf = children == null
 
 
-  def update(camPos: Vector3d, lodStrategy: GroundLodStrategy, terrainFunction: TerrainFunction, sizeSettings: GroundSizeSettings) {
+  def update(camPos: Vector3d, lodStrategy: GroundLodStrategy, terrainFunction: Terrain, sizeSettings: GroundSizeSettings) {
     lodStrategy.checkBlock(camPos, pos, terrainFunction, sizeSettings) match {
       case SplitBlock =>
         split()

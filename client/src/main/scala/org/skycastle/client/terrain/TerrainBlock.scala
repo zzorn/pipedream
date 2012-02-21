@@ -15,7 +15,7 @@ import com.jme3.math.{Vector3f, ColorRGBA, Vector2f}
 class TerrainBlock(
       val blockPos: BlockPos,
       terrainMaterial: Material,
-      terrainFunction: TerrainFunction,
+      terrainFunction: Terrain,
       sizeSettings: GroundSizeSettings,
       sleeveDownPullFactor: Float = 0.1f) extends Node("TerrainBlock") {
 

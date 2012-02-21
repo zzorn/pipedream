@@ -34,11 +34,11 @@ case class GroundSizeSettings(blockCellCount: Int = 32,
     math.pow(2, lodLevel)
   }
 
-  def calculateCenterPos(blockPos: BlockPos, terrainFunction: TerrainFunction): Vector3d = {
+  def calculateCenterPos(blockPos: BlockPos, terrainFunction: Terrain): Vector3d = {
     calculateCenterPos(blockPos, terrainFunction, calculateBlockSize(blockPos))
   }
 
-  def calculateCenterPos(blockPos: BlockPos, terrainFunction: TerrainFunction, blockSize: Double): Vector3d = {
+  def calculateCenterPos(blockPos: BlockPos, terrainFunction: Terrain, blockSize: Double): Vector3d = {
     val centerX = blockSize * (blockPos.xPos + 0.5)
     val centerZ = blockSize * (blockPos.zPos + 0.5)
     val centerY = terrainFunction.getHeight(centerX, centerZ)

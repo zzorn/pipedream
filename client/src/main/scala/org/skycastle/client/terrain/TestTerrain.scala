@@ -7,11 +7,11 @@ import org.skycastle.utils.SimplexNoise
 /**
  * 
  */
-class TestTerrainFunction extends TerrainFunction {
+class TestTerrain extends Terrain {
 
   val up = new Vector3f(0, 1, 0)
 
-  def getHeight(x: Double, z: Double): Double = {
+  def getHeight(x: Double, z: Double, sampleSize: Double): Double = {
 
     def mountains(density: Double, size: Double, sharpness: Double, offset: Double): Double = {
       val h = math.min(

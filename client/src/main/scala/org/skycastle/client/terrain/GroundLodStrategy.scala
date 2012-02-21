@@ -8,7 +8,7 @@ import java.util.{HashSet, HashMap}
  */
 trait GroundLodStrategy {
 
-  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: TerrainFunction, sizeSettings: GroundSizeSettings): LodCheckResult
+  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: Terrain, sizeSettings: GroundSizeSettings): LodCheckResult
 
   /**
    * @return the root blocks that should be added.

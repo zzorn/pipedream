@@ -10,7 +10,7 @@ import java.util.HashSet
 class SimpleGroundLodStrategy(blocksToTransition: Double = 2, hysteresis: Double = 0.5) extends GroundLodStrategy {
   require(hysteresis >= 0, "Hysteresis should be in range 0.., but it was " + hysteresis)
 
-  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: TerrainFunction, sizeSettings: GroundSizeSettings): LodCheckResult = {
+  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: Terrain, sizeSettings: GroundSizeSettings): LodCheckResult = {
 
     val blockSize = sizeSettings.calculateBlockSize(blockPos)
     val blockCenter = sizeSettings.calculateCenterPos(blockPos, terrainFunction, blockSize)

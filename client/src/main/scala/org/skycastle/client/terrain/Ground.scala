@@ -25,7 +25,7 @@ import java.util.{Collections, HashSet, ArrayList, HashMap}
 //         -- Split a block when distance to its closest edge less than BlockLod, merge when distance to closest child over BlockLod+hysteresis
 
 class Ground(sizeSettings: GroundSizeSettings,
-             var terrainFunction: TerrainFunction,
+             var terrainFunction: Terrain,
              source: TerrainBlockSource,
              camera: Camera = null,
              groundLodStrategy: GroundLodStrategy = new SimpleGroundLodStrategy()

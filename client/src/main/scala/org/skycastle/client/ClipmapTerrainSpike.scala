@@ -76,10 +76,10 @@ object ClipmapTerrainSpike extends SimpleApplication  {
      */
     val terrainMaterial = if (wireframe) createWireframeMaterial(assetManager) else createSimpleTerrainMaterial(getAssetManager)
 
-//    val block= new TerrainBlock(terrainMaterial, new TestTerrainFunction(), 1000, 1000, 1000, 1000)
+//    val block= new TerrainBlock(terrainMaterial, new TestTerrain(), 1000, 1000, 1000, 1000)
 //    val terrain = block.getGeometry(assetManager)
-//    val terrain = new ClipmapTerrain(new TestTerrainFunction, terrainMaterial, getAssetManager, 0.25, 11, 32)
-    val terrainFunction: TestTerrainFunction = new TestTerrainFunction
+//    val terrain = new ClipmapTerrain(new TestTerrain, terrainMaterial, getAssetManager, 0.25, 11, 32)
+    val terrainFunction: TestTerrain = new TestTerrain
     val sizeSettings: GroundSizeSettings = new GroundSizeSettings(32,1, 12)
     val terrain = new Ground(
       sizeSettings,
