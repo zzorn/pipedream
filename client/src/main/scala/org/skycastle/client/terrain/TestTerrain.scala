@@ -1,7 +1,6 @@
 package org.skycastle.client.terrain
 
 import com.jme3.math.{Vector3f, Vector2f}
-import definition.PointData
 import org.skycastle.utils.SimplexNoise
 import java.util.HashMap
 
@@ -9,7 +8,7 @@ import java.util.HashMap
 /**
  * 
  */
-class TestTerrain extends Terrain {
+class TestTerrain /*extends Terrain */{
 
   val up = new Vector3f(0, 1, 0)
 
@@ -17,7 +16,7 @@ class TestTerrain extends Terrain {
   def getTextures(x: Double, z: Double, textureStrengthsOut: HashMap[Symbol, Double]) = null
 
 
-  def getHeightAndTextures(x: Double, z: Double, textureData: HashMap[Symbol, PointData]): Double =  {
+  def getHeightAndTextures(x: Double, z: Double, textureData: HashMap[Symbol, Double]): Double =  {
     val grass1: Double = math.max(mountains(x, z, 0.007, 20, 2, 0.87231),
                                   mountains(x, z, 0.0051, 25, 2, 0.97231))
     val grass =
@@ -38,9 +37,11 @@ class TestTerrain extends Terrain {
       mountains(x, z, 0.0000001, 200000, 4, 0.81231)
 
     if (textureData != null) {
+      /*
       textureData.get('twisty_grass).strength = grass1
       textureData.get('sand).strength = sand1
       textureData.get('regolith).strength = stone1
+      */
     }
 
     stone + sand + grass

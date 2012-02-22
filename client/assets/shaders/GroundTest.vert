@@ -9,7 +9,8 @@ attribute vec4 inTexCoord2;
 attribute vec2 inTexCoord;
 
 varying vec2 texCoord;
-varying vec4 textureStrengths;
+
+varying vec4 textureStrengths0;
 
 
 void main(){
@@ -23,5 +24,7 @@ void main(){
     gl_Position = g_WorldViewProjectionMatrix * vec4(inPosition, 1.0);
 
     texCoord = inTexCoord;
-    textureStrengths = inTexCoord2;
+
+    // Reusing JME attributes to pass own ones, as JME3 doesn't support user defined attributes... -_-;
+    textureStrengths0 = inTexCoord2;
 }

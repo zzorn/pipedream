@@ -1,5 +1,6 @@
 package org.skycastle.client.terrain
 
+import definition.GroundDef
 import javax.vecmath.Vector3d
 import org.skycastle.utils.MathUtils
 import java.util.HashSet
@@ -10,10 +11,12 @@ import java.util.HashSet
 class SimpleGroundLodStrategy(blocksToTransition: Double = 2, hysteresis: Double = 0.5) extends GroundLodStrategy {
   require(hysteresis >= 0, "Hysteresis should be in range 0.., but it was " + hysteresis)
 
-  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: Terrain, sizeSettings: GroundSizeSettings): LodCheckResult = {
+  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: GroundDef, sizeSettings: GroundSizeSettings): LodCheckResult = {
 
     val blockSize = sizeSettings.calculateBlockSize(blockPos)
-    val blockCenter = sizeSettings.calculateCenterPos(blockPos, terrainFunction, blockSize)
+    val (x, z) = sizeSettings.calculateCenterAtZeroHeight(blockPos, blockSize)
+    val y = terrainFunction.getHeight(x, z, blockSize / 4.0)
+    val blockCenter = new Vector3d(x, y, z)
     val distance: Double = math.max(0, MathUtils.distance(cameraPos, blockCenter))
 
     val idealDistance = blocksToTransition * blockSize

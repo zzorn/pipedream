@@ -1,8 +1,11 @@
 
 varying vec2 texCoord;
-varying vec4 textureStrengths;
+
+// Strengths of the first four textures
+varying vec4 textureStrengths0;
 
 
+uniform sampler2D m_Ecotope0Map;
 uniform sampler2D m_Ecotope1Map;
 uniform sampler2D m_Ecotope2Map;
 uniform sampler2D m_Ecotope3Map;
@@ -64,32 +67,46 @@ float scaleClamp(float v, float inStart, float inEnd, float outStart, float outE
 
 void main(){
 
+    // TODO: We want to overlap the textures on top of each other, using some translucency (for each?).
+    // They are passed in in top to bottom order, so ecotope0 is on top of ecotope1, and so on.
+    // The strengths are the ecotope thicknesses, in meters.
+
+    vec4 color0 = texture2D(m_Ecotope0Map, texCoord);
     vec4 color1 = texture2D(m_Ecotope1Map, texCoord);
     vec4 color2 = texture2D(m_Ecotope2Map, texCoord);
     vec4 color3 = texture2D(m_Ecotope3Map, texCoord);
 
-    float eco1str = textureStrengths.x;
-    float eco2str = textureStrengths.y;
-    float eco3str = textureStrengths.z;
+    float eco0str = textureStrengths0.x;
+    float eco1str = textureStrengths0.y;
+    float eco2str = textureStrengths0.z;
+    float eco3str = textureStrengths0.w;
 
+    float h0 = color0.a * eco0str;
     float h1 = color1.a * eco1str;
     float h2 = color2.a * eco2str;
     float h3 = color3.a * eco3str;
 
+/*
     // Increase contrast
+    h0 *= h0 * h0;
+    h0 *= h0 * h0;
+
     h1 *= h1 * h1;
     h1 *= h1 * h1;
+
     h2 *= h2 * h2;
     h2 *= h2 * h2;
+
     h3 *= h3 * h3;
     h3 *= h3 * h3;
-    float hsum = h1 + h2 + h3;
+*/
+    float hsum = h0 + h1 + h2 + h3;
 
     if (hsum > 0.0) {
-    	gl_FragColor =  (color1 * h1 + color2 * h2 + color3 * h3) / hsum;
+    	gl_FragColor =  (color0 * h0 + color1 * h1 + color2 * h2 + color3 * h3) / hsum;
     }
     else {
-	    gl_FragColor =  color1;
+	    gl_FragColor =  color0;
     }
 
 

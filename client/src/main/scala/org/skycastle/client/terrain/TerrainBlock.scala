@@ -4,13 +4,13 @@ import com.jme3.scene.VertexBuffer.Type
 import com.jme3.util.BufferUtils
 import com.jme3.material.Material
 import com.jme3.asset.AssetManager
-import definition.{PointData, GroundMaterial}
+import definition.{GroundDef, GroundMaterial}
 import javax.vecmath.Vector3d
 import com.jme3.scene.{Node, Spatial, Geometry, Mesh}
 import com.jme3.texture.Texture
-import java.util.{HashMap, HashSet, Arrays, ArrayList}
 import com.jme3.math.{Vector4f, Vector3f, ColorRGBA, Vector2f}
 import java.nio.FloatBuffer
+import java.util._
 
 /**
  *
@@ -18,15 +18,18 @@ import java.nio.FloatBuffer
 class TerrainBlock(
       val blockPos: BlockPos,
       terrainMaterial: Material,
-      terrainFunction: Terrain,
+      groundDef: GroundDef,
       sizeSettings: GroundSizeSettings,
-      sleeveDownPullFactor: Float = 0.1f) extends Node("TerrainBlock") {
+      sleeveDownPullFactor: Float = 0.1f,
+      assetManager: AssetManager) extends Node("TerrainBlock") {
 
   def freeResources() {
     detachAllChildren()
 
     // TODO: Anything else?
   }
+
+  lazy val placeholderMaterial: GroundMaterial = new GroundMaterial('placeholderium, assetManager.loadTexture("textures/placeholder.png"))
 
   private var block: Geometry = null;
 
@@ -41,11 +44,44 @@ class TerrainBlock(
 
     val tempTextureScale = 1.0/100;
 
-    val textureNames = Array('twisty_grass, 'regolith, 'sand)
+    val maxNumberOfGroundMaterials = 4
+
+    // val textureNames = Array('twisty_grass, 'regolith, 'sand)
+    /*
     val pointDataOut = new HashMap[Symbol, PointData]()
     textureNames foreach { name =>
       pointDataOut.put(name, new PointData())
     }
+    */
+
+    val blockSize = sizeSettings.calculateBlockSize(blockPos)
+
+    // Determine the textures to use for this block, by a coarse sampling of them
+    val (centerX, centerZ) = sizeSettings.calculateCenterAtZeroHeight(blockPos, blockSize)
+    val layerMaterials   = new ArrayList[GroundMaterial]()
+    val layerThicknesses = new ArrayList[Double]()
+    val blockCenterHeight = groundDef.calculate(centerX, centerZ, blockSize, layerMaterials, layerThicknesses)
+
+    val materialIndexes = new HashMap[Symbol, Int]()
+    val materialStrengths = new Array[Double](maxNumberOfGroundMaterials)
+    val materials = new Array[GroundMaterial](maxNumberOfGroundMaterials)
+    val materialCount: Int = layerMaterials.size()
+
+    var li = 0
+    while (li < maxNumberOfGroundMaterials &&
+           li < materialCount) {
+      val groundMaterial = layerMaterials.get(li)
+      materialIndexes.put(groundMaterial.name, li)
+      materials(li) = groundMaterial
+      li += 1
+    }
+
+    // Fill up rest of the slots with placeholder
+    while (li < maxNumberOfGroundMaterials) {
+      materials(li) = placeholderMaterial
+      li += 1
+    }
+
 
     // 3D Mesh
     val mesh = new Mesh()
@@ -65,7 +101,6 @@ class TerrainBlock(
 
     // World coords
     val cellSize = sizeSettings.calculateCellSize(blockPos.lodLevel)
-    val blockSize = sizeSettings.calculateBlockSize(blockPos)
     val (wxOffset, wzOffset) = sizeSettings.calculateTopLeft(blockPos, blockSize)
     val wxStart = wxOffset - cellSize
     val wzStart = wzOffset - cellSize
@@ -90,7 +125,7 @@ class TerrainBlock(
       while (x < vertexSize) {
 
         // Get point data
-        val wy = terrainFunction.getHeightAndTextures(wx, wz, pointDataOut)
+        val wy = groundDef.calculate(wx, wz, cellSize, layerMaterials, layerThicknesses)
 
         // Point location
         //val wy = terrainFunction.getHeight(wx, wz)
@@ -100,17 +135,36 @@ class TerrainBlock(
         //texCoords(i) = new Vector2f(tu, tv)
         texCoords(i) = new Vector2f(tu, tv)
 
-        // Set texture properties
-        textureStrengths(i * 4 + 0) = pointDataOut.get(textureNames(0)).strength.toFloat
-        textureStrengths(i * 4 + 1) = pointDataOut.get(textureNames(1)).strength.toFloat
-        textureStrengths(i * 4 + 2) = pointDataOut.get(textureNames(2)).strength.toFloat
-//        textureStrengths(i * 4 + 3) = pointDataOut.get(textureNames(3)).strength.toFloat
+        // Clear texture strengths
+        var si = 0
+        while (si < maxNumberOfGroundMaterials) {
+          materialStrengths(si) = 0.0
+          si += 1
+        }
+
+        // Get texture strengths, ignore ones that are not used in this block
+        var ti = 0
+        while (ti < layerMaterials.size()) {
+          val materialName = layerMaterials.get(ti).name
+          if (materialIndexes.containsKey(materialName)) {
+            materialStrengths(materialIndexes.get(materialName)) = layerThicknesses.get(ti)
+          }
+          ti += 1
+        }
+
+        // Set texture strengths
+        var si2 = 0
+        while (si2 < maxNumberOfGroundMaterials) {
+          textureStrengths(i * maxNumberOfGroundMaterials + si2) = materialStrengths(si2).toFloat
+          si2 += 1
+        }
 
         i += 1
         x += 1
         wx += wxd
         tu += tud
       }
+
       z += 1
       wz += wzd
       tv += tvd
@@ -265,8 +319,10 @@ class TerrainBlock(
     mesh.setBuffer(Type.TexCoord, 2,  BufferUtils.createFloatBuffer(texCoords: _*));
     mesh.setBuffer(Type.Index,    1,  BufferUtils.createIntBuffer(indexes: _*));
     mesh.setBuffer(Type.Normal,   3,  BufferUtils.createFloatBuffer(normals: _*));
+
     // NOTE: JME3 doesn't support custom vertex shader attributes, so we have to resort to misusing the ones it defines...
     mesh.setBuffer(Type.TexCoord2, 4, BufferUtils.createFloatBuffer(textureStrengths: _*));
+
     mesh.updateBound();
 
     mesh.setStatic()
@@ -280,9 +336,26 @@ class TerrainBlock(
     // Wireframe mode
     //mat.getAdditionalRenderState.setWireframe(true);
 
-    geo.setMaterial(terrainMaterial);
+
+    // Set material parameters
+    geo.setMaterial(createBlockMaterial(assetManager, materials));
 
     geo
+  }
+
+  private def createBlockMaterial(assetManager: AssetManager, materials: Array[GroundMaterial]): Material = {
+
+    val mat_terrain = new Material(assetManager, "shaders/GroundTest.j3md")
+
+    var i = 0
+    while (i < materials.length) {
+      val groundMaterial = materials(i)
+
+      mat_terrain.setTexture("Ecotope"+i+"Map", groundMaterial.texture);
+      i += 1
+    }
+
+    mat_terrain
   }
 
 

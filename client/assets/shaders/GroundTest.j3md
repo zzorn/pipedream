@@ -5,9 +5,12 @@ MaterialDef GroundTest {
 
     MaterialParameters {
 
+        Vector4 Ecotope0Color: 1 1 1 1
         Vector4 Ecotope1Color: 1 1 1 1
         Vector4 Ecotope2Color: 1 1 1 1
+        Vector4 Ecotope3Color: 1 1 1 1
 
+        Texture2D Ecotope0Map
         Texture2D Ecotope1Map
         Texture2D Ecotope2Map
         Texture2D Ecotope3Map

@@ -27,6 +27,7 @@ import com.jme3.texture.Texture
 import com.jme3.light.{AmbientLight, DirectionalLight}
 import com.jme3.math.{ColorRGBA, Vector3f}
 import com.jme3.asset.plugins.FileLocator
+import definition._
 
 /**
  *
@@ -59,6 +60,24 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     start()
   }
 
+  private def createTestTerrain: GroundDef = {
+    def createMaterial(name: Symbol,  textureFile: String): GroundMaterial = {
+      val texture: Texture = assetManager.loadTexture(textureFile)
+      texture.setWrap(Texture.WrapMode.Repeat)
+      new GroundMaterial(name, texture)
+    }
+
+    val stone = createMaterial('stone, "textures/twisty_grass.png")
+    val grass = createMaterial('grass, "textures/regolith.png")
+    val sand  = createMaterial('sand,  "textures/sand.png")
+
+    val groundDef: GroundDef = new GroundDef()
+    groundDef.addLayer(new MaterialLayer(1.0, stone, MountainFun() + TurbulenceFun()))
+    groundDef.addLayer(new MaterialLayer(0.5, sand,  TurbulenceFun(2, sizeX = 2000, sizeZ= 2000, amplitude = 200).clampBot()))
+    groundDef.addLayer(new MaterialLayer(0.0, grass, TurbulenceFun(sizeX = 10, sizeZ = 10, amplitude = 1).clampBot()))
+    groundDef
+  }
+
   @Override
   def simpleInitApp() {
 
@@ -81,14 +100,15 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 //    val block= new TerrainBlock(terrainMaterial, new TestTerrain(), 1000, 1000, 1000, 1000)
 //    val terrain = block.getGeometry(assetManager)
 //    val terrain = new ClipmapTerrain(new TestTerrain, terrainMaterial, getAssetManager, 0.25, 11, 32)
-    val terrainFunction: TestTerrain = new TestTerrain
+    val groundDef: GroundDef = createTestTerrain
     val sizeSettings: GroundSizeSettings = new GroundSizeSettings(32,1, 12)
     val terrain = new Ground(
       sizeSettings,
-      terrainFunction,
-      new FunctionalTerrainBlockSource(terrainFunction, terrainMaterial, sizeSettings),
+      groundDef,
+      new FunctionalTerrainBlockSource(groundDef, terrainMaterial, sizeSettings),
       getCamera,
-      new SimpleGroundLodStrategy(2, 0.25))
+      new SimpleGroundLodStrategy(2, 0.25),
+      assetManager)
 
     this.rootNode.attachChild(terrain);
 
@@ -123,7 +143,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     createLight(rootNode)
 
     // Start pos
-    this.getCamera().setLocation(new Vector3f(startX, terrainFunction.getHeight(startX,startZ).toFloat +2, startZ));
+    this.getCamera.setLocation(new Vector3f(startX, groundDef.getHeight(startX, startZ, 1).toFloat +2, startZ));
 
   }
 

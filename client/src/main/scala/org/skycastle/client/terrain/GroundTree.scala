@@ -1,8 +1,10 @@
 package org.skycastle.client.terrain
 
 import com.jme3.scene.Node
+import definition.GroundDef
 import scala.collection.JavaConversions._
 import javax.vecmath.Vector3d
+import com.jme3.asset.AssetManager
 
 /**
  * A cell in a simple quad tree,
@@ -10,7 +12,7 @@ import javax.vecmath.Vector3d
  */
 // TODO: Use parent node, or make QuadGrid into a node?  A Spatial is a bit heavy, try without first
 // TODO: In future make GroundTree start calculation processes, and stop them if the tree is changed.
-class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource) {
+class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource, assetManager: AssetManager) {
 
 
   private var block: TerrainBlock = null
@@ -19,7 +21,7 @@ class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource
   def isLeaf = children == null
 
 
-  def update(camPos: Vector3d, lodStrategy: GroundLodStrategy, terrainFunction: Terrain, sizeSettings: GroundSizeSettings) {
+  def update(camPos: Vector3d, lodStrategy: GroundLodStrategy, terrainFunction: GroundDef, sizeSettings: GroundSizeSettings) {
     lodStrategy.checkBlock(camPos, pos, terrainFunction, sizeSettings) match {
       case SplitBlock =>
         split()
@@ -39,7 +41,7 @@ class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource
 
 
   def createTerrain() {
-    block = source.createBlock(pos)
+    block = source.createBlock(pos, assetManager)
     parentNode.attachChild(block)
   }
 
@@ -50,7 +52,7 @@ class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource
       var i = 0
       pos.children foreach {
         childPos =>
-          val child = new GroundTree(childPos, parentNode, source)
+          val child = new GroundTree(childPos, parentNode, source, assetManager)
           child.createTerrain()
           children(i) = child
           i += 1

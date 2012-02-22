@@ -1,5 +1,6 @@
 package org.skycastle.client.terrain
 
+import definition.GroundDef
 import javax.vecmath.Vector3d
 import java.util.{HashSet, HashMap}
 
@@ -8,7 +9,7 @@ import java.util.{HashSet, HashMap}
  */
 trait GroundLodStrategy {
 
-  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: Terrain, sizeSettings: GroundSizeSettings): LodCheckResult
+  def checkBlock(cameraPos: Vector3d, blockPos: BlockPos, terrainFunction: GroundDef, sizeSettings: GroundSizeSettings): LodCheckResult
 
   /**
    * @return the root blocks that should be added.

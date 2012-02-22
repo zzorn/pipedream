@@ -6,6 +6,7 @@ import com.jme3.terrain.geomipmap.TerrainLodControl
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
 import com.jme3.renderer.Camera
 import com.jme3.math.Vector3f
+import definition.GroundDef
 import javax.vecmath.Vector3d
 import scala.collection.JavaConversions._
 import org.skycastle.utils.MathUtils
@@ -23,10 +24,11 @@ import java.util.{Collections, HashSet, ArrayList, HashMap}
 //         -- Split a block when distance to its closest edge less than BlockLod, merge when distance to closest child over BlockLod+hysteresis
 
 class Ground(sizeSettings: GroundSizeSettings,
-             var terrainFunction: Terrain,
+             var terrainFunction: GroundDef,
              source: TerrainBlockSource,
              camera: Camera = null,
-             groundLodStrategy: GroundLodStrategy = new SimpleGroundLodStrategy()
+             groundLodStrategy: GroundLodStrategy = new SimpleGroundLodStrategy(),
+             assetManager: AssetManager
               ) extends Node { 
 
   private val rootGrid = new HashMap[BlockPos, GroundTree]()
@@ -87,7 +89,7 @@ class Ground(sizeSettings: GroundSizeSettings,
     val newRootBlocks = groundLodStrategy.getRootBlocks(cameraPos, rootGrid.keySet(), sizeSettings)
     newRootBlocks foreach {
       newBlockPos =>
-        val groundTree: GroundTree = new GroundTree(newBlockPos, this, source)
+        val groundTree: GroundTree = new GroundTree(newBlockPos, this, source, assetManager)
         rootGrid.put(newBlockPos, groundTree)
         groundTree.createTerrain()
     }
