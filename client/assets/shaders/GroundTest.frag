@@ -81,10 +81,10 @@ void main(){
     float ecotopeSurfaceScale = 2.0;
 
     // Calculate thickness
-    float t0 = max(0.0, ecotopeThickness0.x + color0.a * ecotopeSurfaceScale);
-    float t1 = max(0.0, ecotopeThickness0.y + color1.a * ecotopeSurfaceScale);
-    float t2 = max(0.0, ecotopeThickness0.z + color2.a * ecotopeSurfaceScale);
-    float t3 = max(0.0, ecotopeThickness0.w + color3.a * ecotopeSurfaceScale);
+    float t0 = max(0.0, ecotopeThickness0.x + color0.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
+    float t1 = max(0.0, ecotopeThickness0.y + color1.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
+    float t2 = max(0.0, ecotopeThickness0.z + color2.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
+    float t3 = max(0.0, ecotopeThickness0.w + color3.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
 
     // Calculate visibility
     float availableDepth = maxSeeThroughDepth;
@@ -105,7 +105,6 @@ void main(){
 
     h3 *= h3 * h3;
     h3 *= h3 * h3;
-
     float hsum = h0 + h1 + h2 + h3;
 
     if (hsum > 0.0) {
@@ -115,5 +114,11 @@ void main(){
 	    gl_FragColor =  color0;
     }
 
-
+/* debug
+    gl_FragColor =  vec4(
+                       min(1.0, t0),
+                       min(1.0, t1),
+                       min(1.0, t2),
+                       1.0);
+*/
 }
