@@ -9,8 +9,6 @@ import com.jme3.math.Vector3f
 import javax.vecmath.Vector3d
 import scala.collection.JavaConversions._
 import org.skycastle.utils.MathUtils
-import com.sun.xml.internal.bind.v2.schemagen.MultiMap
-import tasks._
 import java.util.{Collections, HashSet, ArrayList, HashMap}
 
 /**
