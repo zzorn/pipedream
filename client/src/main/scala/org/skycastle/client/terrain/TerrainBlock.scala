@@ -67,6 +67,25 @@ class TerrainBlock(
     val materials = new Array[GroundMaterial](maxNumberOfGroundMaterials)
     val materialCount: Int = layerMaterials.size()
 
+
+
+    def createMaterial(name: Symbol,  textureFile: String): GroundMaterial = {
+      val texture: Texture = assetManager.loadTexture(textureFile)
+      texture.setWrap(Texture.WrapMode.Repeat)
+      new GroundMaterial(name, texture)
+    }
+
+    def setMaterialIndex(index: Int, material: GroundMaterial) {
+      materials(index) = material
+      materialIndexes.put(material.name, index)
+    }
+
+    setMaterialIndex(0, createMaterial('grass, "textures/twisty_grass.png"))
+    setMaterialIndex(1, createMaterial('stone, "textures/regolith.png"))
+    setMaterialIndex(2, createMaterial('sand,  "textures/sand.png"))
+    setMaterialIndex(3, createMaterial('placeholderium,  "textures/placeholder.png"))
+
+/*
     var li = 0
     while (li < maxNumberOfGroundMaterials &&
            li < materialCount) {
@@ -81,7 +100,7 @@ class TerrainBlock(
       materials(li) = placeholderMaterial
       li += 1
     }
-
+*/
 
     // 3D Mesh
     val mesh = new Mesh()
@@ -125,6 +144,8 @@ class TerrainBlock(
       while (x < vertexSize) {
 
         // Get point data
+        layerMaterials.clear()
+        layerThicknesses.clear()
         val wy = groundDef.calculate(wx, wz, cellSize, layerMaterials, layerThicknesses)
 
         // Point location
@@ -155,7 +176,8 @@ class TerrainBlock(
         // Set texture strengths
         var si2 = 0
         while (si2 < maxNumberOfGroundMaterials) {
-          textureStrengths(i * maxNumberOfGroundMaterials + si2) = materialStrengths(si2).toFloat
+          val layerThickness: Float = materialStrengths(si2).toFloat
+          textureStrengths(i * maxNumberOfGroundMaterials + si2) = layerThickness
           si2 += 1
         }
 

@@ -10,7 +10,7 @@ attribute vec2 inTexCoord;
 
 varying vec2 texCoord;
 
-varying vec4 textureStrengths0;
+varying vec4 ecotopeThickness0;
 
 
 void main(){
@@ -26,5 +26,5 @@ void main(){
     texCoord = inTexCoord;
 
     // Reusing JME attributes to pass own ones, as JME3 doesn't support user defined attributes... -_-;
-    textureStrengths0 = inTexCoord2;
+    ecotopeThickness0 = inTexCoord2;
 }

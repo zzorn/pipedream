@@ -2,7 +2,7 @@
 varying vec2 texCoord;
 
 // Strengths of the first four textures
-varying vec4 textureStrengths0;
+varying vec4 ecotopeThickness0;
 
 
 uniform sampler2D m_Ecotope0Map;
@@ -65,6 +65,8 @@ float scaleClamp(float v, float inStart, float inEnd, float outStart, float outE
 }
 
 
+const float maxSeeThroughDepth = 5.0;
+
 void main(){
 
     // TODO: We want to overlap the textures on top of each other, using some translucency (for each?).
@@ -76,17 +78,21 @@ void main(){
     vec4 color2 = texture2D(m_Ecotope2Map, texCoord);
     vec4 color3 = texture2D(m_Ecotope3Map, texCoord);
 
-    float eco0str = textureStrengths0.x;
-    float eco1str = textureStrengths0.y;
-    float eco2str = textureStrengths0.z;
-    float eco3str = textureStrengths0.w;
+    float ecotopeSurfaceScale = 2.0;
 
-    float h0 = color0.a * eco0str;
-    float h1 = color1.a * eco1str;
-    float h2 = color2.a * eco2str;
-    float h3 = color3.a * eco3str;
+    // Calculate thickness
+    float t0 = max(0.0, ecotopeThickness0.x + color0.a * ecotopeSurfaceScale);
+    float t1 = max(0.0, ecotopeThickness0.y + color1.a * ecotopeSurfaceScale);
+    float t2 = max(0.0, ecotopeThickness0.z + color2.a * ecotopeSurfaceScale);
+    float t3 = max(0.0, ecotopeThickness0.w + color3.a * ecotopeSurfaceScale);
 
-/*
+    // Calculate visibility
+    float availableDepth = maxSeeThroughDepth;
+    float h0 = min(t0, availableDepth); availableDepth -= h0;
+    float h1 = min(t1, availableDepth); availableDepth -= h1;
+    float h2 = min(t2, availableDepth); availableDepth -= h2;
+    float h3 = min(t3, availableDepth); availableDepth -= h3;
+
     // Increase contrast
     h0 *= h0 * h0;
     h0 *= h0 * h0;
@@ -99,7 +105,7 @@ void main(){
 
     h3 *= h3 * h3;
     h3 *= h3 * h3;
-*/
+
     float hsum = h0 + h1 + h2 + h3;
 
     if (hsum > 0.0) {

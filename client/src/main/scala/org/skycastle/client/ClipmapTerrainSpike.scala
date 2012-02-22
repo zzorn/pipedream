@@ -67,14 +67,23 @@ object ClipmapTerrainSpike extends SimpleApplication  {
       new GroundMaterial(name, texture)
     }
 
-    val stone = createMaterial('stone, "textures/twisty_grass.png")
-    val grass = createMaterial('grass, "textures/regolith.png")
+    val stone = createMaterial('stone, "textures/regolith.png")
+    val grass = createMaterial('grass, "textures/twisty_grass.png")
     val sand  = createMaterial('sand,  "textures/sand.png")
 
     val groundDef: GroundDef = new GroundDef()
-    groundDef.addLayer(new MaterialLayer(1.0, stone, MountainFun() + TurbulenceFun()))
-    groundDef.addLayer(new MaterialLayer(0.5, sand,  TurbulenceFun(2, sizeX = 2000, sizeZ= 2000, amplitude = 200).clampBot()))
-    groundDef.addLayer(new MaterialLayer(0.0, grass, TurbulenceFun(sizeX = 10, sizeZ = 10, amplitude = 1).clampBot()))
+    groundDef.addLayer(new MaterialLayer(0.0, stone,
+      MountainFun(size = 1000, altitude = 100, sharpness = 2)
+      + MountainFun(size = 10000, altitude = 1000, sharpness = 4, offset = 1.0123) ))
+    groundDef.addLayer(new MaterialLayer(0.5, sand,
+      //TurbulenceFun(2, sizeX = 2000, sizeZ= 2000, amplitude = 200, offsetZ = 34123.123)
+      NoiseFun(sizeX= 1234, sizeZ= 2433, amplitude= 200, offsetZ = 32335.12)
+      + NoiseFun(sizeX= 134, sizeZ= 433,  amplitude= 10, offsetZ = 335.12) +
+        MountainFun(size = 100, altitude = 10, sharpness = 2, offset = 1.123)))
+    groundDef.addLayer(new MaterialLayer(1.0, grass,
+      /*TurbulenceFun(sizeX = 10, sizeZ = 10, amplitude = 4, offsetZ = 5423.123)
+      + */ NoiseFun(offsetX = 1235.12, amplitude = 10, sizeX = 100, sizeZ = 200)
+      - ConstFun(2)))
     groundDef
   }
 

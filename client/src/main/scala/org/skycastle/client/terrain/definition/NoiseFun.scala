@@ -5,8 +5,8 @@ import org.skycastle.utils.SimplexNoise
 /**
  * 
  */
-final case class NoiseFun(sizeX: Double = 1.0,
-                          sizeZ: Double = 1.0,
+final case class NoiseFun(sizeX: Double = 10.0,
+                          sizeZ: Double = 10.0,
                           offsetX: Double = 1.0,
                           offsetZ: Double = 1.0,
                           amplitude: Double = 1.0) extends Fun2d {
