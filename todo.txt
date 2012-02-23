@@ -1,0 +1,51 @@
+
+
+
+== Terrain ==
+
+* Lighting
+** Simple directional
+
+* Fog: Realistic skylight model
+
+* Shader, biotope mixing bug
+
+* Terrain functions
+** Getting parameters to terrain functions
+** Keeping track of underlying slope, relative height at different scales
+** Support for min/max detail when sampling noise
+
+* BlockFactory, generate a block at a time
+** Generate blocks in separate worker threads
+** Generate any point clouds, apply their effects
+** Generate any items on the block from points
+
+* Forests, fields
+
+* Linear objects
+** Paths, tracks, etc
+** Roads, streams
+** Walls etc?
+
+* Water
+** lakes
+** streams
+** oceans
+** Ponds, puddles
+
+
+* Storing changes
+** Carving, deposition, depositing other material
+
+
+Low priority
+* Changing sun position, time
+* Weather
+
+
+
+
+
+
+
+
