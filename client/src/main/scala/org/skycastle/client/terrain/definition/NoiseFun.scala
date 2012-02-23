@@ -1,6 +1,7 @@
 package org.skycastle.client.terrain.definition
 
 import org.skycastle.utils.SimplexNoise
+import org.skycastle.client.util.SimplexGradientNoise
 
 /**
  * 
@@ -13,6 +14,7 @@ final case class NoiseFun(sizeX: Double = 10.0,
   def apply(x: Double, z: Double, minScale: Double, maxScale: Double): Double = {
     val xp = (x + offsetX) / sizeX
     val zp = (z + offsetZ) / sizeZ
-    SimplexNoise.noise(xp, zp) * amplitude
+    SimplexGradientNoise.sdnoise2(xp.toFloat, zp.toFloat, null) * amplitude
+//    SimplexNoise.noise(xp, zp) * amplitude
   }
 }
