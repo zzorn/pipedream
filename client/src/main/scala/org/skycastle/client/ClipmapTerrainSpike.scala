@@ -84,7 +84,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     groundDef.addLayer(new MaterialLayer(1.0, grass,
       TurbulenceFun(sizeX = 1000, sizeZ = 1000, amplitude = 12, offsetZ = 5423.123)
       + NoiseFun(offsetX = 1235.12, amplitude = 4, sizeX = 100, sizeZ = 200)
-      + ConstFun(2)))
+      - ConstFun(2)))
     groundDef
   }
 

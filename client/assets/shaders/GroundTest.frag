@@ -65,7 +65,8 @@ float scaleClamp(float v, float inStart, float inEnd, float outStart, float outE
 }
 
 
-const float maxSeeThroughDepth = 10.0;
+const float maxSeeThroughDepth = 1.0;
+const float ecotopeSurfaceScale = 1.0;
 
 void main(){
 
@@ -78,20 +79,18 @@ void main(){
     vec4 color2 = texture2D(m_Ecotope2Map, texCoord);
     vec4 color3 = texture2D(m_Ecotope3Map, texCoord);
 
-    float ecotopeSurfaceScale = 10.0;
-
-    // Calculate thickness
-    float t0 = max(0.0, ecotopeThickness0.x + color0.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
-    float t1 = max(0.0, ecotopeThickness0.y + color1.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
-    float t2 = max(0.0, ecotopeThickness0.z + color2.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
-    float t3 = max(0.0, ecotopeThickness0.w + color3.a * ecotopeSurfaceScale - ecotopeSurfaceScale);
-
     // Calculate visibility
-    float availableDepth = maxSeeThroughDepth;
-    float h0 = min(t0, availableDepth); availableDepth -= h0;
-    float h1 = min(t1, availableDepth); availableDepth -= h1;
-    float h2 = min(t2, availableDepth); availableDepth -= h2;
-    float h3 = min(t3, availableDepth); availableDepth -= h3;
+    float landHeight = 0.0;
+    float h3 = landHeight + ecotopeThickness0.w; landHeight += h3;
+    float h2 = landHeight + ecotopeThickness0.z; landHeight += h2;
+    float h1 = landHeight + ecotopeThickness0.y; landHeight += h1;
+    float h0 = landHeight + ecotopeThickness0.x; landHeight += h0;
+
+    // Surfacematerial
+    h0 += color0.a * ecotopeSurfaceScale;
+    h1 += color1.a * ecotopeSurfaceScale;
+    h2 += color2.a * ecotopeSurfaceScale;
+    h3 += color3.a * ecotopeSurfaceScale;
 
     // Increase contrast
     h0 *= h0 * h0;
@@ -105,6 +104,7 @@ void main(){
 
     h3 *= h3 * h3;
     h3 *= h3 * h3;
+
     float hsum = h0 + h1 + h2 + h3;
 
     if (hsum > 0.0) {
@@ -116,9 +116,9 @@ void main(){
 
 /* debug
     gl_FragColor =  vec4(
-                       min(1.0, t0),
-                       min(1.0, t1),
-                       min(1.0, t2),
+                       clamp(h0, 0.0, 1.0),
+                       clamp(h1, 0.0, 1.0),
+                       clamp(h2, 0.0, 1.0),
                        1.0);
 */
 }
