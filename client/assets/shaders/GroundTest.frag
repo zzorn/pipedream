@@ -65,7 +65,7 @@ float scaleClamp(float v, float inStart, float inEnd, float outStart, float outE
 }
 
 
-const float maxSeeThroughDepth = 5.0;
+const float maxSeeThroughDepth = 10.0;
 
 void main(){
 
@@ -78,7 +78,7 @@ void main(){
     vec4 color2 = texture2D(m_Ecotope2Map, texCoord);
     vec4 color3 = texture2D(m_Ecotope3Map, texCoord);
 
-    float ecotopeSurfaceScale = 2.0;
+    float ecotopeSurfaceScale = 10.0;
 
     // Calculate thickness
     float t0 = max(0.0, ecotopeThickness0.x + color0.a * ecotopeSurfaceScale - ecotopeSurfaceScale);

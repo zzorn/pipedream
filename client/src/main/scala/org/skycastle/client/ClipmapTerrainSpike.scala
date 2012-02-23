@@ -39,7 +39,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   private val limitFps= false
   private val lightingOn = !waterOn
 
-  private val movementSpeed: Float = 1000
+  private val movementSpeed: Float = 300
 
   private val startX = 33010
   private val startZ = -100000
@@ -73,17 +73,18 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     val groundDef: GroundDef = new GroundDef()
     groundDef.addLayer(new MaterialLayer(0.0, stone,
-      MountainFun(size = 1000, altitude = 100, sharpness = 2)
+      MountainFun(size = 100000, altitude = 1000, sharpness = 4, offset=0.98213)
+      + MountainFun(size = 1000, altitude = 100, sharpness = 2)
       + MountainFun(size = 10000, altitude = 1000, sharpness = 4, offset = 1.0123) ))
     groundDef.addLayer(new MaterialLayer(0.5, sand,
       //TurbulenceFun(2, sizeX = 2000, sizeZ= 2000, amplitude = 200, offsetZ = 34123.123)
-      NoiseFun(sizeX= 1234, sizeZ= 2433, amplitude= 200, offsetZ = 32335.12)
-      + NoiseFun(sizeX= 134, sizeZ= 433,  amplitude= 10, offsetZ = 335.12) +
-        MountainFun(size = 100, altitude = 10, sharpness = 2, offset = 1.123)))
+      NoiseFun(sizeX= 21234, sizeZ= 12433, amplitude= 100, offsetZ = 32335.12)
+      + NoiseFun(sizeX= 1342, sizeZ= 4233,  amplitude= 50, offsetZ = 335.12) +
+        MountainFun(size = 500, altitude = 100, sharpness = 2, offset = 1.123)))
     groundDef.addLayer(new MaterialLayer(1.0, grass,
-      /*TurbulenceFun(sizeX = 10, sizeZ = 10, amplitude = 4, offsetZ = 5423.123)
-      + */ NoiseFun(offsetX = 1235.12, amplitude = 10, sizeX = 100, sizeZ = 200)
-      - ConstFun(2)))
+      TurbulenceFun(sizeX = 1000, sizeZ = 1000, amplitude = 12, offsetZ = 5423.123)
+      + NoiseFun(offsetX = 1235.12, amplitude = 10, sizeX = 100, sizeZ = 200)
+      + ConstFun(2)))
     groundDef
   }
 
