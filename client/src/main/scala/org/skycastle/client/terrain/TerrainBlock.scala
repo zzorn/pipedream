@@ -83,7 +83,7 @@ class TerrainBlock(
     setMaterialIndex(0, createMaterial('grass, "textures/twisty_grass.png"))
     setMaterialIndex(1, createMaterial('sand,  "textures/sand.png"))
     setMaterialIndex(2, createMaterial('stone, "textures/regolith.png"))
-    setMaterialIndex(3, createMaterial('placeholderium,  "textures/placeholder.png"))
+    setMaterialIndex(3, createMaterial('bedrock,"textures/grey_rock-diffuse.png"))
 
 /*
     var li = 0

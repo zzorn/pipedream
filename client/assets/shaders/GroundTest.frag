@@ -1,127 +1,83 @@
-
+// Texture coordinate, actually contains world coordinates
 varying vec2 texCoord;
 
-// Strengths of the first four textures
+// Thicknesses of the ecotopes
 varying vec4 ecotopeThickness0;
+//varying vec4 ecotopeThickness1;
 
-
+// Ecotope textures + depths
 uniform sampler2D m_Ecotope0Map;
 uniform sampler2D m_Ecotope1Map;
 uniform sampler2D m_Ecotope2Map;
 uniform sampler2D m_Ecotope3Map;
+/*
+uniform sampler2D m_Ecotope4Map;
+uniform sampler2D m_Ecotope5Map;
+uniform sampler2D m_Ecotope6Map;
+uniform sampler2D m_Ecotope7Map;
+*/
 
-/**
- * A fast approximation for sigmoid function, from http://www.dontveter.com/bpr/activate.html
- * Deviation from real sigmoid is less than 0.02.
- * x should be in range -1 .. 1
- * Returns value from 0 to 1
- */
-float sigmoid(float x) {
-  if (x >= 1.0) return 1.0;
-  else if (x <= -1.0) return 0.0;
-  else return 0.5 + x * (1.0 - abs(x) * 0.5);
-}
+const float contrastPower = 5.0;
+const float epsilon = 0.01;
 
-/**
- * Performs sigmoid on x over the specified range.
- * Returns value from 0 to 1, 0 if less than startX, 1 if larger than endX, and a sigmoid between the two in between.
- * startX must not be equal to endX.
- */
-float sigmoid(float x, float startX, float endX) {
-  if (x <= startX) return 0.0;
-  else if (x >= endX) return 1.0;
-  else {
-    float scaledX = (x - startX) / (endX - startX);
-    return 0.5 + scaledX * (1.0 - abs(scaledX) * 0.5);
-  }
-}
-
-
-/**
- * A fast approximation for sigmoid function, from http://dinodini.wordpress.com/2010/04/05/normalized-tunable-sigmoid-functions/
- * x should be in range -1 .. 1
- * Returns value from -1 to 1
- * sharpness can be from -Inf to Inf, closer to zero it is sharper, closer to +/- inf it is more straight.
- * at 1 is is close to normal sigmoid.
- */
- //
-float sigmoid2(float x, float sharpness) {
-  if (x >= 1.0) return 1.0;
-  else if (x <= -1.0) return -1.0;
-  else {
-    if (sharpness < 0.0) sharpness -= 1.0;
-
-    if (x > 0.0) return sharpness * x / (sharpness - x + 1.0);
-    else if (x < 0.0) return sharpness * x / (sharpness - abs(x) + 1.0);
-    else return 0.0;
-  }
-}
-
-
-float scaleClamp(float v, float inStart, float inEnd, float outStart, float outEnd) {
-  if (v <= inStart) return outStart;
-  else if (v >= inEnd) return outEnd;
-  else return outStart + (outEnd - outStart) * (v - inStart) / (inEnd - inStart);
-}
-
-
-const float ecotopeSurfaceScale = 0.25;
-const float maxSeeThroughDepth = 4.0 * ecotopeSurfaceScale;
 
 void main(){
 
-    // TODO: We want to overlap the textures on top of each other, using some translucency (for each?).
-    // They are passed in in top to bottom order, so ecotope0 is on top of ecotope1, and so on.
-    // The strengths are the ecotope thicknesses, in meters.
+    // Testures are passed in in top to bottom order, so ecotope0 is on top of ecotope1, and so on.
+    // The ecotope thicknesses and surface scales are both given in the same unit (meters).
 
     vec4 color0 = texture2D(m_Ecotope0Map, texCoord);
     vec4 color1 = texture2D(m_Ecotope1Map, texCoord);
     vec4 color2 = texture2D(m_Ecotope2Map, texCoord);
     vec4 color3 = texture2D(m_Ecotope3Map, texCoord);
 
+    // TODO: Get surface depth scales as material parameters
+    float surfaceScale0 = 1.3;
+    float surfaceScale1 = 5.0;
+    float surfaceScale2 = 10.0;
+    float surfaceScale3 = 1.0;
+
     // Calculate visibility
-    float depthLeft = maxSeeThroughDepth;
-    float h0 = min(depthLeft, ecotopeThickness0.x); depthLeft -= h0;
-    float h1 = min(depthLeft, ecotopeThickness0.y); depthLeft -= h1;
-    float h2 = min(depthLeft, ecotopeThickness0.z); depthLeft -= h2;
-    float h3 = min(depthLeft, ecotopeThickness0.w); depthLeft -= h3;
+    float strengthLeft = 1.0;
+    float s0 = clamp(ecotopeThickness0.x / surfaceScale0, 0.0, strengthLeft); strengthLeft -= s0;
+    float s1 = clamp(ecotopeThickness0.y / surfaceScale1, 0.0, strengthLeft); strengthLeft -= s1;
+    float s2 = clamp(ecotopeThickness0.z / surfaceScale2, 0.0, strengthLeft); strengthLeft -= s2;
+    float s3 = strengthLeft;
 
-    // Surfacematerial
-
-    h0 += color0.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
-    h1 += color1.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
-    h2 += color2.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
-    h3 += color3.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
-
-    h0 = max(0.0, h0);
-    h1 = max(0.0, h1);
-    h2 = max(0.0, h2);
-    h3 = max(0.0, h3);
-
+    // Adjust visibility with surface heights
+    s0 *= (epsilon + color0.a);
+    s1 *= (epsilon + color1.a);
+    s2 *= (epsilon + color2.a);
+    s3 *= (epsilon + color3.a);
 
     // Increase contrast
+    /* TODO: Is it faster to do pow, or to multiply repeatedly?
+    s0 = pow(s0, contrastPower);
+    s1 = pow(s1, contrastPower);
+    s2 = pow(s2, contrastPower);
+    s3 = pow(s3, contrastPower);
+    */
+    s0 *= s0 * s0;
+    s0 *= s0 * s0;
 
-    h0 *= h0 * h0;
-    h0 *= h0 * h0;
+    s1 *= s1 * s1;
+    s1 *= s1 * s1;
 
-    h1 *= h1 * h1;
-    h1 *= h1 * h1;
+    s2 *= s2 * s2;
+    s2 *= s2 * s2;
 
-    h2 *= h2 * h2;
-    h2 *= h2 * h2;
+    s3 *= s3 * s3;
+    s3 *= s3 * s3;
 
-    h3 *= h3 * h3;
-    h3 *= h3 * h3;
-
-
-    float hsum = h0 + h1 + h2 + h3;
-
-    if (hsum > 0.0) {
-    	gl_FragColor =  (color0 * h0 + color1 * h1 + color2 * h2 + color3 * h3) / hsum;
+    // Calculate color
+    float sum = s0 + s1 + s2 + s3;
+    if (sum > 0.0) {
+        gl_FragColor =  (color0 * s0 + color1 * s1 + color2 * s2 + color3 * s3) / sum;
     }
     else {
-	    gl_FragColor =  color0;
+	    gl_FragColor =  color3;
     }
+
 
 /* debug
     gl_FragColor =  vec4(
