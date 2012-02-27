@@ -65,8 +65,8 @@ float scaleClamp(float v, float inStart, float inEnd, float outStart, float outE
 }
 
 
-const float maxSeeThroughDepth = 1.0;
-const float ecotopeSurfaceScale = 1.0;
+const float ecotopeSurfaceScale = 0.25;
+const float maxSeeThroughDepth = 4.0 * ecotopeSurfaceScale;
 
 void main(){
 
@@ -80,19 +80,27 @@ void main(){
     vec4 color3 = texture2D(m_Ecotope3Map, texCoord);
 
     // Calculate visibility
-    float landHeight = 0.0;
-    float h3 = landHeight + ecotopeThickness0.w; landHeight += h3;
-    float h2 = landHeight + ecotopeThickness0.z; landHeight += h2;
-    float h1 = landHeight + ecotopeThickness0.y; landHeight += h1;
-    float h0 = landHeight + ecotopeThickness0.x; landHeight += h0;
+    float depthLeft = maxSeeThroughDepth;
+    float h0 = min(depthLeft, ecotopeThickness0.x); depthLeft -= h0;
+    float h1 = min(depthLeft, ecotopeThickness0.y); depthLeft -= h1;
+    float h2 = min(depthLeft, ecotopeThickness0.z); depthLeft -= h2;
+    float h3 = min(depthLeft, ecotopeThickness0.w); depthLeft -= h3;
 
     // Surfacematerial
-    h0 += color0.a * ecotopeSurfaceScale;
-    h1 += color1.a * ecotopeSurfaceScale;
-    h2 += color2.a * ecotopeSurfaceScale;
-    h3 += color3.a * ecotopeSurfaceScale;
+
+    h0 += color0.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
+    h1 += color1.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
+    h2 += color2.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
+    h3 += color3.a * ecotopeSurfaceScale - ecotopeSurfaceScale;
+
+    h0 = max(0.0, h0);
+    h1 = max(0.0, h1);
+    h2 = max(0.0, h2);
+    h3 = max(0.0, h3);
+
 
     // Increase contrast
+
     h0 *= h0 * h0;
     h0 *= h0 * h0;
 
@@ -104,6 +112,7 @@ void main(){
 
     h3 *= h3 * h3;
     h3 *= h3 * h3;
+
 
     float hsum = h0 + h1 + h2 + h3;
 
@@ -116,9 +125,9 @@ void main(){
 
 /* debug
     gl_FragColor =  vec4(
-                       clamp(h0, 0.0, 1.0),
-                       clamp(h1, 0.0, 1.0),
-                       clamp(h2, 0.0, 1.0),
+                       clamp(h0 / hsum, 0.0, 1.0),
+                       clamp(h1 / hsum, 0.0, 1.0),
+                       clamp(h2 / hsum, 0.0, 1.0),
                        1.0);
 */
 }

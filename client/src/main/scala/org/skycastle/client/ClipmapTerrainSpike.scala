@@ -73,18 +73,21 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     val groundDef: GroundDef = new GroundDef()
     groundDef.addLayer(new MaterialLayer(0.0, stone,
+      NoiseFun(sizeScale = 1000, seed=2356451, amplitude = 100) /*
       MountainFun(size = 100000, altitude = 1000, sharpness = 4, offset=0.98213)
       + MountainFun(size = 1000, altitude = 100, sharpness = 2)
-      + MountainFun(size = 10000, altitude = 1000, sharpness = 4, offset = 1.0123) ))
+      + MountainFun(size = 10000, altitude = 1000, sharpness = 4, offset = 1.0123) */ ))
     groundDef.addLayer(new MaterialLayer(0.5, sand,
+      NoiseFun(sizeScale = 100, seed=453242, amplitude = 10) /*
       //TurbulenceFun(2, sizeX = 2000, sizeZ= 2000, amplitude = 200, offsetZ = 34123.123)
       NoiseFun(sizeX= 21234, sizeZ= 12433, amplitude= 100, offsetZ = 32335.12)
       + NoiseFun(sizeX= 13412, sizeZ= 42313,  amplitude= 50, offsetZ = 335.12) +
-        MountainFun(size = 5100, altitude = 100, sharpness = 2, offset = 1.123)))
+        MountainFun(size = 5100, altitude = 100, sharpness = 2, offset = 1.123) */ ))
     groundDef.addLayer(new MaterialLayer(1.0, grass,
+      NoiseFun(sizeScale = 10, seed=123545, amplitude = 1) /*
       TurbulenceFun(sizeX = 1000, sizeZ = 1000, amplitude = 12, offsetZ = 5423.123)
       + NoiseFun(offsetX = 1235.12, amplitude = 4, sizeX = 100, sizeZ = 200)
-      - ConstFun(2)))
+      - ConstFun(2) */ ))
     groundDef
   }
 
