@@ -2,7 +2,6 @@
 uniform vec3 m_sunDir;
 
 varying vec3 vertexPos;
-varying vec2 texPos;
 
 void main()
 {
@@ -11,10 +10,10 @@ void main()
 
     // Alignment of this fragment with the sun
     float sunDir = (dot(posN, sunN) + 1.0) / 2.0;
-    float skyHeight = texPos.y;
+    float skyHeight = (1.0 - posN.z) * 0.5;
 
     // Sky bluishness
-    float skyBlue = (sunDir + (1.0 - skyHeight)) * 1.4;
+    float skyBlue = (sunDir + (skyHeight)) * 1.4;
     skyBlue = pow(skyBlue, 1.1);
     vec3 skyColor = 0.4 * skyBlue * vec3(0.15, 0.2, 1.0);
 
@@ -25,7 +24,7 @@ void main()
     vec3 sunGlowColor = 0.5 * sunGlow * vec3(1.0, 0.9, 0.7);
 
     // Fog
-    float fog = (1.0 - skyHeight) * 1.0 + 0.5;
+    float fog = (skyHeight) * 1.0 + 0.5;
     fog = pow(fog, 4.0);
     vec3 fogColor = 0.6 * fog * vec3(1.0, 0.6, 0.3);
 
