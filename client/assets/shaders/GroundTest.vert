@@ -1,6 +1,5 @@
 
 //the global uniform World view projection matrix
-//(more on global uniforms below)
 uniform mat4 g_WorldViewProjectionMatrix;
 
 //The attribute inPosition is the Object space position of the vertex

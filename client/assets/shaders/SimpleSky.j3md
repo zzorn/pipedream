@@ -1,0 +1,36 @@
+
+
+
+MaterialDef SimpleSky {
+
+    MaterialParameters {
+//        Vector4 skyColor0:     0.0 0.0 0.5 1.0
+//        Vector4 skyColor45:    0.0 0.3 1.0 1.0
+//        Vector4 skyColor90:    0.3 0.5 1.0 1.0
+//        Vector4 skyColor180:   1.0 1.0 1.0 1.0
+
+//        Vector4 sunColor0:     0.1 0.1 0.1 1.0
+//        Vector4 sunColor45:    0.0 0.3 1.0 1.0
+//        Vector4 sunColor90:    0.3 0.5 1.0 1.0
+//        Vector4 sunColor180:   1.0 1.0 1.0 1.0
+
+        Vector3 sunDir:        0.7 1.0 0.5
+    }
+
+    Technique {
+
+//        LightMode MultiPass
+
+        VertexShader   GLSL100: shaders/SimpleSky.vert
+        FragmentShader GLSL100: shaders/SimpleSky.frag
+
+        WorldParameters {
+             WorldViewProjectionMatrix
+        }
+
+
+    }
+
+
+
+}

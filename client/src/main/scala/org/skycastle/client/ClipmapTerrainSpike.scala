@@ -20,14 +20,18 @@ import com.jme3.audio.AudioNode
 import com.jme3.util.SkyFactory
 import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
-import com.jme3.scene.shape.Box
 import com.jme3.post.filters.FogFilter
 import terrain._
-import com.jme3.texture.Texture
 import com.jme3.light.{AmbientLight, DirectionalLight}
 import com.jme3.math.{ColorRGBA, Vector3f}
 import com.jme3.asset.plugins.FileLocator
 import definition._
+import com.jme3.renderer.queue.RenderQueue.Bucket
+import com.jme3.scene.shape.{Sphere, Dome, Box}
+import com.jme3.bounding.BoundingSphere
+import com.jme3.texture.{Image, TextureCubeMap, Texture}
+import com.jme3.scene.control.AbstractControl
+import com.jme3.renderer.{RenderManager, ViewPort}
 
 /**
  *
@@ -36,13 +40,13 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
   private val waterOn = false
   private val wireframe = false
-  private val limitFps= false
+  private val limitFps= true
   private val lightingOn = !waterOn
 
   private val movementSpeed: Float = 300
 
-  private val startX = 33010
-  private val startZ = -100000
+  private val startX = 0
+  private val startZ = 0
 
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
 
@@ -129,15 +133,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     this.rootNode.attachChild(terrain);
 
-    // Refpoint
-    val box = new Geometry("box", new Box(1, 1, 1))
-    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    mat.setColor("Color", ColorRGBA.Red);
-    box.setMaterial(mat)
-    rootNode.attachChild(box)
-
     // Fog
-    if(lightingOn) viewPort.addProcessor(createFog(assetManager))
+    //if(lightingOn) viewPort.addProcessor(createFog(assetManager))
 
     // Water
     if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0));
@@ -153,14 +150,21 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     */
 
     // Sky
-    this.viewPort.setBackgroundColor(new ColorRGBA(0.3f, 0.3f, 0.3f, 1f));
-//    this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
-//    rootNode.attachChild(createSky(assetManager))
+    rootNode.attachChild(createSky(viewPort, assetManager))
 
     createLight(rootNode)
 
     // Start pos
-    this.getCamera.setLocation(new Vector3f(startX, groundDef.getHeight(startX, startZ, 1).toFloat +2, startZ));
+    val startPos: Vector3f = new Vector3f(startX, groundDef.getHeight(startX, startZ, 1).toFloat + 2, startZ)
+    this.getCamera.setLocation(startPos);
+
+    // Refpoint
+    val box = new Geometry("box", new Box(1, 1, 1))
+    box.setLocalTranslation(startPos)
+    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat.setColor("Color", ColorRGBA.Red);
+    box.setMaterial(mat)
+    rootNode.attachChild(box)
 
   }
 
@@ -344,7 +348,38 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   }
 
 
-  private def createSky(manager: AssetManager): Spatial = {
+  private def createSky(viewPort: ViewPort, manager: AssetManager): Spatial = {
+    //this.viewPort.setBackgroundColor(new ColorRGBA(0.3f, 0.3f, 0.3f, 1f));
+    //this.viewPort.setBackgroundColor(new ColorRGBA(0.3f, 0.3f, 0.3f, 1f));
+
+    val sphereMesh = new Sphere(32, 32, 100f, false, true)
+    val sky = new Geometry("Sky", sphereMesh)
+    sky.setQueueBucket(Bucket.Sky)
+    sky.setCullHint(Spatial.CullHint.Never)
+    sky.setModelBound(new BoundingSphere(Float.PositiveInfinity, Vector3f.ZERO))
+    sky.rotate(-0.5f*math.Pi.toFloat, 0f, 0f)
+
+    val skyMaterial = new Material(assetManager, "shaders/SimpleSky.j3md")
+    sky.setMaterial(skyMaterial)
+
+//    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+//    mat.setColor("Color", ColorRGBA.Blue);
+//    sky.setMaterial(mat)
+
+    // Center skybox on camera
+    sky.addControl(new AbstractControl {
+      def cloneForSpatial(spatial: Spatial) = null
+      def controlRender(rm: RenderManager, vp: ViewPort) {}
+      def controlUpdate(tpf: Float) {
+        sky.setLocalTranslation(getCamera.getLocation)
+      }
+    })
+
+
+
+    //    this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
+
+    /*
     val west = manager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
     val east = manager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
     val north = manager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
@@ -353,6 +388,9 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     val down = manager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
 
     val sky = SkyFactory.createSky(manager, west, east, north, south, up, down);
+    sky
+    */
+
     sky
   }
 
