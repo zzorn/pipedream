@@ -40,10 +40,10 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
   private val waterOn = false
   private val wireframe = false
-  private val limitFps= false
+  private val limitFps= true
   private val lightingOn = !waterOn
 
-  private val movementSpeed: Float = 3000
+  private val movementSpeed: Float = 300
 
   private val startX = 0
   private val startZ = 0
@@ -79,7 +79,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     val groundDef: GroundDef = new GroundDef()
     groundDef.addLayer(new FoundationLayer(-1.0, bedrock,
       MountainFun(size = 1000000, altitude = 10000, sharpness = 4, offset=0.98213)
-      + NoiseFun(sizeScale = 100000, seed=342123, amplitude = 1000)))
+      - MountainFun(size = 50000, altitude = 7000, sharpness = 3, offset=0.9843211233)
+      - NoiseFun(sizeScale = 10000, seed=342123, amplitude = 1000)))
     groundDef.addLayer(new MaterialLayer(0.0, stone,
       //NoiseFun(sizeScale = 1000, seed=2356451, amplitude = 100)
       MountainFun(size = 100000, altitude = 1000, sharpness = 4, offset=0.98213)
