@@ -40,10 +40,10 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
   private val waterOn = false
   private val wireframe = false
-  private val limitFps= true
+  private val limitFps= false
   private val lightingOn = !waterOn
 
-  private val movementSpeed: Float = 300
+  private val movementSpeed: Float = 3000
 
   private val startX = 0
   private val startZ = 0

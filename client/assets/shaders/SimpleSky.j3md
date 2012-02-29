@@ -15,6 +15,7 @@ MaterialDef SimpleSky {
 //        Vector4 sunColor180:   1.0 1.0 1.0 1.0
 
         Vector3 sunDir:        0.7 1.0 0.5
+
     }
 
     Technique {
@@ -26,6 +27,7 @@ MaterialDef SimpleSky {
 
         WorldParameters {
              WorldViewProjectionMatrix
+             CameraPosition
         }
 
 

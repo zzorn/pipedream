@@ -17,8 +17,44 @@ uniform sampler2D m_Ecotope6Map;
 uniform sampler2D m_Ecotope7Map;
 */
 
+
+// Atmosphere
+uniform vec3 m_sunDir;
+
+varying vec3 vertexPos;
+
+uniform vec3 g_CameraPosition;
+
+uniform vec4 sunLight = vec4(0.9, 0.85, 0.8, 100.0); // Color and intensity
+
+uniform float haze0_amount = 1.0; // Amount of the haze compared to air (pressure at sea level), 1.0 = same amount as air.
+uniform float haze0_weight = 1.0; // Weight of the particles in the haze, relative to air (1.0 = weight of air, 2.0 = twice as heavy, the haze will be more compressed).
+
+uniform vec4 haze0_forwardScattering = vec4(0.9, 0.85, 0.8, 10.35); // Forward scattering color components, and strength (in alpha)
+uniform float haze0_forwardScatteringSize = 0.01; // Forward scattering spread
+
+uniform vec4 haze0_sideScattering = vec4(0.1, 0.2, 0.95, 0.1); // Amount and color components scattered to sides.  Alpha is the amount of scattering to sides (uniformly).
+
+uniform vec4 haze0_backScattering = vec4(1.0, 1.0, 1.0, 0.0); // Color and amount of back scattering
+uniform float haze0_backScatterSize = 1.0; // Back scattering spread
+
+
+
+
 const float contrastPower = 5.0;
 const float epsilon = 0.01;
+
+
+
+
+// Constants for air
+const float H = 8000.0; // Scale height for air (8km)
+const float airPressureAtSeaLevel = 101325.0; // 1 atm
+const float gravitationalConstant = 9.807; // g
+const float c1 = airPressureAtSeaLevel / (gravitationalConstant * H); // = 1.291488222;
+const float invH = 1.0 / H;
+
+
 
 
 void main(){
@@ -77,6 +113,72 @@ void main(){
     else {
 	    gl_FragColor =  color3;
     }
+
+
+
+    // Lighting
+    vec3 posN = normalize(vertexPos - g_CameraPosition);
+    vec3 sunN = normalize(m_sunDir);
+
+    // Alignment of this fragment with the sun
+    float sunAlignment = (dot(posN, sunN) + 1.0) / 2.0;
+    float distanceFromSun = 1.0 - sunAlignment;
+
+    float densityToGround =
+      H *
+      haze0_amount *
+      c1 *
+      (exp( -g_CameraPosition.y * haze0_weight * invH) -
+       exp( -vertexPos.y        * haze0_weight * invH));
+    float density = abs(densityToGround) / max(abs(posN.y), 0.000001);
+
+    // TODO: What is this factor?
+    float visualDensity = density / 100000.0;
+
+    vec3 sunlightWithIntensity = sunLight.rgb * sunLight.a;
+    float costTheta = cos(distanceFromSun * 3.1415);
+    float sideScatteringGlowScale = (3.0 / 4.0) * (1.0 + costTheta * costTheta);
+
+    vec3 sideScattering =
+    sideScatteringGlowScale *
+    visualDensity *
+    haze0_sideScattering.a *
+    haze0_sideScattering.rgb *
+    sunlightWithIntensity;
+
+    // Forward scattering
+
+    // Gaussian distribute the glow:
+    //float forwardScatteringGlowScale = exp(-distanceFromSun * distanceFromSun / (2.0 * haze0_forwardScatteringSize * haze0_forwardScatteringSize));
+
+    // Exponent glow
+    float forwardScatteringGlowScale = 0.0;// pow(sunAlignment, 1.0 / haze0_forwardScatteringSize);
+
+    vec3 forwardScattering =
+    visualDensity *
+    forwardScatteringGlowScale *
+    haze0_forwardScattering.a *
+    haze0_forwardScattering.rgb *
+    sunlightWithIntensity;
+
+    // Sum together light components
+    vec3 hdr = gl_FragColor.rgb + sideScattering + forwardScattering;
+
+    // Simple tone mapping
+    vec3 ldr = hdr / (hdr + 1.0);
+
+    // Gamma correct
+    ldr.r = pow(ldr.r, 1.0 / 2.2);
+    ldr.g = pow(ldr.g, 1.0 / 2.2);
+    ldr.b = pow(ldr.b, 1.0 / 2.2);
+
+    gl_FragColor = vec4(ldr, 1.0);
+
+
+
+
+
+
 
 
 /* debug
