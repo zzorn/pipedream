@@ -27,8 +27,8 @@ uniform vec3 g_CameraPosition;
 
 uniform vec4 sunLight = vec4(0.9, 0.85, 0.8, 100.0); // Color and intensity
 
-uniform float haze0_amount = 2.0; // Amount of the haze compared to air (pressure at sea level), 1.0 = same amount as air.
-uniform float haze0_weight = 4.0; // Weight of the particles in the haze, relative to air (1.0 = weight of air, 2.0 = twice as heavy, the haze will be more compressed).
+uniform float haze0_amount = 1.0; // Amount of the haze compared to air (pressure at sea level), 1.0 = same amount as air.
+uniform float haze0_weight = 1.0; // Weight of the particles in the haze, relative to air (1.0 = weight of air, 2.0 = twice as heavy, the haze will be more compressed).
 
 uniform vec4 haze0_forwardScattering = vec4(0.9, 0.85, 0.8, 10.35); // Forward scattering color components, and strength (in alpha)
 uniform float haze0_forwardScatteringSize = 0.01; // Forward scattering spread
@@ -39,10 +39,12 @@ uniform vec4 haze0_backScattering = vec4(1.0, 1.0, 1.0, 0.0); // Color and amoun
 uniform float haze0_backScatterSize = 1.0; // Back scattering spread
 
 
+varying float fragmentDistance;
 
 
-const float contrastPower = 5.0;
-const float epsilon = 0.01;
+const float contrastNear = 12.0;
+const float contrastHalfDistance = 10000.0;
+const float epsilon = 0.001;
 
 
 
@@ -61,6 +63,7 @@ void main(){
 
     // Testures are passed in in top to bottom order, so ecotope0 is on top of ecotope1, and so on.
     // The ecotope thicknesses and surface scales are both given in the same unit (meters).
+
 
     vec4 color0 = texture2D(m_Ecotope0Map, texCoord);
     vec4 color1 = texture2D(m_Ecotope1Map, texCoord);
@@ -87,23 +90,21 @@ void main(){
     s3 *= (epsilon + color3.a);
 
     // Increase contrast
-    /* TODO: Is it faster to do pow, or to multiply repeatedly?
-    s0 = pow(s0, contrastPower);
-    s1 = pow(s1, contrastPower);
-    s2 = pow(s2, contrastPower);
-    s3 = pow(s3, contrastPower);
+    // Adjust contrast with distance
+    float distanceFactor = 1.0 / pow(2.0, fragmentDistance / contrastHalfDistance);
+    float contrast = contrastNear * distanceFactor;
+    s0 = pow(1.0 + s0, contrast);
+    s1 = pow(1.0 + s1, contrast);
+    s2 = pow(1.0 + s2, contrast);
+    s3 = pow(1.0 + s3, contrast);
+
+    /*
+    s0 = exp(s0 * contrast);
+    s1 = exp(s1 * contrast);
+    s2 = exp(s2 * contrast);
+    s3 = exp(s3 * contrast);
     */
-    s0 *= s0 * s0;
-    s0 *= s0 * s0;
 
-    s1 *= s1 * s1;
-    s1 *= s1 * s1;
-
-    s2 *= s2 * s2;
-    s2 *= s2 * s2;
-
-    s3 *= s3 * s3;
-    s3 *= s3 * s3;
 
     // Calculate color
     float sum = s0 + s1 + s2 + s3;
@@ -133,7 +134,7 @@ void main(){
     float density = abs(densityToGround) / max(abs(posN.y), 0.000001);
 
     // TODO: What is this factor?
-    float visualDensity = density / 100000.0;
+    float visualDensity = density / 1000000.0;
 
     vec3 sunlightWithIntensity = sunLight.rgb * sunLight.a;
     float costTheta = cos(distanceFromSun * 3.1415);
@@ -173,9 +174,11 @@ void main(){
     ldr.b = pow(ldr.b, 1.0 / 2.2);
 
     gl_FragColor = vec4(ldr, 1.0);
-
-
-
+/*
+    gl_FragColor.r = distanceFactor;
+    gl_FragColor.g = 0.0;
+    gl_FragColor.b = 0.0;
+*/
 
 
 

@@ -7,8 +7,8 @@ uniform vec3 g_CameraPosition;
 
 uniform vec4 sunLight = vec4(0.9, 0.85, 0.8, 100.0); // Color and intensity
 
-uniform float haze0_amount = 2.0; // Amount of the haze compared to air (pressure at sea level), 1.0 = same amount as air.
-uniform float haze0_weight = 4.0; // Weight of the particles in the haze, relative to air (1.0 = weight of air, 2.0 = twice as heavy, the haze will be more compressed).
+uniform float haze0_amount = 1.0; // Amount of the haze compared to air (pressure at sea level), 1.0 = same amount as air.
+uniform float haze0_weight = 1.0; // Weight of the particles in the haze, relative to air (1.0 = weight of air, 2.0 = twice as heavy, the haze will be more compressed).
 
 uniform vec4 haze0_forwardScattering = vec4(0.9, 0.85, 0.8, 10.35); // Forward scattering color components, and strength (in alpha)
 uniform float haze0_forwardScatteringSize = 0.01; // Forward scattering spread

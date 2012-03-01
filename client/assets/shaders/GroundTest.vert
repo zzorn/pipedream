@@ -15,6 +15,8 @@ varying vec4 ecotopeThickness0;
 
 varying vec3 vertexPos;
 
+varying float fragmentDistance;
+
 
 void main(){
     //Transformation of the object space coordinate to projection space
@@ -29,6 +31,8 @@ void main(){
     texCoord = inTexCoord;
 
     vertexPos = inPosition;
+
+    fragmentDistance = gl_Position.z;
 
     // Reusing JME attributes to pass own ones, as JME3 doesn't support user defined attributes... -_-;
     ecotopeThickness0 = inTexCoord2;

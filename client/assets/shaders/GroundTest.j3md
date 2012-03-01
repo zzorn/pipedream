@@ -30,6 +30,8 @@ MaterialDef GroundTest {
              WorldViewProjectionMatrix
              WorldMatrix
              CameraPosition
+             ModelViewMatrix
+
         }
 
 
