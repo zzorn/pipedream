@@ -27,7 +27,7 @@ uniform vec3 g_CameraPosition;
 
 uniform vec4 sunLight = vec4(0.9, 0.85, 0.8, 100.0); // Color and intensity
 
-uniform float haze0_amount = 1.0; // Amount of the haze compared to air (pressure at sea level), 1.0 = same amount as air.
+uniform float haze0_amount =1.0; // Amount of the haze compared to air (pressure at sea level), 1.0 = same amount as air.
 uniform float haze0_weight = 1.0; // Weight of the particles in the haze, relative to air (1.0 = weight of air, 2.0 = twice as heavy, the haze will be more compressed).
 
 uniform vec4 haze0_forwardScattering = vec4(0.9, 0.85, 0.8, 10.35); // Forward scattering color components, and strength (in alpha)
@@ -40,6 +40,8 @@ uniform float haze0_backScatterSize = 1.0; // Back scattering spread
 
 
 varying float fragmentDistance;
+
+varying vec3 normal;
 
 
 const float contrastNear = 12.0;
@@ -108,20 +110,31 @@ void main(){
 
     // Calculate color
     float sum = s0 + s1 + s2 + s3;
+    vec3 groundColor;
     if (sum > 0.0) {
-        gl_FragColor =  (color0 * s0 + color1 * s1 + color2 * s2 + color3 * s3) / sum;
+        groundColor =  ((color0 * s0 + color1 * s1 + color2 * s2 + color3 * s3) / sum).rgb;
     }
     else {
-	    gl_FragColor =  color3;
+	    groundColor =  color3.rgb;
     }
+
+
+
+    // Ground light
+    vec3 sunN     = normalize(m_sunDir);
+    vec3 terrainN = normalize(normal);
+    float sunGroundAlignment = dot(terrainN, sunN);
+    // TODO: Multiply with intensity of the sunlight hitting the ground
+    groundColor *= sunLight.rgb * sunGroundAlignment;
+
 
 
 
     // Lighting
     vec3 posN = normalize(vertexPos - g_CameraPosition);
-    vec3 sunN = normalize(m_sunDir);
 
     // Alignment of this fragment with the sun
+    vec3 sunlightWithIntensity = sunLight.rgb * sunLight.a;
     float sunAlignment = (dot(posN, sunN) + 1.0) / 2.0;
     float distanceFromSun = 1.0 - sunAlignment;
 
@@ -134,9 +147,8 @@ void main(){
     float density = abs(densityToGround) / max(abs(posN.y), 0.000001);
 
     // TODO: What is this factor?
-    float visualDensity = density / 1000000.0;
+    float visualDensity = density / 100000.0;
 
-    vec3 sunlightWithIntensity = sunLight.rgb * sunLight.a;
     float costTheta = cos(distanceFromSun * 3.1415);
     float sideScatteringGlowScale = (3.0 / 4.0) * (1.0 + costTheta * costTheta);
 
@@ -163,7 +175,7 @@ void main(){
     sunlightWithIntensity;
 
     // Sum together light components
-    vec3 hdr = gl_FragColor.rgb + sideScattering + forwardScattering;
+    vec3 hdr = groundColor + sideScattering + forwardScattering;
 
     // Simple tone mapping
     vec3 ldr = hdr / (hdr + 1.0);

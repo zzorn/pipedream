@@ -9,11 +9,15 @@ attribute vec3 inPosition;
 attribute vec4 inTexCoord2;
 attribute vec2 inTexCoord;
 
+attribute vec3 inNormal;
+
 varying vec2 texCoord;
 
 varying vec4 ecotopeThickness0;
 
 varying vec3 vertexPos;
+
+varying vec3 normal;
 
 varying float fragmentDistance;
 
@@ -31,6 +35,8 @@ void main(){
     texCoord = inTexCoord;
 
     vertexPos = inPosition;
+
+    normal = gl_NormalMatrix * inNormal;
 
     fragmentDistance = gl_Position.z;
 

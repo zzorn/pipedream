@@ -15,6 +15,7 @@ MaterialDef GroundTest {
         Texture2D Ecotope2Map
         Texture2D Ecotope3Map
 
+
         Vector3 sunDir:        0.7 1.0 0.5
 
     }
@@ -31,7 +32,7 @@ MaterialDef GroundTest {
              WorldMatrix
              CameraPosition
              ModelViewMatrix
-
+             NormalMatrix
         }
 
 
