@@ -21,6 +21,7 @@ import com.jme3.util.SkyFactory
 import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
 import com.jme3.post.filters.FogFilter
+import sky.Sky
 import terrain._
 import com.jme3.light.{AmbientLight, DirectionalLight}
 import com.jme3.math.{ColorRGBA, Vector3f}
@@ -64,6 +65,72 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     start()
   }
 
+  @Override
+  def simpleInitApp() {
+
+    assetManager.registerLocator("assets", classOf[FileLocator])
+
+    flyCam.setMoveSpeed(movementSpeed)
+    getCamera.setFrustumFar(320000)
+
+    // Allow screenshots
+    this.stateManager.attach(new ScreenshotAppState());
+
+    // Terrain
+    /*
+   val terrainMaterial = createTerrainMaterial(assetManager, grassScale, dirtScale, rockScale)
+   val groundFunction = createGround
+   val terrain = createTerrain(groundFunction, terrainMaterial)
+    */
+    val terrainMaterial = if (wireframe) createWireframeMaterial(assetManager) else createSimpleTerrainMaterial(getAssetManager)
+
+    //    val block= new TerrainBlock(terrainMaterial, new TestTerrain(), 1000, 1000, 1000, 1000)
+    //    val terrain = block.getGeometry(assetManager)
+    //    val terrain = new ClipmapTerrain(new TestTerrain, terrainMaterial, getAssetManager, 0.25, 11, 32)
+    val groundDef: GroundDef = createTestTerrain
+    val sizeSettings: GroundSizeSettings = new GroundSizeSettings(32,1, 12)
+    val terrain = new Ground(
+      sizeSettings,
+      groundDef,
+      new FunctionalTerrainBlockSource(groundDef, terrainMaterial, sizeSettings),
+      getCamera,
+      new SimpleGroundLodStrategy(2, 0.25),
+      assetManager)
+
+    this.rootNode.attachChild(terrain);
+
+    // Water
+    if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0));
+
+
+
+    // Sound
+    // Chops on ubuntu 11.10
+    /*
+    val waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
+    waves.setLooping(true);
+    audioRenderer.playSource(waves);
+    */
+
+    // Sky
+    val sky = new Sky(getCamera, assetManager)
+    rootNode.attachChild(sky)
+    sky.createLights(rootNode)
+
+    // Start pos
+    val startPos: Vector3f = new Vector3f(startX, groundDef.getHeight(startX, startZ, 1).toFloat + 2, startZ)
+    this.getCamera.setLocation(startPos);
+
+    // Refpoint
+    val box = new Geometry("box", new Box(1, 1, 1))
+    box.setLocalTranslation(startPos)
+    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    mat.setColor("Color", ColorRGBA.Red);
+    box.setMaterial(mat)
+    rootNode.attachChild(box)
+
+  }
+
   private def createTestTerrain: GroundDef = {
     def createMaterial(name: Symbol,  textureFile: String): GroundMaterial = {
       val texture: Texture = assetManager.loadTexture(textureFile)
@@ -100,99 +167,6 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     groundDef
   }
 
-  @Override
-  def simpleInitApp() {
-
-    assetManager.registerLocator("assets", classOf[FileLocator])
-
-    flyCam.setMoveSpeed(movementSpeed)
-    getCamera.setFrustumFar(320000)
-
-    // Allow screenshots
-    this.stateManager.attach(new ScreenshotAppState());
-
-    // Terrain
-/*
-    val terrainMaterial = createTerrainMaterial(assetManager, grassScale, dirtScale, rockScale)
-    val groundFunction = createGround
-    val terrain = createTerrain(groundFunction, terrainMaterial)
-     */
-    val terrainMaterial = if (wireframe) createWireframeMaterial(assetManager) else createSimpleTerrainMaterial(getAssetManager)
-
-//    val block= new TerrainBlock(terrainMaterial, new TestTerrain(), 1000, 1000, 1000, 1000)
-//    val terrain = block.getGeometry(assetManager)
-//    val terrain = new ClipmapTerrain(new TestTerrain, terrainMaterial, getAssetManager, 0.25, 11, 32)
-    val groundDef: GroundDef = createTestTerrain
-    val sizeSettings: GroundSizeSettings = new GroundSizeSettings(32,1, 12)
-    val terrain = new Ground(
-      sizeSettings,
-      groundDef,
-      new FunctionalTerrainBlockSource(groundDef, terrainMaterial, sizeSettings),
-      getCamera,
-      new SimpleGroundLodStrategy(2, 0.25),
-      assetManager)
-
-    this.rootNode.attachChild(terrain);
-
-    // Fog
-    //if(lightingOn) viewPort.addProcessor(createFog(assetManager))
-
-    // Water
-    if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0));
-
-
-
-    // Sound
-    // Chops on ubuntu 11.10
-    /*
-    val waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
-    waves.setLooping(true);
-    audioRenderer.playSource(waves);
-    */
-
-    // Sky
-    rootNode.attachChild(createSky(viewPort, assetManager))
-
-    createLight(rootNode)
-
-    // Start pos
-    val startPos: Vector3f = new Vector3f(startX, groundDef.getHeight(startX, startZ, 1).toFloat + 2, startZ)
-    this.getCamera.setLocation(startPos);
-
-    // Refpoint
-    val box = new Geometry("box", new Box(1, 1, 1))
-    box.setLocalTranslation(startPos)
-    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    mat.setColor("Color", ColorRGBA.Red);
-    box.setMaterial(mat)
-    rootNode.attachChild(box)
-
-  }
-
-  def createLight(node: Node) {
-    val sun = new DirectionalLight();
-    val sunDir: Vector3f = new Vector3f(1, -1, -2).normalizeLocal()
-    sun.setDirection(sunDir);
-    sun.setColor(new ColorRGBA(1f, 0.9f, 0.7f, 1f));
-    node.addLight(sun)
-
-    val ambient = new DirectionalLight();
-    ambient.setDirection(new Vector3f(-1, -1, 2).normalizeLocal());
-    ambient.setColor(new ColorRGBA(0.2f, 0.4f, 0.6f, 1f))
-    node.addLight(ambient)
-
-  }
-
-  def createFog(manager: AssetManager): FilterPostProcessor = {
-    val fpp = new FilterPostProcessor(manager);
-    //fpp.setNumSamples(4);
-    val fog = new FogFilter();
-    fog.setFogColor(new ColorRGBA(0.3f, 0.5f, 0.8f, 1.0f));
-    fog.setFogDistance(50000);
-    fog.setFogDensity(1.5f);
-    fpp.addFilter(fog);
-    fpp
-  }
 
   def createGround: FilteredBasis = {
     val base = new FractalSum();
@@ -348,52 +322,6 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   override def simpleUpdate(tpf: Float) {
   }
 
-
-  private def createSky(viewPort: ViewPort, manager: AssetManager): Spatial = {
-    //this.viewPort.setBackgroundColor(new ColorRGBA(0.3f, 0.3f, 0.3f, 1f));
-    //this.viewPort.setBackgroundColor(new ColorRGBA(0.3f, 0.3f, 0.3f, 1f));
-
-    val sphereMesh = new Sphere(32, 32, 100f, false, true)
-    val sky = new Geometry("Sky", sphereMesh)
-    sky.setQueueBucket(Bucket.Sky)
-    sky.setCullHint(Spatial.CullHint.Never)
-    sky.setModelBound(new BoundingSphere(Float.PositiveInfinity, Vector3f.ZERO))
-    sky.rotate(-0.5f*math.Pi.toFloat, 0f, 0f)
-
-    val skyMaterial = new Material(assetManager, "shaders/SimpleSky.j3md")
-    sky.setMaterial(skyMaterial)
-
-//    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-//    mat.setColor("Color", ColorRGBA.Blue);
-//    sky.setMaterial(mat)
-
-    // Center skybox on camera
-    sky.addControl(new AbstractControl {
-      def cloneForSpatial(spatial: Spatial) = null
-      def controlRender(rm: RenderManager, vp: ViewPort) {}
-      def controlUpdate(tpf: Float) {
-        sky.setLocalTranslation(getCamera.getLocation)
-      }
-    })
-
-
-
-    //    this.viewPort.setBackgroundColor(new ColorRGBA(0.7f, 0.8f, 1f, 1f));
-
-    /*
-    val west = manager.loadTexture("Textures/Sky/Lagoon/lagoon_west.jpg");
-    val east = manager.loadTexture("Textures/Sky/Lagoon/lagoon_east.jpg");
-    val north = manager.loadTexture("Textures/Sky/Lagoon/lagoon_north.jpg");
-    val south = manager.loadTexture("Textures/Sky/Lagoon/lagoon_south.jpg");
-    val up = manager.loadTexture("Textures/Sky/Lagoon/lagoon_up.jpg");
-    val down = manager.loadTexture("Textures/Sky/Lagoon/lagoon_down.jpg");
-
-    val sky = SkyFactory.createSky(manager, west, east, north, south, up, down);
-    sky
-    */
-
-    sky
-  }
 
 }
 

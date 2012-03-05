@@ -13,6 +13,7 @@ resolvers += "Guicefruit Repository" at "http://guiceyfruit.googlecode.com/svn/r
 resolvers += "Sonatype Public" at "https://oss.sonatype.org/content/groups/public/"
 
 
+
 libraryDependencies += "org.scalatest" %% "scalatest" % "1.7.1" % "test"
 
 libraryDependencies += "org.slf4j" % "slf4j-api" % "1.6.4"
@@ -30,6 +31,9 @@ libraryDependencies += "com.dyuproject.protostuff" % "protostuff-runtime" % "1.0
 libraryDependencies += "com.dyuproject.protostuff" % "protostuff-core" % "1.0.4"
 
 libraryDependencies += "com.dyuproject.protostuff" % "protostuff-collectionschema" % "1.0.4"
+
+libraryDependencies += "org.yaml" % "snakeyaml" % "1.11-SNAPSHOT"
+
 
 // Akka for parallel signals and messaging
 libraryDependencies ++= Seq(
