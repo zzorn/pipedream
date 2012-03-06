@@ -4,7 +4,8 @@ import com.jme3.app.SimpleApplication
 import com.jme3.system.AppSettings
 import com.jme3.app.SimpleApplication._
 import com.jme3.asset.plugins.FileLocator
-import components.{Cube, Model}
+import components.{Tome, Cube, Model}
+import loader.ModelLoader
 import org.skycastle.client.terrain.definition.GroundDef
 import org.skycastle.client.terrain.{SimpleGroundLodStrategy, FunctionalTerrainBlockSource, Ground, GroundSizeSettings}
 import com.jme3.material.Material
@@ -22,6 +23,8 @@ import com.jme3.app.state.{AbstractAppState, ScreenshotAppState}
 import com.jme3.app.Application._
 import com.jme3.input.controls.{ActionListener, KeyTrigger}
 import com.jme3.input.{ChaseCamera, KeyInput}
+import java.io.{FilenameFilter, File}
+import org.sadun.util.polling.{FileFoundEvent, BasePollManager, DirectoryPoller}
 
 /**
  * Live preview of procedural shape defined in a config file.
@@ -39,8 +42,15 @@ object ShapeViewer extends SimpleApplication  {
   private var shape: Spatial = null
 
   private var model: Model = null
+  
+  private var tomes: Map[String, Tome] = Map()
 
   private var chaseCamera: RotationCameraControl = null
+
+  private val modelLoader = new ModelLoader()
+  private var modelSourceDir: File = new File("assets/shapes/")
+  private var modelSourcesToRead: List[File] = Nil
+  private var poller: DirectoryPoller = null
 
   
   def main(args: Array[String]) {
@@ -54,16 +64,50 @@ object ShapeViewer extends SimpleApplication  {
       settings.setVSync(false)
     }
     setSettings(settings);
+
+    setPauseOnLostFocus(false)
+
+    // Start polling
+    poller = new DirectoryPoller(modelSourceDir, new FilenameFilter {
+      def accept(dir: File, name: String): Boolean = name.endsWith(".yaml")
+    }, true)
+
+    poller.addPollManager(new BasePollManager {
+
+      override def fileFound(evt: FileFoundEvent) {
+        println("Change " + evt.getFile)
+        addFileToCheck(evt.getFile)
+      }
+    })
+    poller.setPollInterval(500)
+    poller.setSendSingleFileEvent(true)
+    poller.setDaemon(true)
+    poller.start()
+
     start()
   }
 
-  def updateModel() {
+  private def addFileToCheck(file: File) {
+    synchronized {
+      modelSourcesToRead ::= file
+    }
+  }
+
+  private def getFilesToCheck(): List[File] = {
+    synchronized {
+      val files = modelSourcesToRead
+      modelSourcesToRead = Nil
+      files
+    }
+  }
+
+  def updateModel(modelFiles: List[File]) {
     if (shape != null) {
       shape.removeControl(chaseCamera)
       rootNode.detachChild(shape)
     }
 
-    shape = createModel(assetManager);
+    shape = createModel(assetManager,modelFiles);
 
     if (shape != null) {
       rootNode.attachChild(shape)
@@ -79,7 +123,7 @@ object ShapeViewer extends SimpleApplication  {
 
     // Setup camera control
     chaseCamera = new RotationCameraControl(getCamera, inputManager)
-    chaseCamera.setDragToRotate(false)
+    chaseCamera.setDragToRotate(true)
 
 
     // Allow screenshots
@@ -100,7 +144,7 @@ object ShapeViewer extends SimpleApplication  {
     this.getCamera.setLocation(startPos);
 
     // Load model
-    updateModel()
+    //updateModel()
 
     // TODO: Wireframe support
     // val terrainMaterial = if (wireframe) createWireframeMaterial(assetManager) else createSimpleTerrainMaterial(getAssetManager)
@@ -111,21 +155,39 @@ object ShapeViewer extends SimpleApplication  {
 
   }
 
-  private def createModel(assetManager: AssetManager): Spatial = {
-    model = loadModel()
+
+  override def simpleUpdate(tpf: Float) {
+    val files: List[File] = getFilesToCheck()
+    if (!files.isEmpty) {
+      updateModel(files)
+    }
+    
+    
+  }
+
+  private def createModel(assetManager: AssetManager, modelFiles: List[File]): Spatial = {
+    model = loadModel(modelFiles)
     model.createSpatial(assetManager)
   }
 
-  private def loadModel(): Model = {
-    new Cube()
+  private def loadModel(modelFiles: List[File]): Model = {
+    val newTomes: Map[String, Tome] = modelLoader.loadModels(modelFiles)
+    tomes ++= newTomes
+    newTomes.head._2.model
+    
+    // TODO: Detect removed tomes
+
+    //new Cube()
   }
 
   private def setupKeys() {
     inputManager.addMapping("ReloadModel", new KeyTrigger(KeyInput.KEY_SPACE));
 
+    /*
     inputManager.addListener(new ActionListener {
       def onAction(name: String, isPressed: Boolean, tpf: Float) { if (!isPressed) updateModel() }
     }, "ReloadModel")
+    */
   }
 
   

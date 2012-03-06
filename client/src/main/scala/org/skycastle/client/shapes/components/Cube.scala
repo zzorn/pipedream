@@ -3,15 +3,20 @@ package org.skycastle.client.shapes.components
 import com.jme3.scene.Mesh
 import org.skycastle.utils.MeshBuilder
 import com.jme3.math.Vector3f
+import reflect.BeanProperty
 
 /**
  *
  */
 
-case class Cube(var sizeX: Float = 1f,
-                var sizeY: Float = 1f,
-                var sizeZ: Float = 1f) extends Model {
+case class Cube(@BeanProperty var sizeX: Float = 1f,
+                @BeanProperty var sizeY: Float = 1f,
+                @BeanProperty var sizeZ: Float = 1f) extends Model {
 
+  def this() {
+    this(1f, 1f, 1f)
+  } 
+  
   def createMesh(): Mesh  = {
 
     val builder = new MeshBuilder()

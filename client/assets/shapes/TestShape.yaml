@@ -1,0 +1,10 @@
+
+
+!Tome
+  name: Foo
+  model: !Cube
+    sizeX: 1
+    sizeY: 4
+    sizeZ: 32
+
+
