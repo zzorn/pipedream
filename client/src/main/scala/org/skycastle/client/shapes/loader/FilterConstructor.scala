@@ -4,7 +4,7 @@ import org.yaml.snakeyaml.constructor.Constructor
 import org.yaml.snakeyaml.TypeDescription
 import java.lang.Class
 import org.skycastle.client.shapes.components._
-import org.skycastle.util.Logging
+import org.skycastle.utils.Logging
 
 /**
  *

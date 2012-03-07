@@ -2,11 +2,10 @@ package org.skycastle
 
 import guice.SkycastleModule
 import services.scheduler.Scheduler
-import util.Logging
 import org.apache.log4j.PropertyConfigurator
 import actors.Scheduler
 import com.google.inject.{Injector, Guice}
-import org.skycastle.util.Logging
+import org.skycastle.utils.Logging
 import org.skycastle.guice.SkycastleModule
 import org.skycastle.services.scheduler.Scheduler
 

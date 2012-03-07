@@ -24,13 +24,13 @@ import com.jme3.app.Application._
 import com.jme3.input.controls.{ActionListener, KeyTrigger}
 import com.jme3.input.{ChaseCamera, KeyInput}
 import java.io.{FilenameFilter, File}
-import org.sadun.util.polling.{FileFoundEvent, BasePollManager, DirectoryPoller}
+import org.skycastle.utils.{Logging, FileChangeMonitor}
 
 /**
  * Live preview of procedural shape defined in a config file.
  * Support for updating the shape when the config file is changed.
  */
-object ShapeViewer extends SimpleApplication  {
+object ShapeViewer extends SimpleApplication with Logging {
 
   private val wireframe = false
   private val limitFps= true
@@ -47,13 +47,16 @@ object ShapeViewer extends SimpleApplication  {
 
   private var chaseCamera: RotationCameraControl = null
 
-  private val modelLoader = new ModelLoader()
-  private var modelSourceDir: File = new File("assets/shapes/")
-  private var modelSourcesToRead: List[File] = Nil
-  private var poller: DirectoryPoller = null
-
+  private var modelLoader: ModelLoader = null
+  private val modelSource: File = new File("assets/shapes/TestShape.yaml")
+  private var modelSourcesToRead: File = null
+  private var fileChangeMonitor:  FileChangeMonitor = null
   
   def main(args: Array[String]) {
+    initializeLogging()
+
+    modelLoader = new ModelLoader()
+
     val settings: AppSettings = new AppSettings(true)
     if (limitFps) {
       settings.setFrameRate(60)
@@ -68,46 +71,33 @@ object ShapeViewer extends SimpleApplication  {
     setPauseOnLostFocus(false)
 
     // Start polling
-    poller = new DirectoryPoller(modelSourceDir, new FilenameFilter {
-      def accept(dir: File, name: String): Boolean = name.endsWith(".yaml")
-    }, true)
-
-    poller.addPollManager(new BasePollManager {
-
-      override def fileFound(evt: FileFoundEvent) {
-        println("Change " + evt.getFile)
-        addFileToCheck(evt.getFile)
-      }
-    })
-    poller.setPollInterval(500)
-    poller.setSendSingleFileEvent(true)
-    poller.setDaemon(true)
-    poller.start()
+    fileChangeMonitor = new FileChangeMonitor(modelSource, setFileToRead _)
+    fileChangeMonitor.start()
 
     start()
   }
 
-  private def addFileToCheck(file: File) {
+  private def setFileToRead(file: File) {
     synchronized {
-      modelSourcesToRead ::= file
+      modelSourcesToRead = file
     }
   }
 
-  private def getFilesToCheck(): List[File] = {
+  private def getFileToRead(): File = {
     synchronized {
-      val files = modelSourcesToRead
-      modelSourcesToRead = Nil
-      files
+      val file = modelSourcesToRead
+      modelSourcesToRead = null
+      file
     }
   }
 
-  def updateModel(modelFiles: List[File]) {
+  def updateModel(modelFile: File) {
     if (shape != null) {
       shape.removeControl(chaseCamera)
       rootNode.detachChild(shape)
     }
 
-    shape = createModel(assetManager,modelFiles);
+    shape = createModel(assetManager,modelFile);
 
     if (shape != null) {
       rootNode.attachChild(shape)
@@ -157,23 +147,26 @@ object ShapeViewer extends SimpleApplication  {
 
 
   override def simpleUpdate(tpf: Float) {
-    val files: List[File] = getFilesToCheck()
-    if (!files.isEmpty) {
-      updateModel(files)
+    val file = getFileToRead()
+    if (file != null) {
+      updateModel(file)
     }
     
     
   }
 
-  private def createModel(assetManager: AssetManager, modelFiles: List[File]): Spatial = {
-    model = loadModel(modelFiles)
-    model.createSpatial(assetManager)
+  private def createModel(assetManager: AssetManager, modelFile: File): Spatial = {
+    model = loadModel(modelFile)
+    if (model != null) model.createSpatial(assetManager)
+    else null
   }
 
-  private def loadModel(modelFiles: List[File]): Model = {
-    val newTomes: Map[String, Tome] = modelLoader.loadModels(modelFiles)
+  private def loadModel(modelFile: File): Model = {
+    val newTomes: Map[String, Tome] = modelLoader.loadModels(modelFile)
     tomes ++= newTomes
-    newTomes.head._2.model
+    
+    if (newTomes.isEmpty) null
+    else newTomes.head._2.model
     
     // TODO: Detect removed tomes
 

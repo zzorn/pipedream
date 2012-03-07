@@ -2,9 +2,17 @@
 
 !Tome
   name: Foo
-  model: !Cube
-    sizeX: 1
-    sizeY: 4
-    sizeZ: 32
+  model: !ScatterAlong
+    start: 0
+    end: 20
+    number: 1000
+    path: !Noise1to3
+      seed: 42
+      frequency: 0.35
+      amplitude: 60
+    model: !Cube
+      sizeX: 0.3
+      sizeY: 0.3
+      sizeZ: 0.3
 
 

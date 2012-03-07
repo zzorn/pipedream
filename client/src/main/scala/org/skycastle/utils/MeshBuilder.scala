@@ -3,8 +3,9 @@ package org.skycastle.utils
 import com.jme3.util.BufferUtils
 import com.jme3.scene.{VertexBuffer, Mesh}
 import java.util.ArrayList
-import com.jme3.math.{ColorRGBA, Vector2f, Vector3f}
 import java.nio.{IntBuffer, FloatBuffer}
+import collection.immutable.Stack
+import com.jme3.math._
 
 /**
  * Utility class for building custom JME meshes.
@@ -24,14 +25,31 @@ class MeshBuilder {
 
   private var nextVertex = 0
   private var nextIndex = 0
+
+  private var transforms: Stack[Matrix4f] = Stack()
+  private var currentTransformation: Matrix4f = new Matrix4f()
   
+  def pushTransform(transformation: Matrix4f) {
+    transforms = transforms.push(currentTransformation)
+    currentTransformation = transformation.mult(currentTransformation)
+  }
+  
+  def popTransform() {
+    if (transforms.isEmpty) throw new IllegalStateException("Can not pop transformation, no transformations present!")
+
+    currentTransformation = transforms.top
+    transforms = transforms.pop
+  }
+
   def getNextVertex = nextVertex
   def getNextIndex = nextIndex
 
   def addVertex(pos: Vector3f, normal: Vector3f = null, texel: Vector2f = null, color: ColorRGBA = null): Int = {
     val currentVertex = nextVertex
 
-    vertices.add(pos)
+    val transformedPos: Vector3f = currentTransformation.mult(pos)
+
+    vertices.add(transformedPos)
     normals.add(normal)
     texels.add(texel)
     colors.add(color)

@@ -2,8 +2,8 @@ package org.skycastle.client.shapes.components
 
 import com.jme3.scene.Mesh
 import org.skycastle.utils.MeshBuilder
-import com.jme3.math.Vector3f
 import reflect.BeanProperty
+import com.jme3.math.{Matrix4f, Transform, Vector3f}
 
 /**
  *
@@ -15,11 +15,10 @@ case class Cube(@BeanProperty var sizeX: Float = 1f,
 
   def this() {
     this(1f, 1f, 1f)
-  } 
-  
-  def createMesh(): Mesh  = {
+  }
 
-    val builder = new MeshBuilder()
+
+  def buildMesh(builder: MeshBuilder) {
 
     val v000 = builder.addVertex(new Vector3f(-sizeX, -sizeY, -sizeZ))
     val v001 = builder.addVertex(new Vector3f(-sizeX, -sizeY,  sizeZ))
@@ -38,8 +37,6 @@ case class Cube(@BeanProperty var sizeX: Float = 1f,
 
     builder.addQuad(v001, v101, v111, v011)
     builder.addQuad(v000, v010, v110, v100)
-
-    builder.createMesh()
   }
 
 }
