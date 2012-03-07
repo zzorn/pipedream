@@ -37,8 +37,10 @@ trait Model {
   }
 
   def createMaterial(assetManager: AssetManager): Material = {
-    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    mat.setColor("Color", ColorRGBA.randomColor());
+    val mat = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
+    //val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+    //mat.setColor("Color", ColorRGBA.randomColor());
+
     mat
   }
 

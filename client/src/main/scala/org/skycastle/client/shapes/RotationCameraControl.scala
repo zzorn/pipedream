@@ -21,8 +21,8 @@ class RotationCameraControl(cam: Camera, inputManager: InputManager) extends Cha
   rotationSpeed = 2f
   zoomSpeed = 5f
 
-  setMinVerticalRotation(-FastMath.PI / 2f)
-  setMaxVerticalRotation( FastMath.PI / 2f - 0.001f)
+  setMinVerticalRotation(-FastMath.PI / 2f + 0.01f)
+  setMaxVerticalRotation( FastMath.PI / 2f - 0.01f)
 
   def setRotationSpeed(speed: Float) {rotationSpeed = speed}
   def getRotationSpeed: Float = rotationSpeed

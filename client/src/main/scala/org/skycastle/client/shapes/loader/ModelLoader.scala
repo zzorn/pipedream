@@ -8,7 +8,7 @@ import org.yaml.snakeyaml.composer.Composer
 import org.yaml.snakeyaml.representer.Representer
 import org.yaml.snakeyaml.nodes.Tag
 import org.skycastle.client.shapes.components._
-import org.skycastle.functions.{Noise1to3, Noise1to2, Noise1to1}
+import org.skycastle.functions.{Abs, Noise1to3, Noise1to2, Noise1to1}
 
 /**
  *
@@ -26,6 +26,7 @@ class ModelLoader {
   allowType[Noise1to1]
   allowType[Noise1to2]
   allowType[Noise1to3]
+  allowType[Abs]
 
   def allowType[T <: AnyRef](implicit m: Manifest[T]) {
     val kind: Class[T] = m.erasure.asInstanceOf[Class[T]]

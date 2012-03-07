@@ -31,7 +31,7 @@ class MeshBuilder {
   
   def pushTransform(transformation: Matrix4f) {
     transforms = transforms.push(currentTransformation)
-    currentTransformation = transformation.mult(currentTransformation)
+    currentTransformation = currentTransformation.mult(transformation)
   }
   
   def popTransform() {

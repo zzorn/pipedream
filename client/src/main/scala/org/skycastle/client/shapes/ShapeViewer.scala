@@ -122,12 +122,10 @@ object ShapeViewer extends SimpleApplication with Logging {
     // Background
     viewPort.setBackgroundColor(new ColorRGBA(0.3f, 0.3f, 0.3f, 1f));
 
-    /*
     // Sky
     val sky = new Sky(getCamera, assetManager)
     rootNode.attachChild(sky)
     sky.createLights(rootNode)
-    */
 
     // Start pos
     val startPos: Vector3f = new Vector3f(startX, startY, startZ)
