@@ -1,0 +1,41 @@
+
+#
+# Module file test
+#
+
+use skycastle.leaf
+
+private fun sizing(t) { t * 10 }
+
+private fun trunk(len) {
+
+  pathPlacer(
+    0           # Accept positional or named parameters
+    end = 1     # Optional comma (at least if on separate lines?)
+    number = 10
+    path(t)    = vec3(0, t*len, 0) + noise3(t),    # function arguments when named parameter.  If no named parameter, maybe fixed name for parameter?  it, it2, it3, or it(4)?
+    model(seed, pos) = leaf(sizeScale(pos), seed=seed)
+    scales = sizing  # If function argument lists match, possible to pass directly
+  )
+
+}
+
+
+module tree(height: Vec3) {
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
