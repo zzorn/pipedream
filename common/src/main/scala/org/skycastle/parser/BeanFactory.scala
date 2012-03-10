@@ -2,12 +2,33 @@ package org.skycastle.parser
 
 import java.util.logging.Logger
 import reflect.Manifest
-import serialization.{StandardSerializers, Serializers}
 
 /**
  * Can be used to create beans of registered types.
  */
 class BeanFactory {
+  
+  def typeForName(name: String): Class[_] = {
+    println("Getting type for " + name)
+    
+    name match {
+      case "double" => classOf[Double]
+      case "string" => classOf[String]
+      case _ => null
+    }
+  }
+
+  def nameForType(kind: Class[_]): String = {
+    if (kind.isAssignableFrom(classOf[Double]) ||
+        kind.isAssignableFrom(classOf[Float]) ||
+        kind.isAssignableFrom(classOf[Byte]) ||
+        kind.isAssignableFrom(classOf[Short]) ||
+        kind.isAssignableFrom(classOf[Int]) ||
+        kind.isAssignableFrom(classOf[Long])) "double"
+    else kind.getSimpleName
+  }
+
+  /*
   type BeanConstructor = () => _ <: Bean
   type BeanCreator = Symbol => _ <: Option[Bean]
 
@@ -94,5 +115,5 @@ class BeanFactory {
     }
     bean
   }
-
+*/
 }
