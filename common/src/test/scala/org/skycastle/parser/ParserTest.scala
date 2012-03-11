@@ -16,7 +16,7 @@ class ParserTest extends FunSuite {
       """
       fun foo(a: double, b = 1) = a * b * 4 / 3 + 1 - (a + b) * 3
       fun bar(f(t: double)= t^(t*2)) = foo(f(1), b = f(2))
-      fun zap(g(x: double): double) = bar(g) + bar( (x) = 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12 )
+      fun zap(g(x: double): double) = bar(g) + bar( {x -> 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12} )
 
       fun tree(height = 1): Model = {
         fun rootHeight = height / 2
