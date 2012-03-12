@@ -1,4 +1,6 @@
-package org.skycastle.parser.model
+package org.skycastle.parser.model.module
+
+import org.skycastle.parser.model.Outputable
 
 /**
  *

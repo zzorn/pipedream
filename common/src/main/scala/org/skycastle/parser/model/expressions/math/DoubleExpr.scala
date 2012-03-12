@@ -1,4 +1,6 @@
-package org.skycastle.parser.model
+package org.skycastle.parser.model.expressions.math
+
+import org.skycastle.parser.model.expressions.ConstantValue
 
 /**
  *

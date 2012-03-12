@@ -1,6 +1,5 @@
 package org.skycastle.parser.model
 
-import org.skycastle.parser.BeanFactory
 
 /**
  *
@@ -9,7 +8,7 @@ trait Outputable {
 
   def output(s: StringBuilder, indent: Int)
 
-  override def toString(): String = {
+  override def toString: String = {
     val s = new StringBuilder
     output(s, 0)
     s.toString()

@@ -1,17 +1,19 @@
 package org.skycastle.parser.model
 
+import defs.FunDef
+
 /**
  *
  */
 class Context(parentContext: Context = null) {
 
-  private var definitions: Map[Symbol, Definition] = Map()
+  private var definitions: Map[Symbol, FunDef] = Map()
   
-  def addDefinition(definition: Definition) {
+  def addDefinition(definition: FunDef) {
     definitions += (definition.name -> definition)
   }
 
-  def getDefinitionFor(name: Symbol): Definition = {
+  def getDefinitionFor(name: Symbol): FunDef = {
     definitions.getOrElse(name, {if (parentContext != null) parentContext.getDefinitionFor(name) else null})
   }
   

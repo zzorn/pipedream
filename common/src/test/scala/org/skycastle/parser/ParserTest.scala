@@ -1,6 +1,6 @@
 package org.skycastle.parser
 
-import model.Module
+import model.module.Module
 import org.scalatest.FunSuite
 import java.io.StringReader
 
@@ -15,8 +15,8 @@ class ParserTest extends FunSuite {
     val testString =
       """
       fun foo(a: double, b = 1) = a * b * 4 / 3 + 1 - (a + b) * 3
-      fun bar(f(t: double)= t^(t*2)) = foo(f(1), b = f(2))
-      fun zap(g(x: double): double) = bar(g) + bar( {x -> 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12} )
+      fun bar(f = (t => t^(t*2)))  { foo(f(1), b = f(2)) }
+      fun zap(g: (double) => double) = bar(g) + bar( {x -> 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12} )
 
       fun tree(height = 1): Model = {
         fun rootHeight = height / 2
@@ -29,7 +29,7 @@ class ParserTest extends FunSuite {
 
     println(testString)
 
-    assert(module.functions.size === 4)
+    assert(module.definitions.size === 4)
 
     val s = module.toString()
     println(s)

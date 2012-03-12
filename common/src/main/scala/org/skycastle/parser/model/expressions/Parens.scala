@@ -1,9 +1,10 @@
-package org.skycastle.parser.model
+package org.skycastle.parser.model.expressions
+
 
 /**
  *
  */
-case class Parens(a: Expression) extends Expression {
+case class Parens(a: Expr) extends Expr {
 
   def resultType = a.resultType
 

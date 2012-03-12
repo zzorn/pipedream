@@ -1,9 +1,13 @@
-package org.skycastle.parser.model
+package org.skycastle.parser.model.expressions
+
+import org.skycastle.parser.model.defs.Def
+import org.skycastle.parser.model.Context
+
 
 /**
  *
  */
-final case class Block(definitions: List[Definition], values: List[Expression]) extends Expression {
+final case class Block(definitions: List[Def], value: Expr) extends Expr {
 
   def resultType = null // List of values, or the type of the value if there is just one
 
@@ -17,13 +21,14 @@ final case class Block(definitions: List[Definition], values: List[Expression]) 
     s.append("{")
     s.append("\n")
 
-    definitions foreach { d =>
-      d.output(s, indent)
+    definitions foreach {
+      d =>
+        d.output(s, indent)
     }
     s.append("\n")
 
     createIndent(s, indent)
-    outputSeparatedList(values, s, indent, "\n" + indentString(indent))
+    value.output(s, indent)
     s.append("\n")
 
     createIndent(s, indent - 1)
