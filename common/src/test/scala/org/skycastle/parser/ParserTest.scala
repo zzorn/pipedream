@@ -11,7 +11,7 @@ class ParserTest extends FunSuite {
 
   test("Parse") {
     val factory = new BeanFactory()
-    val parser = new BeanParser(factory)
+    val parser = new ModuleParser(factory)
     val testString =
       """
       fun foo(a: double, b = 1) = a * b * 4 / 3 + 1 - (a + b) * 3
