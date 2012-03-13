@@ -54,17 +54,17 @@ abstract class LanguageParser[T] extends StandardTokenParsers with PackratParser
   /**
    * Override this to define the root level parser.
    */
-  def rootParser: Parser[T]
+  def rootParser: PackratParser[T]
 
   /**
    * A parser for quoted strings.
    */
-  lazy val quotedString = accept("string", { case lexical.StringLit(n) => n} )
+  lazy val quotedString: PackratParser[String] = accept("string", { case lexical.StringLit(n) => n} )
 
   /**
    * A parser for (double) numbers.
    */
-  lazy val doubleNumber = accept("number", { case lexical.NumericLit(n) => n.toDouble} )
+  lazy val doubleNumber: PackratParser[Double] = accept("number", { case lexical.NumericLit(n) => n.toDouble} )
 
 
 

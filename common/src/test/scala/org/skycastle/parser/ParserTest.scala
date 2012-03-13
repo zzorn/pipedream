@@ -15,8 +15,8 @@ class ParserTest extends FunSuite {
     val testString =
       """
       fun foo(a: double, b = 1) = a * b * 4 / 3 + 1 - (a + b) * 3
-      fun bar(f = (t => t^(t*2)))  { foo(f(1), b = f(2)) }
-      fun zap(g: (double) => double) = bar(g) + bar( {x -> 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12} )
+      fun bar(f = fun (t: double) => t^(t*2) )  { f(1) + f(2, 3) + f(aasd = 1) + f(ae=1, basd=2) + f(1,b=3) + foo(f(1), b = f(2)) }
+      fun zap(g: (double) -> double) = bar(g) + bar( {x => 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12} )
 
       fun tree(height = 1): Model = {
         fun rootHeight = height / 2
@@ -25,7 +25,7 @@ class ParserTest extends FunSuite {
         many([leaf1, leaf2, leaf3])
       }
       """
-    val module: Module = parser.parse(new StringReader(testString), "test input")
+    val module: Module = parser.parseString(testString, "test input")
 
     println(testString)
 

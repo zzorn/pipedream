@@ -6,7 +6,7 @@ import org.skycastle.parser.model.{Context}
 /**
  *
  */
-case class Call(function: Symbol, unnamedArguments: List[Expr], namedArguments: List[NamedArg]) extends Expr {
+case class Call(function: Symbol, arguments: List[Arg]) extends Expr {
 
   def resultType = null
 
@@ -18,15 +18,10 @@ case class Call(function: Symbol, unnamedArguments: List[Expr], namedArguments: 
     s.append(function.name)
 
     s.append("(")
-    if (!unnamedArguments.isEmpty) {
-      outputSeparatedList(unnamedArguments, s, indent + 1)
+    if (!arguments.isEmpty) {
+      outputSeparatedList(arguments, s, indent + 1)
     }
 
-    if (!unnamedArguments.isEmpty && !namedArguments.isEmpty) s.append(", ")
-
-    if (!namedArguments.isEmpty) {
-      outputSeparatedList(namedArguments, s, indent + 1)
-    }
     s.append(")")
   }
 }

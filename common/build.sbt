@@ -6,6 +6,11 @@ version := "0.1"
 scalaVersion := "2.9.1"
 
 
+// Keep file size limited, otherwise e.g. encrypted home directories in Ubunu will complain about too long filenames.
+// This doesn't work - why?
+//scalacOptions += "-Xmax-classfile-name 100"
+
+
 resolvers += "Akka Repository" at "http://akka.io/repository"
 
 resolvers += "Guicefruit Repository" at "http://guiceyfruit.googlecode.com/svn/repo/releases"
