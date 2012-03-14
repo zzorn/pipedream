@@ -14,15 +14,18 @@ class ParserTest extends FunSuite {
     val parser = new ModuleParser(factory)
     val testString =
       """
-      fun foo(a: double, b = 1) = a * b * 4 / 3 + 1 - (a + b) * 3
-      fun bar(f = fun (t: double) => t^(t*2) )  { f(1) + f(2, 3) + f(aasd = 1) + f(ae=1, basd=2) + f(1,b=3) + foo(f(1), b = f(2)) }
-      fun zap(g: (double) -> double) = bar(g) + bar( {x => 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12} )
+      fun foo(a: double, b = 1) = a * -b * 4.3 / 3 + 1 - -(-a + -b) * 3 + zomg(x = {fun boo() = 5 return -boo() }) * 4
+      fun bar(f = (t: double) => t^(t*2) )  { return f(1) + f(2, 3) + f(aasd = 1) + f(ae=1, basd=2) + f(1,b=3) + foo(f(1), b = f(2)) }
+      fun zap(g: (double) => double) = bar(g 3 4, d, bar=3 foo=4 5 g-h-1 7-6) + bar( f = x => 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12 )
 
       fun tree(height = 1): Model = {
-        fun rootHeight = height / 2
-        root(rootHeight)
-        many(branch)
-        many([leaf1, leaf2, leaf3])
+        fun leafCalculator(x: double): Leaf = Leaf(2, 45*x)
+        val rootHeight = height / 2
+        return [
+          root(rootHeight)
+          many(branch)
+          many([leafCalculator(1), leafCalculator(2), leafCalculator(3)])
+        ]
       }
       """
     val module: Module = parser.parseString(testString, "test input")

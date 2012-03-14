@@ -5,11 +5,13 @@ package org.skycastle.parser.model
  */
 trait TypeDef extends Outputable {
 
+
 }
 
-case class SimpleType(kind: Class[_]) extends TypeDef {
+case class SimpleType(typeName: Symbol, kind: Class[_]) extends TypeDef {
   def output(s: StringBuilder, indent: Int) {
-    s.append(kind.getSimpleName)
+    if (kind != null) s.append(kind.getSimpleName)
+    else s.append(typeName.name)
   }
 }
 

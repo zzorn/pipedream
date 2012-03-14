@@ -7,7 +7,7 @@ import org.skycastle.parser.model.SimpleType
  */
 case class ConstantValue[T <: Any](value: T, kind: Class[_], output: T => String) extends Expr {
 
-  def resultType = SimpleType(kind)
+  def resultType = SimpleType(Symbol(kind.getName), kind)
 
   def calculation = context => value
 

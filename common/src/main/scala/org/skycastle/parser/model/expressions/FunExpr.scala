@@ -16,10 +16,12 @@ case class FunExpr(parameters: List[Parameter],
     outputSeparatedList(parameters, s, indent + 1)
     s.append(")")
 
-    s.append(": ")
-    resultTypeDef.output(s, indent)
+    if (resultTypeDef != null) {
+      s.append(": ")
+      resultTypeDef.output(s, indent)
+    }
 
-    s.append(" = ")
+    s.append(" => ")
 
     expression.output(s, indent + 1)
   }

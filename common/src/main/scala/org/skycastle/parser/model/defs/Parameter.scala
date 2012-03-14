@@ -11,8 +11,10 @@ case class Parameter(name: Symbol, typeDef: TypeDef, defaultValue: Option[Expr])
   def output(s: StringBuilder, indent: Int) {
     s.append(name.name)
 
-    s.append(": ")
-    typeDef.output(s, indent)
+    if (typeDef != null) {
+      s.append(": ")
+      typeDef.output(s, indent)
+    }
 
     if (defaultValue.isDefined) {
       s.append(" = ")

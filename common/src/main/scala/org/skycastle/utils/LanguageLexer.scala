@@ -14,8 +14,6 @@ class LanguageLexer extends StdLexical {
     (   identChar ~ rep( identChar | digit ) ^^ { case first ~ rest => processIdent(first :: rest mkString "") }
       | string ^^ StringLit
       | number ~ letter ^^ { case n ~ l => ErrorToken("Invalid number format : " + n + l) }
-      | '-' ~> whitespace ~ number ~ letter ^^ { case ws ~ num ~ l => ErrorToken("Invalid number format : -" + num + l) }
-      | '-' ~> whitespace ~ number ^^ { case ws ~ num => NumericLit("-" + num) }
       | number ^^ NumericLit
       | EofCh ^^^ EOF
       | delim

@@ -16,24 +16,24 @@ final case class Block(definitions: List[Def], value: Expr) extends Expr {
   }
 
   def output(s: StringBuilder, indent: Int) {
-    s.append("\n")
-    createIndent(s, indent - 1)
+    //s.append("\n")
+    //createIndent(s, indent - 1)
     s.append("{")
     s.append("\n")
 
-    definitions foreach {
-      d =>
-        d.output(s, indent)
+    if (!definitions.isEmpty) {
+      outputSeparatedList(definitions, s, indent, "\n")
+      s.append("\n")
     }
-    s.append("\n")
 
     createIndent(s, indent)
+    s.append("return ")
     value.output(s, indent)
     s.append("\n")
 
     createIndent(s, indent - 1)
     s.append("}")
-    s.append("\n")
+//    s.append("\n")
   }
 
 }

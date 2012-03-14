@@ -9,8 +9,7 @@ import reflect.Manifest
 class BeanFactory {
   
   def typeForName(name: String): Class[_] = {
-    println("Getting type for " + name)
-    
+
     name match {
       case "double" => classOf[Double]
       case "string" => classOf[String]

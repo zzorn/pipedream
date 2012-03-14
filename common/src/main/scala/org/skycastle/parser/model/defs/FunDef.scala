@@ -19,13 +19,15 @@ case class FunDef(name: Symbol,
       .append("(")
 
     outputSeparatedList(parameters, s, indent + 1)
+    s.append(")")
 
-    s.append("): ")
-    resultTypeDef.output(s, indent)
+    if (resultTypeDef != null) {
+      s.append(": ")
+      resultTypeDef.output(s, indent)
+    }
     s.append(" = ")
 
     expression.output(s, indent + 1)
-    s.append("\n")
   }
 
   lazy val typeDef: TypeDef = FunType(parameters.map( _.typeDef), resultTypeDef)

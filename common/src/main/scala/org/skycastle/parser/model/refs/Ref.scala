@@ -12,7 +12,12 @@ case class Ref(definitionName: Symbol) extends Expr {
   var definition: Def = null
 
   def output(s: StringBuilder, indent: Int) {
-    s.append(definition.name)
+    if (definition == null) {
+      s.append(definitionName.name)
+    }
+    else {
+      s.append(definition.name)
+    }
   }
 
   def resultType = null

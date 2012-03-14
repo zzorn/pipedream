@@ -23,10 +23,13 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
   val FUN = registerKeyword("fun")
   val VAL = registerKeyword("val")
   val IMPORT = registerKeyword("import")
+  val RETURN = registerKeyword("return")
   val AND = registerKeyword("and")
   val OR = registerKeyword("or")
   val XOR = registerKeyword("xor")
   val NOT = registerKeyword("not")
+  val FALSE = registerKeyword("false")
+  val TRUE = registerKeyword("true")
 
   registerDelimiters(
     "=", ",", ":", ";",
@@ -50,8 +53,8 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
       { case i => Import(i) }
 
   // Definitions
-  private lazy val definitions: PackratParser[List[Def]] = repsep(definition, opt(";"))
-  private lazy val definition: PackratParser[Def] = funDef | valDef
+  private lazy val definitions: PackratParser[List[Def]] = rep(definition)
+  private lazy val definition: PackratParser[Def] = (funDef | valDef) <~ opt(";")
 
   // Value definition
   private lazy val valDef: PackratParser[ValDef] =
@@ -82,23 +85,26 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
      new Parameter(Symbol(name), defaultExp.resultType, Some(defaultExp))}
 
 
+
   // Types
   private lazy val typeTag: PackratParser[TypeDef] = ":" ~> typeDesc
 
-  private lazy val typeDesc: PackratParser[TypeDef] = "(" ~> typeDesc <~ ")" | simpleType | funType
+  private lazy val typeDesc: PackratParser[TypeDef] = funType | "(" ~> typeDesc <~ ")" | simpleType
 
   private lazy val simpleType: PackratParser[SimpleType] =
-    ident ^^ { case typeName => SimpleType(beanFactory.typeForName(typeName)) }
+    ident ^^ { case typeName => SimpleType(Symbol(typeName), beanFactory.typeForName(typeName)) }
 
   private lazy val funType: PackratParser[FunType] = singleParamFunType | multiParamFunType
 
   private lazy val singleParamFunType: PackratParser[FunType] =
-    opt("(") ~ typeDesc ~ opt(")") ~ "->" ~ typeDesc ^^
-    {case lp ~ paramType ~ rp ~ arrow ~ resultType => FunType(List(paramType), resultType)}
+    typeDesc ~ "=>" ~ typeDesc ^^
+      {case paramType ~ arrow ~ resultType =>
+        FunType(List(paramType), resultType)}
 
   private lazy val multiParamFunType: PackratParser[FunType] =
-    "(" ~ repsep (typeDesc, opt(",")) ~ ")" ~ "->" ~ typeDesc ^^
-    {case lp ~ paramTypes ~ rp ~ arrow ~ resultType => FunType(paramTypes, resultType)}
+    "(" ~ repsep (typeDesc, ",") ~ ")" ~ "=>" ~ typeDesc ^^
+      {case lp ~ paramTypes ~ rp ~ arrow ~ resultType =>
+        FunType(paramTypes, resultType)}
 
 
 
@@ -116,7 +122,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
 
   // Block expression
   private lazy val block: PackratParser[Block] =
-    "{"~> definitions ~ expression <~ "}" ^^
+    "{"~> definitions ~ (RETURN ~> expression) <~ "}" ^^
       { case defs ~ exp =>
         Block(defs, exp) }
 
@@ -129,9 +135,18 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
 
   // Function expression
   private lazy val funExpr: PackratParser[FunExpr] =
-    FUN ~> parameterList ~ opt(typeTag) ~ ("=>" ~> expression) ^^
+    funExprParameterList ~ opt(typeTag) ~ ("=>" ~> expression) ^^
       {case params ~ t ~ exp =>
         FunExpr(params, if (t.isDefined) t.get else exp.resultType, exp)}
+
+  private lazy val funExprParameterList: PackratParser[List[Parameter]] = (
+       funExprParameter ^^ {case p => List(p)}
+      | "(" ~> repsep(funExprParameter, ",") <~")"
+    )
+
+  private lazy val funExprParameter: PackratParser[Parameter] = parameterWithDefault | parameterWithType | funExprParameterWithoutTypeOrDefault
+  private lazy val funExprParameterWithoutTypeOrDefault: PackratParser[Parameter] =
+    ident ^^ {case name => new Parameter(Symbol(name), null, None)}
 
 
 
@@ -147,13 +162,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
         Call(Symbol(name), args)}
 
   private lazy val arguments: PackratParser[List[Arg]] =
-    (unnamedArguments | namedArguments) | unnamedAndNamedArguments
-
-  private lazy val unnamedArguments: PackratParser[List[Arg]] = repsep(unnamedArgument, ",")
-  private lazy val namedArguments: PackratParser[List[Arg]] = repsep(namedArgument, ",")
-  private lazy val unnamedAndNamedArguments: PackratParser[List[Arg]] =
-    rep1sep(unnamedArgument, ",") ~ "," ~ rep1sep(namedArgument, ",") ^^ {
-      case l1 ~ c ~ l2 => l1 ::: l2}
+    repsep(namedArgument | unnamedArgument, opt(","))
 
   private lazy val namedArgument: PackratParser[Arg] =
     ident ~ "=" ~ expression ^^

@@ -12,10 +12,15 @@ case class ValDef(name: Symbol,
                   value: Expr) extends Def {
   
   def output(s: StringBuilder, indent: Int) {
+    createIndent(s, indent)
     s.append("val ")
     s.append(name.name)
-    s.append(": ")
-    typeDef.output(s, indent)
+
+    if (typeDef != null) {
+      s.append(": ")
+      typeDef.output(s, indent)
+    }
+
     s.append(" = ")
     value.output(s, indent)
   }
