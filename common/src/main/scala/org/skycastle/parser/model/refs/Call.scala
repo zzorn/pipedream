@@ -1,12 +1,12 @@
 package org.skycastle.parser.model.refs
 
 import org.skycastle.parser.model.expressions.Expr
-import org.skycastle.parser.model.{Context}
+import org.skycastle.parser.model.{PathRef, Context}
 
 /**
  *
  */
-case class Call(function: Symbol, arguments: List[Arg]) extends Expr {
+case class Call(functionRef: PathRef, arguments: List[Arg]) extends Expr {
 
   def resultType = null
 
@@ -15,7 +15,7 @@ case class Call(function: Symbol, arguments: List[Arg]) extends Expr {
   }
 
   def output(s: StringBuilder, indent: Int) {
-    s.append(function.name)
+    s.append(functionRef)
 
     s.append("(")
     if (!arguments.isEmpty) {

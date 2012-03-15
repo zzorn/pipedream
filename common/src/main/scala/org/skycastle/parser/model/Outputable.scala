@@ -28,7 +28,7 @@ trait Outputable {
     }
   }
 
-  protected def outputSeparatedList(list: List[_ <: Outputable], s: StringBuilder, indent: Int, separator: String = ", ") {
+  protected def outputSeparatedList(list: Iterable[Outputable], s: StringBuilder, indent: Int, separator: String = ", ") {
     var i = 0
     list foreach {l =>
       l.output(s, indent)

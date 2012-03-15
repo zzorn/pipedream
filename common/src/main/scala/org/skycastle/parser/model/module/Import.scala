@@ -1,16 +1,17 @@
 package org.skycastle.parser.model.module
 
-import org.skycastle.parser.model.Outputable
+import org.skycastle.parser.model.{PathRef, Outputable}
+
 
 /**
  *
  */
-final case class Import(location: String) extends Outputable {
+final case class Import(path: PathRef) extends Outputable {
 
   def output(s: StringBuilder, indent: Int) {
     createIndent(s, indent)
     s.append("import ")
-    s.append(location)
+    s.append(path)
     s.append("\n")
   }
 }

@@ -22,6 +22,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
 
   val FUN = registerKeyword("fun")
   val VAL = registerKeyword("val")
+  val MODULE = registerKeyword("module")
   val IMPORT = registerKeyword("import")
   val RETURN = registerKeyword("return")
   val AND = registerKeyword("and")
@@ -32,7 +33,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
   val TRUE = registerKeyword("true")
 
   registerDelimiters(
-    "=", ",", ":", ";",
+    "=", ",", ":", ";", ".",
     "(", ")", "[", "]", "{", "}",
     "->", "=>",
     "+","-", "*", "/", "^",
@@ -42,15 +43,23 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
   // Module
   def rootParser = module
   private lazy val module: PackratParser[Module] =
-    imports ~ definitions ^^
-      { case imps ~ defs =>
-        Module(imps, defs) }
+    MODULE ~> ident ~ imports ~ definitions ^^
+      { case name ~ imps ~ defs =>
+        Module(Symbol(name), imps, defs) }
 
   // Imports
   private lazy val imports: PackratParser[List[Import]] = repsep(imp, opt(";"))
   private lazy val imp: PackratParser[Import] =
-    IMPORT ~> ident ^^
-      { case i => Import(i) }
+    IMPORT ~> path ^^
+      { case p => Import(p) }
+
+  // Path
+  private lazy val path: PackratParser[PathRef] =
+    rep1sep(pathElement, ".") ^^
+      {case p => PathRef(p)}
+
+  private lazy val pathElement: PackratParser[Symbol] =
+    ident ^^ { case i => Symbol(i) }
 
   // Definitions
   private lazy val definitions: PackratParser[List[Def]] = rep(definition)
@@ -152,14 +161,14 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
 
   // Value references
   private lazy val ref: PackratParser[Ref] =
-    ident ^^ {case refName => Ref(Symbol(refName))}
+    path ^^ {case pathRef => Ref(pathRef)}
 
 
   // Function calls
   private lazy val call: PackratParser[Call] =
-    ident ~ "(" ~ arguments ~ ")" ^^
-      {case name ~ "(" ~ args ~ ")" =>
-        Call(Symbol(name), args)}
+    path ~ "(" ~ arguments ~ ")" ^^
+      {case pathRef ~ "(" ~ args ~ ")" =>
+        Call(pathRef, args)}
 
   private lazy val arguments: PackratParser[List[Arg]] =
     repsep(namedArgument | unnamedArgument, opt(","))

@@ -2,7 +2,7 @@ package org.skycastle.parser
 
 import model.module.Module
 import org.scalatest.FunSuite
-import java.io.StringReader
+import java.io.{File, StringReader}
 
 /**
  *
@@ -14,6 +14,7 @@ class ParserTest extends FunSuite {
     val parser = new ModuleParser(factory)
     val testString =
       """
+      module ParseTest
       fun foo(a: double, b = 1) = a * -b * 4.3 / 3 + 1 - -(-a + -b) * 3 + zomg(x = {fun boo() = 5 return -boo() }) * 4
       fun bar(f = (t: double) => t^(t*2) )  { return f(1) + f(2, 3) + f(aasd = 1) + f(ae=1, basd=2) + f(1,b=3) + foo(f(1), b = f(2)) }
       fun zap(g: (double) => double) = bar(g 3 4, d, bar=3 foo=4 5 g-h-1 7-6) + bar( f = x => 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12 )
@@ -43,6 +44,15 @@ class ParserTest extends FunSuite {
     println(s2)
 
     assert(s === s2)
+  }
+  
+  test ("Load packages") {
+    val loader = new ModuleLoader()
+    val root = loader.loadRootPackage(new File("assets/testpackage"))
+    println(root)
+
+    assert(root.getMemberByPath(List('skycastle, 'utils, 'MathUtils, 'foo)).isDefined)
+
   }
 
 }

@@ -1,0 +1,13 @@
+module Tree
+
+import skycastle.utils.Branch
+
+fun tree(height = 1): Model = {
+  fun leafCalculator(x: double): Leaf = Leaf(2, 45*x)
+  val rootHeight = height / 2
+  return [
+    root(skycastle.utils.MathUtils.foo(rootHeight))
+    many(Branch.branch)
+    many([leafCalculator(1), leafCalculator(2), leafCalculator(3)])
+  ]
+}

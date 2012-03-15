@@ -1,19 +1,20 @@
 package org.skycastle.parser.model
 
-import defs.FunDef
+import defs.{Def, ValDef, FunDef}
+
 
 /**
- *
+ * Keeps track of defined references in a context.
  */
 class Context(parentContext: Context = null) {
 
-  private var definitions: Map[Symbol, FunDef] = Map()
-  
-  def addDefinition(definition: FunDef) {
+  private var definitions: Map[Symbol, Def] = Map()
+
+  def addDefinition(definition: Def) {
     definitions += (definition.name -> definition)
   }
 
-  def getDefinitionFor(name: Symbol): FunDef = {
+  def getDefinitionFor(name: Symbol): Def = {
     definitions.getOrElse(name, {if (parentContext != null) parentContext.getDefinitionFor(name) else null})
   }
   
@@ -23,3 +24,4 @@ class Context(parentContext: Context = null) {
 
 
 }
+
