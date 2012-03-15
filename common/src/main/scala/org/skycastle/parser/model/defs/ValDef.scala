@@ -24,5 +24,7 @@ case class ValDef(name: Symbol,
     s.append(" = ")
     value.output(s, indent)
   }
-  
+
+  def getMember(name: Symbol) = None
+
 }

@@ -22,8 +22,7 @@ final case class Block(definitions: List[Def], value: Expr) extends Expr {
     s.append("\n")
 
     if (!definitions.isEmpty) {
-      outputSeparatedList(definitions, s, indent, "\n")
-      s.append("\n")
+      outputTerminatedList(definitions, s, indent, "\n")
     }
 
     createIndent(s, indent)

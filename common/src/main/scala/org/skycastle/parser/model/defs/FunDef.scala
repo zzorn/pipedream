@@ -30,5 +30,8 @@ case class FunDef(name: Symbol,
     expression.output(s, indent + 1)
   }
 
+
+  def getMember(name: Symbol) = None
+
   lazy val typeDef: TypeDef = FunType(parameters.map( _.typeDef), resultTypeDef)
 }

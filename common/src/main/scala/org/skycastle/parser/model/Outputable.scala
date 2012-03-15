@@ -37,4 +37,11 @@ trait Outputable {
     }
   }
 
+  protected def outputTerminatedList(list: Iterable[Outputable], s: StringBuilder, indent: Int, terminator: String = "; ") {
+    list foreach {l =>
+      l.output(s, indent)
+      s.append(terminator)
+    }
+  }
+
 }

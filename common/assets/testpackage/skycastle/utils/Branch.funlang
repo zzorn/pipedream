@@ -1,5 +1,6 @@
-module Branch
+module Branch {
 
-fun branch(): Model = {
-  return Tube()
+    fun branch(): Model = {
+      return Tube()
+    }
 }

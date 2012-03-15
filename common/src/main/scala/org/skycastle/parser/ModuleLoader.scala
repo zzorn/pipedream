@@ -34,33 +34,33 @@ class ModuleLoader {
     }
   }
 
-  def loadRootPackage(path: File): ModulePackage = {
-    loadPackage(null, 'root, path)
+  def loadRootModule(path: File): Module = {
+    loadModule('root, path)
   }
 
-  private def loadPackage(parent: ModulePackage, name: Symbol, path: File): ModulePackage = {
+  private def loadModule(name: Symbol, path: File): Module = {
 
     if (!path.exists()) throw new IllegalStateException("The specified path " + path.getPath + " doesn't exists.")
 
-    val pack = new ModulePackage(name, parent)
+    val module = new Module(name, Nil, Nil)
 
     // Load modules in current directory
     val modules = path.listFiles(sourceFileFilter)
     modules foreach { f =>
-      pack.addMember(loadModule(f))
+      module.addDefinition(parser.parseFile(f))
     }
 
     // Load modules from subdirectories.
     val subPackages = path.listFiles(sourcePackageFilter)
     subPackages foreach { f =>
-      pack.addMember(loadPackage(pack, Symbol(f.getName), f))
+      module.addDefinition(loadModule(Symbol(f.getName), f))
     }
 
-    pack
+    module
   }
 
-  private def loadModule(file: File): Module = {
-    parser.parseFile(file)
+  private def resolveReferences() {
+
   }
 
 }

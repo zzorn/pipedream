@@ -41,16 +41,18 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
   )
 
   // Module
-  def rootParser = module
-  private lazy val module: PackratParser[Module] =
-    MODULE ~> ident ~ imports ~ definitions ^^
+  def rootParser = moduleDef
+  private lazy val moduleDef: PackratParser[Module] =
+    MODULE ~> ident ~ ("{" ~> imports) ~ definitions <~ "}" ^^
       { case name ~ imps ~ defs =>
         Module(Symbol(name), imps, defs) }
 
+
+
   // Imports
-  private lazy val imports: PackratParser[List[Import]] = repsep(imp, opt(";"))
+  private lazy val imports: PackratParser[List[Import]] = rep(imp)
   private lazy val imp: PackratParser[Import] =
-    IMPORT ~> path ^^
+    IMPORT ~> path <~ opt(";") ^^
       { case p => Import(p) }
 
   // Path
@@ -63,7 +65,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
 
   // Definitions
   private lazy val definitions: PackratParser[List[Def]] = rep(definition)
-  private lazy val definition: PackratParser[Def] = (funDef | valDef) <~ opt(";")
+  private lazy val definition: PackratParser[Def] = (funDef | valDef | moduleDef) <~ opt(";")
 
   // Value definition
   private lazy val valDef: PackratParser[ValDef] =
