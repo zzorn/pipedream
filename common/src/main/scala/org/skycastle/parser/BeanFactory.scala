@@ -11,8 +11,8 @@ class BeanFactory {
   def typeForName(name: String): Class[_] = {
 
     name match {
-      case "double" => classOf[Double]
-      case "string" => classOf[String]
+      case "Num" => classOf[Double]
+      case "String" => classOf[String]
       case _ => null
     }
   }
@@ -23,7 +23,7 @@ class BeanFactory {
         kind.isAssignableFrom(classOf[Byte]) ||
         kind.isAssignableFrom(classOf[Short]) ||
         kind.isAssignableFrom(classOf[Int]) ||
-        kind.isAssignableFrom(classOf[Long])) "double"
+        kind.isAssignableFrom(classOf[Long])) "Num"
     else kind.getSimpleName
   }
 

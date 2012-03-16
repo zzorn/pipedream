@@ -8,20 +8,18 @@ import org.skycastle.parser.model.PathRef
  *
  */
 
-case class Ref(definitionRef: PathRef) extends Expr {
+case class Ref(path: PathRef) extends Expr {
 
   var definition: Def = null
 
   def output(s: StringBuilder, indent: Int) {
-    if (definition == null) {
-      s.append(definitionRef)
-    }
-    else {
-      s.append(definition.name)
-    }
+    s.append(path)
   }
 
   def resultType = null
 
   def calculation = null
+
+  override def subNodes = singleIt(resultType)
+
 }

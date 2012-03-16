@@ -17,6 +17,9 @@ abstract case class MathExpr(op: String) extends Expr {
     s.append(" ")
     b.output(s, indent)
   }
+
+  override def subNodes = List(a, b, resultType).iterator
+
 }
 
 case class AddExpr(a: Expr, b: Expr) extends MathExpr("+") {

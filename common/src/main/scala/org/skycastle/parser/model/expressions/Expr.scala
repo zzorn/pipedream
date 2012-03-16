@@ -1,11 +1,12 @@
 package org.skycastle.parser.model.expressions
 
-import org.skycastle.parser.model.{Context, TypeDef, Outputable}
+import org.skycastle.parser.model.{SyntaxNode, Context, TypeDef, Outputable}
+
 
 /**
  *
  */
-trait Expr extends Outputable {
+trait Expr extends SyntaxNode {
 
   def resultType: TypeDef
 

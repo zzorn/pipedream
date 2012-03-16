@@ -3,7 +3,7 @@ package org.skycastle.parser.model
 /**
  *
  */
-trait TypeDef extends Outputable {
+trait TypeDef extends SyntaxNode {
 
 
 }
@@ -23,4 +23,9 @@ case class FunType(parameterTypes: List[TypeDef], resultType: TypeDef) extends T
     resultType.output(s, indent)
   }
 
+  override def subNodes = parameterTypes.iterator ++ singleIt(resultType)
+
+
 }
+
+case object NumType extends SimpleType('Num, classOf[Double])

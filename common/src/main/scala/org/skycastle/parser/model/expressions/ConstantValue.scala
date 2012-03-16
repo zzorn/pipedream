@@ -14,4 +14,7 @@ case class ConstantValue[T <: Any](value: T, kind: Class[_], output: T => String
   def output(s: StringBuilder, indent: Int) {
     s.append(output(value))
   }
+
+  override def subNodes = singleIt(resultType)
+
 }

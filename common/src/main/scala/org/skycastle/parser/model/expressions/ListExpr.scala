@@ -13,4 +13,7 @@ case class ListExpr(values: List[Expr]) extends Expr {
     outputSeparatedList(values, s, indent)
     s.append("]")
   }
+
+  override def subNodes = values.iterator ++ singleIt(resultType)
+
 }

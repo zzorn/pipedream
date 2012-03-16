@@ -15,4 +15,7 @@ case class Parens(a: Expr) extends Expr {
     a.output(s, indent)
     s.append(") ")
   }
+
+  override def subNodes = singleIt(a) ++ singleIt(resultType)
+
 }

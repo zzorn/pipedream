@@ -52,8 +52,8 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
   // Imports
   private lazy val imports: PackratParser[List[Import]] = rep(imp)
   private lazy val imp: PackratParser[Import] =
-    IMPORT ~> path <~ opt(";") ^^
-      { case p => Import(p) }
+    IMPORT ~> path ~ opt("." ~> "*") <~ opt(";") ^^
+      { case p ~ star => Import(p, star.isDefined) }
 
   // Path
   private lazy val path: PackratParser[PathRef] =
@@ -83,17 +83,22 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
     "(" ~> repsep(parameter, ",") <~")"
 
   private lazy val parameter: PackratParser[Parameter] =
-    parameterWithDefault | parameterWithType
-
-  private lazy val parameterWithType: PackratParser[Parameter] =
-    ident ~ typeTag ~ opt ("=" ~> expression) ^^
-    {case name ~ t ~ defaultExp =>
-     new Parameter(Symbol(name), t, defaultExp)}
+    parameterWithDefault | parameterWithType | numParameter
 
   private lazy val parameterWithDefault: PackratParser[Parameter] =
     ident ~ ("=" ~> expression) ^^
     {case name ~ defaultExp =>
      new Parameter(Symbol(name), defaultExp.resultType, Some(defaultExp))}
+
+  private lazy val parameterWithType: PackratParser[Parameter] =
+    ident ~ typeTag ~ opt ("=" ~> expression) ^^
+      {case name ~ t ~ defaultExp =>
+        new Parameter(Symbol(name), t, defaultExp)}
+
+  private lazy val numParameter: PackratParser[Parameter] =
+    ident ^^
+      {case name =>
+        new Parameter(Symbol(name), NumType, None)}
 
 
 

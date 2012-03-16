@@ -1,7 +1,9 @@
 package org.skycastle.parser
 
-import model.module.Module
-import model.ModulePackage
+import model.defs.{ValDef, Parameter, FunDef, Def}
+import model.module.{Import, Module}
+import model.refs.{Call, Ref}
+import model.SyntaxNode
 import org.skycastle.utils.StringUtils
 import java.io.{FileFilter, File, FilenameFilter}
 
@@ -35,7 +37,10 @@ class ModuleLoader {
   }
 
   def loadRootModule(path: File): Module = {
-    loadModule('root, path)
+    val root = loadModule('root, path)
+    val errors = resolveReferences(root)
+    if (!errors.isEmpty) throw errors.head
+    root
   }
 
   private def loadModule(name: Symbol, path: File): Module = {
@@ -59,8 +64,51 @@ class ModuleLoader {
     module
   }
 
-  private def resolveReferences() {
 
+  private def resolveReferences(root: Module):List[ParseError] = {
+    var errors: List[ParseError] = Nil
+
+    def addError(msg: String) {
+      // TODO: Add location and file data to parsed syntax nodes!
+      errors ::= new ParseError(msg, null, null)
+    }
+
+    // Imports
+    root.visitClasses(classOf[Import]) { (context, imp) =>
+      root.getMemberByPath(imp.path) match {
+        case Some(definition) => imp.importedDef = definition
+        case None => addError("Could not resolve imported definition "+imp.path+" ")
+      }
+    }
+
+    // References
+    root.visitClasses(classOf[Ref]) { (context, ref) =>
+      SyntaxNode.getReferencedDefinition(context, ref.path.path) match {
+        case Some(definition) => ref.definition = definition
+        case None => addError("Could not resolve reference "+ref.path+" ")
+      }
+    }
+
+    // Types
+    // TODO
+
+    // Function calls
+    root.visitClasses(classOf[Call]) { (context, call) =>
+      SyntaxNode.getReferencedDefinition(context, call.functionRef.path) match {
+        case Some(definition: FunDef)    => call.functionDef = definition
+        case Some(definition: Parameter) => call.functionDef = definition
+        case Some(definition: ValDef)    => call.functionDef = definition
+        case Some(otherDef) => addError("Can not call "+call.functionRef+" ")
+        case None => addError("Could not resolve called function reference "+call.functionRef+" ")
+      }
+    }
+
+    // Parameters, and Named arguments
+    // TODO
+
+    // TODO: Support builtin modules and types that are available to the loaded code
+
+    errors
   }
 
 }

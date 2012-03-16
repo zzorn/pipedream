@@ -1,10 +1,21 @@
 
 module MathUtils {
 
-    fun foo(a: double, b = 1) = a * -b * 4.3 / 3 + 1 - -(-a + -b) * 3 + zomg(x = {fun boo() = 5 return -boo() }) * 4
+    fun lerp(a, b, t) = a * (1 - t) + b * t
+    fun lerpVec2(a: Vec2, b: Vec2, t): Vec2 = a * (1 - t) + b * t
+    fun lerpVec3(a: Vec3, b: Vec3, t): Vec3 = a * (1 - t) + b * t
 
-    fun bar(f = (t: double) => t^(t*2) )  { return f(1) + f(2, 3) + f(aasd = 1) + f(ae=1, basd=2) + f(1,b=3) + foo(f(1), b = f(2)) }
+    fun foo(p) = false
 
-    fun zap(g: (double) => double) = bar(g 3 4, d, bar=3 foo=4 5 g-h-1 7-6) + bar( f = x => 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12 )
+    fun many(f: Any => Any) {
+       return [f(), f(), f()]
+    }
+
+/*
+    fun fibbo(x) =
+        x == 0 -> 1
+        x == 1 -> 1
+        else fibbo(x - 2) + fibbo(x - 1)
+*/
 
 }

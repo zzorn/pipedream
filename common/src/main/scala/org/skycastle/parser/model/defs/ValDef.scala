@@ -27,4 +27,6 @@ case class ValDef(name: Symbol,
 
   def getMember(name: Symbol) = None
 
+  override def subNodes = singleIt(typeDef) ++ singleIt(value)
+
 }

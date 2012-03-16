@@ -1,12 +1,12 @@
 package org.skycastle.parser.model.defs
 
 import org.skycastle.parser.model.expressions.Expr
-import org.skycastle.parser.model.{Outputable, TypeDef}
+import org.skycastle.parser.model.{SyntaxNode, Outputable, TypeDef}
 
 /**
  *
  */
-case class Parameter(name: Symbol, typeDef: TypeDef, defaultValue: Option[Expr]) extends Outputable {
+case class Parameter(name: Symbol, typeDef: TypeDef, defaultValue: Option[Expr]) extends Def {
 
   def output(s: StringBuilder, indent: Int) {
     s.append(name.name)
@@ -21,4 +21,9 @@ case class Parameter(name: Symbol, typeDef: TypeDef, defaultValue: Option[Expr])
       defaultValue.get.output(s, indent)
     }
   }
+
+  def getMember(name: Symbol) = None
+
+  override def subNodes = singleIt(typeDef) ++ defaultValue.iterator
+
 }
