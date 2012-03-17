@@ -6,7 +6,7 @@ import org.skycastle.parser.model.{SyntaxNode, Outputable}
 /**
  *
  */
-case class Arg(paramName: Option[Symbol], value: Expr) extends SyntaxNode {
+case class Arg(value: Expr, paramName: Option[Symbol] = None) extends SyntaxNode {
 
   def output(s: StringBuilder, indent: Int) {
     if (paramName.isDefined) {

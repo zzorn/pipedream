@@ -189,11 +189,11 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
   private lazy val namedArgument: PackratParser[Arg] =
     ident ~ "=" ~ expression ^^
       {case name ~ "=" ~ expr =>
-        Arg(Some(Symbol(name)), expr) }
+        Arg(expr, Some(Symbol(name))) }
 
 
   private lazy val unnamedArgument: PackratParser[Arg] =
-    expression ^^ {case expr => new Arg(None.asInstanceOf[Option[Symbol]], expr) }
+    expression ^^ {case expr => new Arg(expr,  None.asInstanceOf[Option[Symbol]]) }
 
 
 
@@ -217,7 +217,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
       | call
       | ref
       | "(" ~> mathExpr <~")" ^^ {case x: Expr => Parens(x)}
-      | doubleNumber ^^ (x => NumExpr(x))
+      | doubleNumber ^^ (x => Num(x))
   )
 
 

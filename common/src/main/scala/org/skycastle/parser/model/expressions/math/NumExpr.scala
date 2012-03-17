@@ -7,7 +7,7 @@ import org.skycastle.parser.model.{SyntaxNode, NumType}
 /**
  *
  */
-final case class NumExpr(v: Double) extends Expr {
+final case class Num(v: Double) extends Expr {
   def output(s: StringBuilder, indent: Int) {
     s.append(v)
   }

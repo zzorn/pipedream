@@ -1,6 +1,10 @@
 package org.skycastle.parser
 
+import model.defs.FunDef
+import model.expressions.Expr
+import model.expressions.math.Num
 import model.module.Module
+import model.refs.Arg
 import org.scalatest.FunSuite
 import java.io.{File, StringReader}
 
@@ -54,6 +58,16 @@ class ParserTest extends FunSuite {
     println(root)
 
     assert(root.getMemberByPath(List('skycastle, 'utils, 'MathUtils, 'lerp)).isDefined)
+
+  }
+
+  test ("Invoke Function") {
+    val loader = new ModuleLoader()
+    val root = loader.loadRootModule(new File("assets/testpackage"))
+
+    val lerp= root.getMemberByPath(List('skycastle, 'utils, 'MathUtils, 'lerp)).asInstanceOf[Option[FunDef]]
+    val result: Expr = lerp.get.invoke(List(Arg(Num(10.0)), Arg(Num(20.0)), Arg(Num(0.5), Some('t))))
+    assert(result === Num(15.0))
 
   }
 

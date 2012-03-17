@@ -1,23 +1,29 @@
 package org.skycastle.parser.model
 
 import defs.{Def, ValDef, FunDef}
+import expressions.Expr
 
 
 /**
- * Keeps track of defined references in a context.
+ * Keeps track of bound references in a context.
  */
 class Context(parentContext: Context = null) {
 
-  private var definitions: Map[Symbol, Def] = Map()
 
-  def addDefinition(definition: Def) {
-    definitions += (definition.name -> definition)
+  private var bindings: Map[Symbol, Expr] = Map()
+
+  def addBinding(name: Symbol, value: Expr) {
+    bindings += (name -> value)
   }
 
-  def getDefinitionFor(name: Symbol): Def = {
-    definitions.getOrElse(name, {if (parentContext != null) parentContext.getDefinitionFor(name) else null})
+  def getBindingFor(name: Symbol): Expr = {
+    bindings.getOrElse(name, {if (parentContext != null) parentContext.getBindingFor(name) else null})
   }
-  
+
+  def hasBinding(name: Symbol): Boolean = {
+    bindings.contains(name)
+  }
+
   def subContext(): Context = {
     new Context(this)
   }
