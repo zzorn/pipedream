@@ -16,8 +16,8 @@ module Tree {
       val referenceToFunnyFunc = funnyFunc
       fun testRef() = skycastle.utils.MathUtils.foo(rootHeight)
       return [
-        many(referenceToFunnyFunc)
-        many(x: Any => Branch.branch())
+        many(referenceToFunnyFunc),
+        many(x: Any => Branch.branch()),
         foo([lerp(1, t=2, 3), Branch.branch(), leafCalculator(3)])
       ]
     }

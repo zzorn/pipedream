@@ -22,7 +22,7 @@ module MathUtils {
        return [f(1), f(23.324), f(3)]
     }
 
-/*
+/* TODO: Add if / switch construct, and boolean operations
     fun fibbo(x) =
         x == 0 -> 1
         x == 1 -> 1

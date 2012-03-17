@@ -151,7 +151,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
 
   // List expression
   private lazy val list: PackratParser[ListExpr] =
-    "["~> repsep(expression, opt(",")) <~"]" ^^
+    "["~> repsep(expression, ",") <~"]" ^^
       {case values => ListExpr(values)}
 
 
@@ -184,7 +184,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
         Call(pathRef, args)}
 
   private lazy val arguments: PackratParser[List[Arg]] =
-    repsep(namedArgument | unnamedArgument, opt(","))
+    repsep(namedArgument | unnamedArgument, ",")
 
   private lazy val namedArgument: PackratParser[Arg] =
     ident ~ "=" ~ expression ^^
