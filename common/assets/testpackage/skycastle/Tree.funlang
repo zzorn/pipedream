@@ -4,17 +4,17 @@ module Tree {
     import skycastle.utils.Branch
     import skycastle.utils.MathUtils.*
 
-    fun tree(height = 1): Model = {
+    fun tree(height = 1): List[Any] = {
       module TreeType {
         val Birch = 1
         val Fir = 2
       }
 
-      fun leafCalculator(x: Num): Leaf = foo(45*x)
+      fun leafCalculator(x: Num) = foo(45*x)
       val rootHeight = height / 2
       val funnyFunc = (x: Any = 3): Any => x^x
       val referenceToFunnyFunc = funnyFunc
-      fun testRef(): Num = skycastle.utils.MathUtils.foo(rootHeight)
+      fun testRef() = skycastle.utils.MathUtils.foo(rootHeight)
       return [
         many(referenceToFunnyFunc)
         many(x: Any => Branch.branch())

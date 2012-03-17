@@ -9,7 +9,7 @@ import org.skycastle.parser.model._
  */
 
 case class FunExpr(parameters: List[Parameter],
-                   initialResultTypeDef: Option[TypeDef],
+                   declaredReturnType: Option[TypeDef],
                    expression: Expr) extends Expr with Callable with ReturnTyped  {
 
   private val definitionsByName: Map[Symbol, Def] = parameters.map(d => d.name -> d).toMap
@@ -34,11 +34,11 @@ case class FunExpr(parameters: List[Parameter],
 
   def nameAndSignature = "("+parameters.mkString(", ")+"): " + (if (returnType == null) "[UnknownType]" else returnType.toString)
 
-  override def subNodes = parameters.iterator ++ singleIt(valueType) ++ singleIt(expression)
+  override def subNodes = parameters.iterator ++ declaredReturnType.iterator ++ singleIt(expression)
 
   def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
-    if (initialResultTypeDef.isDefined) {
-      FunType(parameters.map(p => p.valueType(visitedNodes)), initialResultTypeDef.get)
+    if (declaredReturnType.isDefined) {
+      FunType(parameters.map(p => p.valueType(visitedNodes)), declaredReturnType.get)
     }
     else {
       val retType = expression.valueType(visitedNodes)

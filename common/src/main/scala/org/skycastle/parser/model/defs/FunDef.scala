@@ -9,8 +9,8 @@ import expressions.Expr
  */
 case class FunDef(name: Symbol,
                   parameters: List[Parameter],
-                  initialResultTypeDef: Option[TypeDef],
-                  expression: Expr) extends Def with Callable {
+                  declaredReturnType: Option[TypeDef],
+                  expression: Expr) extends Def with ValueTyped with ReturnTyped with Callable {
 
   private val paramsByName: Map[Symbol, Parameter] = parameters.map(p => p.name -> p).toMap
 
@@ -32,7 +32,7 @@ case class FunDef(name: Symbol,
     expression.output(s, indent + 1)
   }
 
-  override def subNodes = parameters.iterator ++ initialResultTypeDef.iterator ++ singleIt(expression)
+  override def subNodes = parameters.iterator ++ declaredReturnType.iterator ++ singleIt(expression)
 
   def getMember(name: Symbol) = None
 
@@ -42,8 +42,8 @@ case class FunDef(name: Symbol,
   def nameAndSignature = name.name + "("+parameters.mkString(", ")+"): " + (if (returnType == null) "[UnknownType]" else returnType.toString)
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
-    if (initialResultTypeDef.isDefined) {
-      FunType(parameters.map(p => p.valueType(visitedNodes)), initialResultTypeDef.get)
+    if (declaredReturnType.isDefined) {
+      FunType(parameters.map(p => p.valueType(visitedNodes)), declaredReturnType.get)
     }
     else {
       val retType = expression.valueType(visitedNodes)

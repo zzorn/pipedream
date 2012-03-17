@@ -1,12 +1,12 @@
 package org.skycastle.parser.model.defs
 
 import org.skycastle.parser.model.expressions.Expr
-import org.skycastle.parser.model.{Callable, SyntaxNode, Outputable, TypeDef}
+import org.skycastle.parser.model._
 
 /**
  *
  */
-case class Parameter(name: Symbol, initialTypeDef: TypeDef, defaultValue: Option[Expr]) extends Def {
+case class Parameter(name: Symbol, declaredReturnType: Option[TypeDef], defaultValue: Option[Expr]) extends Def  with ValueTyped with ReturnTyped {
 
   def output(s: StringBuilder, indent: Int) {
     s.append(name.name)
@@ -23,13 +23,13 @@ case class Parameter(name: Symbol, initialTypeDef: TypeDef, defaultValue: Option
   }
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
-    if (initialTypeDef != null) initialTypeDef
+    if (declaredReturnType.isDefined) declaredReturnType.get
     else if (defaultValue.isDefined) defaultValue.get.valueType(visitedNodes)
     else null
   }
 
   def getMember(name: Symbol) = None
 
-  override def subNodes = singleIt(valueType) ++ defaultValue.iterator
+  override def subNodes = singleIt(valueType) ++ declaredReturnType.iterator ++ defaultValue.iterator
 
 }

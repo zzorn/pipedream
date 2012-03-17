@@ -1,15 +1,15 @@
 package org.skycastle.parser.model.defs
 
 import org.skycastle.parser.model.expressions.Expr
-import org.skycastle.parser.model.{SyntaxNode, TypeDef}
+import org.skycastle.parser.model.{ReturnTyped, ValueTyped, SyntaxNode, TypeDef}
 
 
 /**
  *
  */
 case class ValDef(name: Symbol,
-                  initialTypeDef: Option[TypeDef],
-                  value: Expr) extends Def {
+                  declaredReturnType: Option[TypeDef],
+                  value: Expr) extends Def  with ValueTyped with ReturnTyped {
   
   def output(s: StringBuilder, indent: Int) {
     createIndent(s, indent)
@@ -27,7 +27,7 @@ case class ValDef(name: Symbol,
 
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
-    if (initialTypeDef.isDefined) initialTypeDef.get
+    if (declaredReturnType.isDefined) declaredReturnType.get
     else value.valueType(visitedNodes)
   }
 

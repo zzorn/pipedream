@@ -25,8 +25,8 @@ case class SimpleType(typeName: Symbol, kind: Class[_]) extends TypeDef {
     else if (other == this) this
     else if (other.isInstanceOf[SimpleType]) {
       val otherST = other.asInstanceOf[SimpleType]
-      if (otherST.kind.isAssignableFrom(kind)) otherST
-      else if (kind.isAssignableFrom(otherST.kind)) this
+      if (otherST.kind != null && otherST.kind.isAssignableFrom(kind)) otherST
+      else if (kind != null && kind.isAssignableFrom(otherST.kind)) this
       else AnyType
     }
     else AnyType
@@ -37,8 +37,8 @@ case class SimpleType(typeName: Symbol, kind: Class[_]) extends TypeDef {
     else if (other == this) this
     else if (other.isInstanceOf[SimpleType]) {
       val otherST = other.asInstanceOf[SimpleType]
-      if (otherST.kind.isAssignableFrom(kind)) this
-      else if (kind.isAssignableFrom(otherST.kind)) other
+      if (otherST.kind != null && otherST.kind.isAssignableFrom(kind)) this
+      else if (kind != null && kind.isAssignableFrom(otherST.kind)) other
       else NothingType
     }
     else AnyType
@@ -58,14 +58,18 @@ case class FunType(parameterTypes: List[TypeDef], returnType: TypeDef) extends T
 
   def mostSpecificCommonType(other: TypeDef): TypeDef = {
     if (other == null) null
+    else if (returnType == null) null
     else if (other == this) this
     else if (other.isInstanceOf[FunType]) {
       val otherFT = other.asInstanceOf[FunType]
-      if (otherFT.parameterTypes.size != parameterTypes.size) AnyType 
+      if (otherFT.returnType == null) null
       else {
-        val params = parameterTypes.zip(otherFT.parameterTypes).map(zipped => zipped._1.mostGeneralCommonSubType(zipped._2))
-        val ret = returnType.mostSpecificCommonType(otherFT.returnType)
-        FunType(params, ret)
+        if (otherFT.parameterTypes.size != parameterTypes.size) AnyType
+        else {
+          val params = parameterTypes.zip(otherFT.parameterTypes).map(zipped => zipped._1.mostGeneralCommonSubType(zipped._2))
+          val ret = returnType.mostSpecificCommonType(otherFT.returnType)
+          FunType(params, ret)
+        }
       }
     }
     else AnyType
@@ -73,14 +77,18 @@ case class FunType(parameterTypes: List[TypeDef], returnType: TypeDef) extends T
 
   def mostGeneralCommonSubType(other: TypeDef): TypeDef = {
     if (other == null) null
+    else if (returnType == null) null
     else if (other == this) this
     else if (other.isInstanceOf[FunType]) {
       val otherFT = other.asInstanceOf[FunType]
-      if (otherFT.parameterTypes.size != parameterTypes.size) NothingType
+      if (otherFT.returnType == null) null
       else {
-        val params = parameterTypes.zip(otherFT.parameterTypes).map(zipped => zipped._1.mostSpecificCommonType(zipped._2))
-        val ret = returnType.mostGeneralCommonSubType(otherFT.returnType)
-        FunType(params, ret)
+        if (otherFT.parameterTypes.size != parameterTypes.size) NothingType
+        else {
+          val params = parameterTypes.zip(otherFT.parameterTypes).map(zipped => zipped._1.mostSpecificCommonType(zipped._2))
+          val ret = returnType.mostGeneralCommonSubType(otherFT.returnType)
+          FunType(params, ret)
+        }
       }
     }
     else NothingType
@@ -133,6 +141,22 @@ abstract class SpecialType(val name: String) extends TypeDef {
 
 case object NumType extends SpecialType("Num") {
   
+  def mostSpecificCommonType(other: TypeDef): TypeDef = {
+    if (other == null) null
+    else if (other == this) this
+    else AnyType
+  }
+
+  def mostGeneralCommonSubType(other: TypeDef): TypeDef = {
+    if (other == null) null
+    else if (other == this) this
+    else NothingType
+  }
+}
+
+
+case object BoolType extends SpecialType("Bool") {
+
   def mostSpecificCommonType(other: TypeDef): TypeDef = {
     if (other == null) null
     else if (other == this) this

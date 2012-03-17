@@ -10,7 +10,7 @@ import defs.{Parameter, Def}
  */
 case class Call(functionRef: PathRef, arguments: List[Arg]) extends Expr {
 
-  var functionDef: Def = null
+  var functionDef: ReturnTyped = null
 
   def output(s: StringBuilder, indent: Int) {
     s.append(functionRef)

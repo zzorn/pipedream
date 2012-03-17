@@ -1,6 +1,6 @@
 module Branch {
 
-    fun branch(): Model = {
+    fun branch(): Num = {
       return 3 //Tube()
     }
 }

@@ -2,10 +2,11 @@
 module MathUtils {
 
     fun lerp(a, b, t) = a * (1 - t) + b * t
-    fun lerpVec2(a: Vec2, b: Vec2, t): Vec2 = a * (1 - t) + b * t
-    fun lerpVec3(a: Vec3, b: Vec3, t): Vec3 = a * (1 - t) + b * t
+    fun lerpVec2(a: Vec2, b: Vec2, t)  = a * (1 - t) + b * t
+    fun lerpVec3(a: Vec3, b: Vec3, t)  = a * (1 - t) + b * t
 
-    fun foo(p: Any) = false
+    fun foo(p: Any): Bool = false
+    fun boolFunc(): Bool = true
 
     val x = y
     val y = 3
@@ -14,7 +15,7 @@ module MathUtils {
         val z = x
     }
 
-    fun testFun(p) = 3 + 4
+    fun testFun(p = 3): Any = 3 + 4
     val testVal = 2
 
     fun many(f: Any -> Any) {

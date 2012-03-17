@@ -12,6 +12,7 @@ class BeanFactory {
   def typeFor(name: String): TypeDef = {
     name match {
       case NumType.name => NumType
+      case BoolType.name => BoolType
       case AnyType.name => AnyType
       case NothingType.name => NothingType
       case _ => SimpleType(Symbol(name), null)

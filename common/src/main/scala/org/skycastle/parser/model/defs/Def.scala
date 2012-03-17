@@ -6,7 +6,7 @@ import org.skycastle.parser.model._
 /**
  * Some kind of definitions
  */
-trait Def extends ValueTyped with ReturnTyped {
+trait Def extends SyntaxNode {
 
   def name: Symbol
 

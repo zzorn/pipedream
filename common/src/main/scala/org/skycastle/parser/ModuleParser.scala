@@ -89,17 +89,17 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
   private lazy val parameterWithDefault: PackratParser[Parameter] =
     ident ~ ("=" ~> expression) ^^
     {case name ~ defaultExp =>
-     new Parameter(Symbol(name), defaultExp.valueType, Some(defaultExp))}
+     new Parameter(Symbol(name), None, Some(defaultExp))}
 
   private lazy val parameterWithType: PackratParser[Parameter] =
     ident ~ typeTag ~ opt ("=" ~> expression) ^^
       {case name ~ t ~ defaultExp =>
-        new Parameter(Symbol(name), t, defaultExp)}
+        new Parameter(Symbol(name), Some(t), defaultExp)}
 
   private lazy val numParameter: PackratParser[Parameter] =
     ident ^^
       {case name =>
-        new Parameter(Symbol(name), NumType, None)}
+        new Parameter(Symbol(name), Some(NumType), None)}
 
 
 
@@ -137,8 +137,8 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
       | list
       | quotedString ^^ (x => StringExpr(x))
       | "null" ^^ (x => NullExpr)
-      | "true" ^^ (x => TrueExpr)
-      | "false" ^^ (x => FalseExpr)
+      | TRUE ^^ (x => TrueExpr)
+      | FALSE ^^ (x => FalseExpr)
     )
 
 
@@ -168,7 +168,7 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
 
   private lazy val funExprParameter: PackratParser[Parameter] = parameterWithDefault | parameterWithType | funExprParameterWithoutTypeOrDefault
   private lazy val funExprParameterWithoutTypeOrDefault: PackratParser[Parameter] =
-    ident ^^ {case name => new Parameter(Symbol(name), null, None)}
+    ident ^^ {case name => new Parameter(Symbol(name), None, None)}
 
 
 

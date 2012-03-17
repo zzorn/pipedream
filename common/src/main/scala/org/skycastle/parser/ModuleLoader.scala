@@ -1,10 +1,10 @@
 package org.skycastle.parser
 
+import model._
+import expressions.{FunExpr, Expr}
 import model.defs.{ValDef, Parameter, FunDef, Def}
-import model.expressions.Expr
 import model.module.{Import, Module}
 import model.refs.{Arg, Call, Ref}
-import model.{TypeDef, Callable, FunType, SyntaxNode}
 import org.skycastle.utils.StringUtils
 import java.io.{FileFilter, File, FilenameFilter}
 import org.skycastle.utils.LangUtils._
@@ -88,8 +88,9 @@ class ModuleLoader {
     // Also checks for missing references
     root.visitClasses(classOf[Ref]) { (context, ref) =>
       context.getDef(ref.path.path) match {
-        case Some(definition) => ref.definition = definition
+        case Some(definition: ValueTyped) => ref.definition = definition
         case None => addError("Could not resolve reference "+ref.path+" ", ref)
+        case x => addError("Cannot refer to a "+x.get.name.name+".", ref)
       }
     }
 
@@ -107,12 +108,19 @@ class ModuleLoader {
 
 
     // Check for missing types and cyclic references
-    root.visitClasses(classOf[Expr]) { (context, exp) =>
+    root.visitClasses(classOf[ValueTyped]) { (context, exp) =>
       if (exp.valueType == null) addError("Could not determine the type of the expression '" + exp + "'", exp)
     }
 
-    // Check that function call parameter types and named parameters match the function definition they are calling
+    // Check for missing return types
+    root.visitClasses(classOf[FunDef]) { (context, exp: ReturnTyped) =>
+      if (exp.returnType == null) addError("Could not determine the return type of the function '" + exp + "'", exp)
+    }
+    root.visitClasses(classOf[FunExpr]) { (context, exp: ReturnTyped) =>
+      if (exp.returnType == null) addError("Could not determine the return type of the function expression '" + exp + "'", exp)
+    }
 
+    // Check that function call parameter types and named parameters match the function definition they are calling
     // Check that reference is a function or func expr.
     root.visitClasses(classOf[Call]) { (context: ResolverContext, call: Call) =>
       call.functionDef match {
@@ -164,7 +172,7 @@ class ModuleLoader {
             }
           }
 
-        case otherDef: Def =>
+        case otherDef: Def with ValueTyped =>
           // E.g. parameter of value with function object that has no named parameters
           if (!otherDef.valueType.isInstanceOf[FunType]) {
             addError("Can not call non-function type value '"+otherDef.valueType+"'", call)
@@ -192,12 +200,36 @@ class ModuleLoader {
           }
 
         case _ =>
-          addError("Can not invoke a function call on an expression ("+call.functionDef+") of type '"+call.functionDef.valueType+"' ", call)
+          addError("Can not invoke a function call on an expression ("+call.functionDef+") of type '"+(if (call.functionDef != null) call.functionDef.valueType else "[UnknownType]")+"' ", call)
       }
 
     }
 
-    errors
+
+    // Check that value expressions are of correct types
+    def checkTypes[T <: ReturnTyped](kind: Class[T], msg: String,  actualCalc: T => TypeDef) {
+      root.visitClasses(kind) { (context, returnTyped: T) =>
+        if (returnTyped.declaredReturnType.isDefined) {
+          val expected: TypeDef = returnTyped.returnType
+          val actual: TypeDef = actualCalc(returnTyped)
+          if (!expected.isAssignableFrom(actual)) {
+            addError(msg + " does not correcpond to declared type, expected '"+expected+"', " +
+              "but got '"+actual+"'", returnTyped)
+          }
+        }
+      }
+    }
+    
+    checkTypes[FunDef](classOf[FunDef], "Type of function expression", ref => ref.expression.valueType)
+    checkTypes[ValDef](classOf[ValDef], "Type of val expression", ref => ref.value.valueType)
+    checkTypes[FunExpr](classOf[FunExpr], "Type of function expression value", ref => ref.expression.valueType)
+    checkTypes[Parameter](classOf[Parameter], "Type of parameter default value", ref => ref.defaultValue.map(p => p.valueType).getOrElse(ref.returnType))
+
+
+
+    errors.reverse
   }
+
+
 
 }
