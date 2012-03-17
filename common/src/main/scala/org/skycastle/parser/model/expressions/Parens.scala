@@ -1,14 +1,12 @@
 package org.skycastle.parser.model.expressions
 
+import org.skycastle.parser.model.{SyntaxNode, TypeDef}
+
 
 /**
  *
  */
 case class Parens(a: Expr) extends Expr {
-
-  def resultType = a.resultType
-
-  def calculation = a.calculation
 
   def output(s: StringBuilder, indent: Int) {
     s.append(" (")
@@ -16,6 +14,8 @@ case class Parens(a: Expr) extends Expr {
     s.append(") ")
   }
 
-  override def subNodes = singleIt(a) ++ singleIt(resultType)
+  override def subNodes = singleIt(a) ++ singleIt(valueType)
+
+  def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = a.valueType(visitedNodes)
 
 }

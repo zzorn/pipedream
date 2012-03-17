@@ -2,7 +2,8 @@ package org.skycastle.parser.model.refs
 
 import org.skycastle.parser.model.expressions.Expr
 import org.skycastle.parser.model.defs.Def
-import org.skycastle.parser.model.PathRef
+import org.skycastle.parser.ResolverContext
+import org.skycastle.parser.model.{SyntaxNode, TypeDef, PathRef}
 
 /**
  *
@@ -16,10 +17,9 @@ case class Ref(path: PathRef) extends Expr {
     s.append(path)
   }
 
-  def resultType = null
+  override def subNodes = singleIt(valueType)
 
-  def calculation = null
-
-  override def subNodes = singleIt(resultType)
+  def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef =
+    if (definition != null) definition.valueType(visitedNodes) else null
 
 }

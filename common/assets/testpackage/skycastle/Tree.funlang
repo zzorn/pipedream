@@ -10,12 +10,15 @@ module Tree {
         val Fir = 2
       }
 
-      fun leafCalculator(x: double): Leaf = foo(2, 45*x)
+      fun leafCalculator(x: Num): Leaf = foo(45*x)
       val rootHeight = height / 2
+      val funnyFunc = (x: Any = 3): Any => x^x
+      val referenceToFunnyFunc = funnyFunc
+      fun testRef(): Num = skycastle.utils.MathUtils.foo(rootHeight)
       return [
-        many(skycastle.utils.MathUtils.foo(rootHeight))
-        many(Branch.branch)
-        foo([lerp(1), Branch.branch(2), leafCalculator(3)])
+        many(referenceToFunnyFunc)
+        many(x: Any => Branch.branch())
+        foo([lerp(1, t=2, 3), Branch.branch(), leafCalculator(3)])
       ]
     }
 }

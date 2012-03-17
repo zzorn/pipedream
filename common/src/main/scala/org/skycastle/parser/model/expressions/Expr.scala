@@ -1,24 +1,14 @@
 package org.skycastle.parser.model.expressions
 
-import org.skycastle.parser.model.{SyntaxNode, Context, TypeDef, Outputable}
+import org.skycastle.parser.ResolverContext
+import org.skycastle.parser.model._
 
 
 /**
  *
  */
-trait Expr extends SyntaxNode {
+trait Expr extends ValueTyped {
 
-  def resultType: TypeDef
-
-  def calculation: Context => Any
-
-  def calculate(context: Context): Any = {
-    calculation(context)
-  }
-
-  def mathType(other: Expr): Class[_] = {
-    null
-  }
 
 
 }

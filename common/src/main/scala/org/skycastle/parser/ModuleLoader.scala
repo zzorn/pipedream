@@ -1,12 +1,13 @@
 package org.skycastle.parser
 
 import model.defs.{ValDef, Parameter, FunDef, Def}
+import model.expressions.Expr
 import model.module.{Import, Module}
-import model.refs.{Call, Ref}
-import model.SyntaxNode
+import model.refs.{Arg, Call, Ref}
+import model.{TypeDef, Callable, FunType, SyntaxNode}
 import org.skycastle.utils.StringUtils
 import java.io.{FileFilter, File, FilenameFilter}
-
+import org.skycastle.utils.LangUtils._
 
 /**
  * Loads modules from a filesystem path.
@@ -68,7 +69,9 @@ class ModuleLoader {
   private def resolveReferences(root: Module):List[ParseError] = {
     var errors: List[ParseError] = Nil
 
-    def addError(msg: String) {
+    // TODO: Support builtin modules and types that are available to the loaded code
+
+    def addError(msg: String, location: SyntaxNode) {
       // TODO: Add location and file data to parsed syntax nodes!
       errors ::= new ParseError(msg, null, null)
     }
@@ -77,36 +80,122 @@ class ModuleLoader {
     root.visitClasses(classOf[Import]) { (context, imp) =>
       root.getMemberByPath(imp.path) match {
         case Some(definition) => imp.importedDef = definition
-        case None => addError("Could not resolve imported definition "+imp.path+" ")
+        case None => addError("Could not resolve imported definition "+imp.path+" ", imp)
       }
     }
 
-    // References
+    // Resolve references
+    // Also checks for missing references
     root.visitClasses(classOf[Ref]) { (context, ref) =>
-      SyntaxNode.getReferencedDefinition(context, ref.path.path) match {
+      context.getDef(ref.path.path) match {
         case Some(definition) => ref.definition = definition
-        case None => addError("Could not resolve reference "+ref.path+" ")
+        case None => addError("Could not resolve reference "+ref.path+" ", ref)
       }
     }
 
-    // Types
-    // TODO
-
-    // Function calls
+    // Resolve function calls
+    // Also checks for missing references or invalid calls
     root.visitClasses(classOf[Call]) { (context, call) =>
-      SyntaxNode.getReferencedDefinition(context, call.functionRef.path) match {
+      context.getDef(call.functionRef.path) match {
         case Some(definition: FunDef)    => call.functionDef = definition
         case Some(definition: Parameter) => call.functionDef = definition
         case Some(definition: ValDef)    => call.functionDef = definition
-        case Some(otherDef) => addError("Can not call "+call.functionRef+" ")
-        case None => addError("Could not resolve called function reference "+call.functionRef+" ")
+        case Some(otherDef) => addError("Can not call "+call.functionRef+" ", call)
+        case None => addError("Could not resolve called function reference "+call.functionRef+" ", call)
       }
     }
 
-    // Parameters, and Named arguments
-    // TODO
 
-    // TODO: Support builtin modules and types that are available to the loaded code
+    // Check for missing types and cyclic references
+    root.visitClasses(classOf[Expr]) { (context, exp) =>
+      if (exp.valueType == null) addError("Could not determine the type of the expression '" + exp + "'", exp)
+    }
+
+    // Check that function call parameter types and named parameters match the function definition they are calling
+
+    // Check that reference is a function or func expr.
+    root.visitClasses(classOf[Call]) { (context: ResolverContext, call: Call) =>
+      call.functionDef match {
+        case callable: Callable =>
+          var providedParameters: Set[Parameter] = Set()
+
+          def checkParamTypeAndAdd(param: Parameter, argument: Arg) {
+            if (!param.valueType.isAssignableFrom(argument.value.valueType)) {
+              addError("Wrong type passed to parameter '" + param.name.name + "' in function " + callable.nameAndSignature + ", " +
+                       "expected " + param.valueType + " but argument was of type " + argument.value.valueType + ".", call)
+            }
+            if (providedParameters.contains(param)) {
+              addError("Cannot specify the parameter '" + param.name.name + "' in function " + callable.nameAndSignature +
+                       " with argument '"+argument+"', it is already specified by another argument.", call)
+            }
+            else {
+              providedParameters += param
+            }
+          }
+
+          var index = 0
+
+          call.arguments foreach { argument: Arg =>
+            if (argument.paramName.isEmpty) {
+              // Non named argument
+              callable.parameterByIndex(index) match {
+                case Some(param: Parameter) =>
+                  checkParamTypeAndAdd(param, argument)
+                case None =>
+                  addError("Too many parameters passed to function " + callable.nameAndSignature, call)
+              }
+              index += 1
+            }
+            else {
+              // Named argument
+              callable.parameterByName(argument.paramName.get) match {
+                case Some(param: Parameter) =>
+                  checkParamTypeAndAdd(param, argument)
+                case None =>
+                  addError("No parameter named '"+argument.paramName.get+"' found for function " + callable.nameAndSignature, call)
+              }
+            }
+          }
+
+          // Check that all needed parameters were provided
+          callable.parameters foreach { parameter =>
+            if (!providedParameters.contains(parameter) && parameter.defaultValue.isEmpty) {
+              addError("The required parameter '"+parameter.name.name+"' of function " + callable.nameAndSignature + " has no argument specified.", call)
+            }
+          }
+
+        case otherDef: Def =>
+          // E.g. parameter of value with function object that has no named parameters
+          if (!otherDef.valueType.isInstanceOf[FunType]) {
+            addError("Can not call non-function type value '"+otherDef.valueType+"'", call)
+          }
+          else {
+            val funType: FunType = otherDef.valueType.asInstanceOf[FunType]
+
+            if (call.arguments.size != funType.parameterTypes.size) {
+              addError("Invalid number of arguments passed to function '"+funType+"', " +
+                       "expected "+funType.parameterTypes.size+" but "+call.arguments.size+" were provided.", call)
+            }
+            else {
+             var index = 0
+              call.arguments foreach { argument: Arg =>
+                if (argument.paramName.isDefined) {
+                  addError("Named argument not allowed here", call)
+                }
+                else if (!funType.parameterTypes(index).isAssignableFrom(argument.value.valueType)) {
+                  addError("Wrong type passed to parameter number " + (index+1) + " in function " + otherDef.valueType + ", " +
+                    "expected " + funType.parameterTypes(index) + " but argument was of type " + argument.value.valueType + ".", call)
+                }
+                index += 1
+              }
+            }
+          }
+
+        case _ =>
+          addError("Can not invoke a function call on an expression ("+call.functionDef+") of type '"+call.functionDef.valueType+"' ", call)
+      }
+
+    }
 
     errors
   }

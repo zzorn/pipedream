@@ -1,7 +1,7 @@
 package org.skycastle.parser.model.module
 
 import org.skycastle.parser.model.defs.Def
-import org.skycastle.parser.model.{Outputable}
+import org.skycastle.parser.model.{NothingType, SyntaxNode, Outputable}
 
 
 /**
@@ -47,6 +47,6 @@ final case class Module(name: Symbol, imports: List[Import], var definitions: Li
   override def getContextNamedDef(name: Symbol): Option[Def] = definitionsByName.get(name).orElse(getImportedDef(name))
 
 
-  def typeDef = null
+  protected def determineValueType(visitedNodes: Set[SyntaxNode]) = NothingType
 
 }

@@ -1,8 +1,9 @@
 package org.skycastle.parser.model.refs
 
 import org.skycastle.parser.model.expressions.Expr
-import org.skycastle.parser.model.{PathRef, Context}
-import org.skycastle.parser.model.defs.Def
+import org.skycastle.parser.ResolverContext
+import org.skycastle.parser.model._
+import defs.{Parameter, Def}
 
 /**
  *
@@ -10,12 +11,6 @@ import org.skycastle.parser.model.defs.Def
 case class Call(functionRef: PathRef, arguments: List[Arg]) extends Expr {
 
   var functionDef: Def = null
-
-  def resultType = null
-
-  def calculation: Context => Any = {
-    null
-  }
 
   def output(s: StringBuilder, indent: Int) {
     s.append(functionRef)
@@ -28,7 +23,10 @@ case class Call(functionRef: PathRef, arguments: List[Arg]) extends Expr {
     s.append(")")
   }
 
-  override def subNodes = arguments.iterator ++ singleIt(resultType)
+  override def subNodes = arguments.iterator ++ singleIt(valueType)
+
+  def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef =
+    if (functionDef != null ) functionDef.returnType(visitedNodes) else null
 
 }
 

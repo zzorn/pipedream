@@ -1,6 +1,7 @@
 package org.skycastle.parser
 
 import java.util.logging.Logger
+import model._
 import reflect.Manifest
 
 /**
@@ -8,23 +9,14 @@ import reflect.Manifest
  */
 class BeanFactory {
   
-  def typeForName(name: String): Class[_] = {
-
+  def typeFor(name: String): TypeDef = {
     name match {
-      case "Num" => classOf[Double]
-      case "String" => classOf[String]
-      case _ => null
+      case NumType.name => NumType
+      case AnyType.name => AnyType
+      case NothingType.name => NothingType
+      case _ => SimpleType(Symbol(name), null)
+      // TODO: Check registered allowed classes?
     }
-  }
-
-  def nameForType(kind: Class[_]): String = {
-    if (kind.isAssignableFrom(classOf[Double]) ||
-        kind.isAssignableFrom(classOf[Float]) ||
-        kind.isAssignableFrom(classOf[Byte]) ||
-        kind.isAssignableFrom(classOf[Short]) ||
-        kind.isAssignableFrom(classOf[Int]) ||
-        kind.isAssignableFrom(classOf[Long])) "Num"
-    else kind.getSimpleName
   }
 
   /*

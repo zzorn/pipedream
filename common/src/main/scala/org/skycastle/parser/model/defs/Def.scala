@@ -1,16 +1,14 @@
 package org.skycastle.parser.model.defs
 
-import org.skycastle.parser.model.{PathRef, SyntaxNode, TypeDef, Outputable}
+import org.skycastle.parser.model._
 
 
 /**
  * Some kind of definitions
  */
-trait Def extends SyntaxNode {
+trait Def extends ValueTyped with ReturnTyped {
 
   def name: Symbol
-
-  def typeDef: TypeDef
 
   def getMember(name: Symbol): Option[Def]
 
@@ -23,4 +21,6 @@ trait Def extends SyntaxNode {
       case head :: tail => getMember(head).flatMap( m => m.getMemberByPath(tail) )
     }
   }
+
+
 }

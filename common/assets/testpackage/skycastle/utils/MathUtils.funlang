@@ -5,10 +5,20 @@ module MathUtils {
     fun lerpVec2(a: Vec2, b: Vec2, t): Vec2 = a * (1 - t) + b * t
     fun lerpVec3(a: Vec3, b: Vec3, t): Vec3 = a * (1 - t) + b * t
 
-    fun foo(p) = false
+    fun foo(p: Any) = false
 
-    fun many(f: Any => Any) {
-       return [f(), f(), f()]
+    val x = y
+    val y = 3
+
+    module Inner {
+        val z = x
+    }
+
+    fun testFun(p) = 3 + 4
+    val testVal = 2
+
+    fun many(f: Any -> Any) {
+       return [f(1), f(23.324), f(3)]
     }
 
 /*

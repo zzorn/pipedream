@@ -1,15 +1,16 @@
 package org.skycastle.parser.model.expressions
 
-import org.skycastle.parser.model.TypeDef
 import org.skycastle.parser.model.defs.{Def, Parameter}
+import org.skycastle.parser.ResolverContext
+import org.skycastle.parser.model._
 
 /**
  *
  */
 
 case class FunExpr(parameters: List[Parameter],
-                   resultTypeDef: TypeDef,
-                   expression: Expr) extends Expr {
+                   initialResultTypeDef: Option[TypeDef],
+                   expression: Expr) extends Expr with Callable with ReturnTyped  {
 
   private val definitionsByName: Map[Symbol, Def] = parameters.map(d => d.name -> d).toMap
 
@@ -18,9 +19,9 @@ case class FunExpr(parameters: List[Parameter],
     outputSeparatedList(parameters, s, indent + 1)
     s.append(")")
 
-    if (resultTypeDef != null) {
+    if (returnType != null) {
       s.append(": ")
-      resultTypeDef.output(s, indent)
+      returnType.output(s, indent)
     }
 
     s.append(" => ")
@@ -28,14 +29,22 @@ case class FunExpr(parameters: List[Parameter],
     expression.output(s, indent + 1)
   }
 
-  def resultType = resultTypeDef
-
-  def calculation = null
-
   override def hasContext = true
   override def getContextNamedDef(name: Symbol): Option[Def] = definitionsByName.get(name)
 
+  def nameAndSignature = "("+parameters.mkString(", ")+"): " + (if (returnType == null) "[UnknownType]" else returnType.toString)
 
-  override def subNodes = parameters.iterator ++ singleIt(resultTypeDef) ++ singleIt(expression)
+  override def subNodes = parameters.iterator ++ singleIt(valueType) ++ singleIt(expression)
+
+  def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
+    if (initialResultTypeDef.isDefined) {
+      FunType(parameters.map(p => p.valueType(visitedNodes)), initialResultTypeDef.get)
+    }
+    else {
+      val retType = expression.valueType(visitedNodes)
+      if (retType == null) null
+      else FunType(parameters.map(p => p.valueType(visitedNodes)), retType)
+    }
+  }
 
 }
