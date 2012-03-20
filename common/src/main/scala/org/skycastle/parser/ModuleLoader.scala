@@ -75,6 +75,9 @@ class ModuleLoader {
   private def resolveReferences(root: Module):List[ParseError] = {
     var errors: List[ParseError] = Nil
 
+    // TODO: Maybe move the error checking to the actual nodes that it is related to?
+
+
     // TODO: Support builtin modules and types that are available to the loaded code
 
     def addError(msg: String, location: SyntaxNode) {
