@@ -39,6 +39,7 @@ class ModuleLoader {
 
   def loadRootModule(path: File): Module = {
     val root = loadModule('root, path)
+    setupParentLinks(root)
     val errors = resolveReferences(root)
     if (!errors.isEmpty) throw errors.head
     root
@@ -65,6 +66,11 @@ class ModuleLoader {
     module
   }
 
+  private def setupParentLinks(root: Module) {
+    root.visit(n => true) { (context, parent, node) =>
+      node.parentNode = parent
+    }
+  }
 
   private def resolveReferences(root: Module):List[ParseError] = {
     var errors: List[ParseError] = Nil
@@ -77,7 +83,7 @@ class ModuleLoader {
     }
 
     // Imports
-    root.visitClasses(classOf[Import]) { (context, imp) =>
+    root.visitClasses(classOf[Import]) { (context, parent, imp) =>
       root.getMemberByPath(imp.path) match {
         case Some(definition) => imp.importedDef = definition
         case None => addError("Could not resolve imported definition "+imp.path+" ", imp)
@@ -86,7 +92,7 @@ class ModuleLoader {
 
     // Resolve references
     // Also checks for missing references
-    root.visitClasses(classOf[Ref]) { (context, ref) =>
+    root.visitClasses(classOf[Ref]) { (context, parent, ref) =>
       context.getDef(ref.path.path) match {
         case Some(definition: ValueTyped) => ref.definition = definition
         case None => addError("Could not resolve reference "+ref.path+" ", ref)
@@ -96,7 +102,7 @@ class ModuleLoader {
 
     // Resolve function calls
     // Also checks for missing references or invalid calls
-    root.visitClasses(classOf[Call]) { (context, call) =>
+    root.visitClasses(classOf[Call]) { (context, parent, call) =>
       context.getDef(call.functionRef.path) match {
         case Some(definition: FunDef)    => call.functionDef = definition
         case Some(definition: Parameter) => call.functionDef = definition
@@ -108,21 +114,21 @@ class ModuleLoader {
 
 
     // Check for missing types and cyclic references
-    root.visitClasses(classOf[ValueTyped]) { (context, exp) =>
+    root.visitClasses(classOf[ValueTyped]) { (context, parent, exp) =>
       if (exp.valueType == null) addError("Could not determine the type of the expression '" + exp + "'", exp)
     }
 
     // Check for missing return types
-    root.visitClasses(classOf[FunDef]) { (context, exp: ReturnTyped) =>
+    root.visitClasses(classOf[FunDef]) { (context, parent, exp: ReturnTyped) =>
       if (exp.returnType == null) addError("Could not determine the return type of the function '" + exp + "'", exp)
     }
-    root.visitClasses(classOf[FunExpr]) { (context, exp: ReturnTyped) =>
+    root.visitClasses(classOf[FunExpr]) { (context, parent, exp: ReturnTyped) =>
       if (exp.returnType == null) addError("Could not determine the return type of the function expression '" + exp + "'", exp)
     }
 
     // Check that function call parameter types and named parameters match the function definition they are calling
     // Check that reference is a function or func expr.
-    root.visitClasses(classOf[Call]) { (context: ResolverContext, call: Call) =>
+    root.visitClasses(classOf[Call]) { (context: ResolverContext, parent, call: Call) =>
       call.functionDef match {
         case callable: Callable =>
           var providedParameters: Set[Parameter] = Set()
@@ -208,7 +214,7 @@ class ModuleLoader {
 
     // Check that value expressions are of correct types
     def checkTypes[T <: ReturnTyped](kind: Class[T], msg: String,  actualCalc: T => TypeDef) {
-      root.visitClasses(kind) { (context, returnTyped: T) =>
+      root.visitClasses(kind) { (context, parent, returnTyped: T) =>
         if (returnTyped.declaredReturnType.isDefined) {
           val expected: TypeDef = returnTyped.returnType
           val actual: TypeDef = actualCalc(returnTyped)

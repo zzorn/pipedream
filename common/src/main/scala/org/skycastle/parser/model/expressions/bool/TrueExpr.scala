@@ -1,7 +1,7 @@
 package org.skycastle.parser.model.expressions.bool
 
-import org.skycastle.parser.model.expressions.{Expr, ConstantValue}
-import org.skycastle.parser.model.{BoolType, SyntaxNode}
+import org.skycastle.parser.model.expressions.{Expr, ConstantExpr}
+import org.skycastle.parser.model._
 
 
 final case object TrueExpr extends Expr {
@@ -10,4 +10,7 @@ final case object TrueExpr extends Expr {
   }
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]) = BoolType
+
+  override def calculate(context: MutableContext): Value = SimpleValue(true, BoolType)
+
 }

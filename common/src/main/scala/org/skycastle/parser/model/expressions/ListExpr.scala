@@ -1,7 +1,7 @@
 package org.skycastle.parser.model.expressions
 
 import org.skycastle.parser.ResolverContext
-import org.skycastle.parser.model.{SyntaxNode, ListType, TypeDef, NothingType}
+import org.skycastle.parser.model._
 
 /**
  *
@@ -22,5 +22,9 @@ case class ListExpr(values: List[Expr]) extends Expr {
     else ListType(t)
   }
 
+  def calculate(context: MutableContext): Value = {
+    val list = values map {e => e.calculate(context).unwrappedValue}
+    SimpleValue(list, valueType)
+  }
 }
 

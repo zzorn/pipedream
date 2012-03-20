@@ -1,8 +1,8 @@
 package org.skycastle.parser.model.expressions
 
 import org.skycastle.parser.model.defs.{Def, Parameter}
-import org.skycastle.parser.ResolverContext
 import org.skycastle.parser.model._
+import org.skycastle.parser.{Context, ResolverContext}
 
 /**
  *
@@ -10,9 +10,10 @@ import org.skycastle.parser.model._
 
 case class FunExpr(parameters: List[Parameter],
                    declaredReturnType: Option[TypeDef],
-                   expression: Expr) extends Expr with Callable with ReturnTyped  {
+                   expression: Expr) extends Expr {
 
-  private val definitionsByName: Map[Symbol, Def] = parameters.map(d => d.name -> d).toMap
+
+
 
   def output(s: StringBuilder, indent: Int) {
     s.append("(")
@@ -29,8 +30,12 @@ case class FunExpr(parameters: List[Parameter],
     expression.output(s, indent + 1)
   }
 
-  override def hasContext = true
-  override def getContextNamedDef(name: Symbol): Option[Def] = definitionsByName.get(name)
+
+  def getNestedValue(name: Symbol) = None
+
+  def getParameterDefaultValue(parameterName: Symbol) = null
+
+  def calculate(context: Context) = null
 
   def nameAndSignature = "("+parameters.mkString(", ")+"): " + (if (returnType == null) "[UnknownType]" else returnType.toString)
 
@@ -46,5 +51,7 @@ case class FunExpr(parameters: List[Parameter],
       else FunType(parameters.map(p => p.valueType(visitedNodes)), retType)
     }
   }
+
+  def invoke(argumentContext: Context) = null
 
 }

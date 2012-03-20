@@ -1,7 +1,8 @@
 package org.skycastle.parser.model.module
 
 import org.skycastle.parser.model.defs.Def
-import org.skycastle.parser.model.{NothingType, SyntaxNode, Outputable}
+import org.skycastle.parser.model.{MutableContext, NothingType, SyntaxNode, Outputable}
+import org.skycastle.parser.Context
 
 
 /**
@@ -49,4 +50,6 @@ final case class Module(name: Symbol, imports: List[Import], var definitions: Li
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]) = NothingType
 
+  // TODO: Do module calculate have to support context?  Can we simplify the whole calculation?
+  def calculate(context: Context) = ModuleValue(this)
 }

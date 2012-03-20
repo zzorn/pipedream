@@ -29,6 +29,7 @@ case class Parameter(name: Symbol, declaredReturnType: Option[TypeDef], defaultV
   }
 
   def getMember(name: Symbol) = None
+  def getNestedValue(name: Symbol) = None
 
   override def subNodes = singleIt(valueType) ++ declaredReturnType.iterator ++ defaultValue.iterator
 

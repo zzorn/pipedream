@@ -1,8 +1,8 @@
 package org.skycastle.parser.model.expressions
 
 import org.skycastle.parser.model.defs.{Parameter, Def}
-import org.skycastle.parser.ResolverContext
-import org.skycastle.parser.model.{SyntaxNode, TypeDef, Context}
+import org.skycastle.parser.model.{Value, SyntaxNode, TypeDef, MutableContext}
+import org.skycastle.parser.{Context, ResolverContext}
 
 
 /**
@@ -38,4 +38,13 @@ final case class Block(definitions: List[Def], value: Expr) extends Expr {
   override def subNodes = definitions.iterator ++ singleIt(value) ++ singleIt(valueType)
 
   def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = value.valueType(visitedNodes)
+
+  def calculate(context: Context): Value = {
+    val localContext = new MutableContext(context)
+    definitions foreach  {d: Def =>
+      localContext.addBinding(d.name, d.calculate(localContext))
+    }
+
+    value.calculate(localContext)
+  }
 }

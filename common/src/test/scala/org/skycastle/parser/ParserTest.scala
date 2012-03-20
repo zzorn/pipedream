@@ -7,6 +7,7 @@ import model.module.Module
 import model.refs.Arg
 import org.scalatest.FunSuite
 import java.io.{File, StringReader}
+import org.scalatest.Assertions._
 
 /**
  *
@@ -47,7 +48,6 @@ class ParserTest extends FunSuite {
     val module2: Module = parser.parse(new StringReader(s), "outputted test input")
     val s2 = module2.toString()
 
-    println(s2)
 
     assert(s === s2)
   }
@@ -55,10 +55,14 @@ class ParserTest extends FunSuite {
   test ("Load packages") {
     val loader = new ModuleLoader()
     val root = loader.loadRootModule(new File("assets/testpackage"))
-    println(root)
+    val s = root.toString
+    println(s)
 
     assert(root.getMemberByPath(List('skycastle, 'utils, 'MathUtils, 'lerp)).isDefined)
 
+    val module2: Module = loader.parser.parse(new StringReader(s), "outputted test input")
+    val s2 = module2.toString()
+    assert(s === s2)
   }
 
   test ("Invoke Function") {

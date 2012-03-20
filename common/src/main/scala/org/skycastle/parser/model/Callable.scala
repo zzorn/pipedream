@@ -2,22 +2,24 @@ package org.skycastle.parser.model
 
 import defs.Parameter
 import expressions.Expr
+import org.skycastle.parser.Context
 
 /**
  *
  */
-trait Callable extends ValueTyped {
-
-  private lazy val paramNamesToNames = parameters.map(p => p.name -> p).toMap 
+trait Callable extends ReturnTyped {
 
   def nameAndSignature: String
 
+  def expression: Expr
+
   def parameters: List[Parameter]
-  
-  def parameterByName(name: Symbol): Option[Parameter] = paramNamesToNames.get(name)
+  lazy val parametersByName: Map[Symbol, Parameter] = parameters.map(p => p.name -> p).toMap
+  def getParameterDefaultValue(parameterName: Symbol): Option[Value]
+
+  def parameterByName(name: Symbol): Option[Parameter] = parametersByName.get(name)
   def parameterByIndex(index: Int): Option[Parameter] = if (index < 0 || index >= parameters.size) None else Some(parameters(index))
 
-  def expression: Expr
 
 
 }

@@ -4,7 +4,7 @@ import org.skycastle.parser.model._
 import expressions.Expr
 import collection.immutable.List
 import refs.Arg
-import org.skycastle.parser.RunError
+import org.skycastle.parser.{Context,  RunError}
 
 
 /**
@@ -13,9 +13,9 @@ import org.skycastle.parser.RunError
 case class FunDef(name: Symbol,
                   parameters: List[Parameter],
                   declaredReturnType: Option[TypeDef],
-                  expression: Expr) extends Def with ValueTyped with ReturnTyped with Callable {
+                  expression: Expr) extends Def with Callable {
 
-  private val paramsByName: Map[Symbol, Parameter] = parameters.map(p => p.name -> p).toMap
+  private var value: Closure = null
 
   def output(s: StringBuilder, indent: Int) {
     createIndent(s, indent)
@@ -40,46 +40,21 @@ case class FunDef(name: Symbol,
   def getMember(name: Symbol) = None
 
   override def hasContext = true
-  override def getContextNamedDef(name: Symbol): Option[Def] = paramsByName.get(name)
+  override def getContextNamedDef(name: Symbol): Option[Def] = parametersByName.get(name)
 
   def nameAndSignature = name.name + "("+parameters.mkString(", ")+"): " + (if (returnType == null) "[UnknownType]" else returnType.toString)
 
-  def invoke(args: List[Arg]): Expr = {
 
-    val context = new Context()
 
-    var i = 0
-    args foreach {a =>
-      if (a.paramName.isDefined) {
-        if (!paramsByName.contains(a.paramName.get)) 
-          throw new RunError("Function "+name.name+" has no parameter named " + a.paramName.get.name, this)
-        else 
-          context.addBinding(a.paramName.get, a.value)
-      }
-      else {
-        if (i >= parameters.size)
-          throw new RunError("Too many paramters for function "+name.name, this)
-        else {
-          context.addBinding(parameters(i).name, a.value)
-          i += 1
-        }
-      }
-    }
-
-    parameters foreach {p =>
-      if (!context.hasBinding(p.name)){
-        if (p.defaultValue.isDefined) {
-          context.addBinding(p.name, p.defaultValue.get.calculate(context))
-        }
-        else {
-          throw new RunError("Required parameter '"+p.name.name+"' not provided for function "+name.name, this)
-        }
-      }
-    }
-
-    expression.calculate(context)
+  def getParameterDefaultValue(parameterName: Symbol): Option[Value] = {
+    parametersByName.get(parameterName).flatMap(_.defaultValue).map(_.calculate(this))
   }
 
+
+  def calculate(context: Context): Closure = {
+    if (value == null) value = Closure(context, parameters, expression, valueType)
+    value
+  }
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
     if (declaredReturnType.isDefined) {

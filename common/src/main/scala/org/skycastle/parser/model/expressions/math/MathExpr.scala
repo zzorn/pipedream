@@ -2,9 +2,9 @@ package org.skycastle.parser.model.expressions.math
 
 import org.skycastle.parser.model.expressions.Expr
 import org.skycastle.parser.ResolverContext
-import org.skycastle.parser.model.{SyntaxNode, TypeDef, Context}
+import org.skycastle.parser.model._
 
-
+// TODO: Make math expressions functions of the Num and other types instead.
 abstract case class MathExpr(op: String) extends Expr {
   val a: Expr
   val b: Expr
@@ -23,6 +23,8 @@ abstract case class MathExpr(op: String) extends Expr {
     if (a.valueType == null) null
     else a.valueType(visitedNodes).mostSpecificCommonType(b.valueType(visitedNodes))
   }
+
+  def calculate(context: MutableContext) = new SimpleValue(0, valueType)
 }
 
 case class AddExpr(a: Expr, b: Expr) extends MathExpr("+") {
@@ -48,6 +50,7 @@ case class NegExpr(a: Expr) extends Expr {
   }
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]) = a.valueType(visitedNodes)
+  def calculate(context: MutableContext) = new SimpleValue(0, valueType)
 }
 
 

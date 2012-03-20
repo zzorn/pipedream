@@ -136,7 +136,6 @@ class ModuleParser(beanFactory: BeanFactory) extends LanguageParser[Module] {
       | mathExpr
       | list
       | quotedString ^^ (x => StringExpr(x))
-      | "null" ^^ (x => NullExpr)
       | TRUE ^^ (x => TrueExpr)
       | FALSE ^^ (x => FalseExpr)
     )
