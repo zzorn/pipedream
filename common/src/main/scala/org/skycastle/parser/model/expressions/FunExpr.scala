@@ -20,9 +20,9 @@ case class FunExpr(parameters: List[Parameter],
     outputSeparatedList(parameters, s, indent + 1)
     s.append(")")
 
-    if (returnType != null) {
+    if (declaredReturnType.isDefined) {
       s.append(": ")
-      returnType.output(s, indent)
+      declaredReturnType.get.output(s, indent)
     }
 
     s.append(" => ")

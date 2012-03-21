@@ -1,6 +1,7 @@
 package org.skycastle.parser.model.expressions
 
 import org.skycastle.parser.model.{Value, MutableContext, SyntaxNode, TypeDef}
+import org.skycastle.parser.Context
 
 
 /**
@@ -18,7 +19,7 @@ case class Parens(a: Expr) extends Expr {
 
   def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = a.valueType(visitedNodes)
 
-  override def calculate(context: MutableContext): Value = {
+  override def calculate(context: Context): Value = {
     a.calculate(context)
   }
 
