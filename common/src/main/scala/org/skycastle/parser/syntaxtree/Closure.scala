@@ -3,8 +3,6 @@ package org.skycastle.parser.syntaxtree
 /**
  *
  */
-class Module {
-
-  
+class Closure {
 
 }
