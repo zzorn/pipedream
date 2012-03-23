@@ -23,10 +23,10 @@ case class Parameter(name: Symbol, declaredReturnType: Option[TypeDef], defaultV
     }
   }
 
-  protected def determineValueType(visitedNodes: Set[AstNode]): TypeDef = {
-    if (declaredReturnType.isDefined) declaredReturnType.get
+  protected def determineValueType(visitedNodes: Set[AstNode]): Option[TypeDef] = {
+    if (declaredReturnType.isDefined) declaredReturnType
     else if (defaultValue.isDefined) defaultValue.get.valueType(visitedNodes)
-    else null
+    else None
   }
 
   override def checkForErrors(errors: ArrayList[SyntaxError]) {
@@ -34,8 +34,8 @@ case class Parameter(name: Symbol, declaredReturnType: Option[TypeDef], defaultV
 
     // Check that declared type matches default value type.
     if (declaredReturnType.isDefined &&
-        defaultValue.isDefined &&
-        !declaredReturnType.get.isAssignableFrom(defaultValue.get.valueType))
-      addError(errors, "Type of default value ("+defaultValue.get.valueType+") is not compatible with the declared variable type ("+declaredReturnType.get+")")
+        defaultValue.isDefined && defaultValue.get.valueType.isDefined &&
+        !declaredReturnType.get.isAssignableFrom(defaultValue.get.valueType.get))
+      addError(errors, "Type of default value ("+defaultValue.get.valueType.get+") is not compatible with the declared variable type ("+declaredReturnType.get+")")
   }
 }

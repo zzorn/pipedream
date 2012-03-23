@@ -8,12 +8,14 @@ import org.skycastle.parser.model.Outputable
  */
 trait AstNode extends Outputable {
 
-  var parentNode: AstNode = null
+  var parentNode: Option[AstNode] = None
 
   def checkForErrors(errors: ArrayList[SyntaxError])
+
   protected def addError(errors: ArrayList[SyntaxError], message: String) {
     errors.add(new SyntaxError(message, this))
   }
+
 
   def getNamedChildNode(name: Symbol): Option[AstNode] = None
 
@@ -23,8 +25,7 @@ trait AstNode extends Outputable {
         if (path.tail == Nil) Some(node)
         else node.getNodeAtPath(path.tail)
       case None =>
-        if (parentNode != null) parentNode.getNodeAtPath(path)
-        else None
+        parentNode.flatMap(_.getNodeAtPath(path))
     }
   }
 
