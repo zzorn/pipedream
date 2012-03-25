@@ -15,6 +15,7 @@ final case class Num(v: Double) extends Expr {
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]) = NumType
 
-  override def calculate(context: MutableContext): Value = SimpleValue(v, NumType)
-
+  def generateJavaCode(s: StringBuilder, indent: Indenter) {
+    s.append(v)
+  }
 }

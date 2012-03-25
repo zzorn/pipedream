@@ -1,7 +1,8 @@
 package org.skycastle.parser.syntaxtree
 
 import java.util.ArrayList
-import org.skycastle.parser.model.Outputable
+import runtime.DynamicContext
+import org.skycastle.parser.model.{SyntaxError, Outputable}
 
 /**
  *
@@ -10,11 +11,15 @@ trait AstNode extends Outputable {
 
   var parentNode: Option[AstNode] = None
 
+  def childNodes: Iterator[AstNode]
+  protected def singleIt(n: AstNode): Iterator[AstNode] = if (n == null) Nil.iterator else List(n).iterator
+
   def checkForErrors(errors: ArrayList[SyntaxError])
 
   protected def addError(errors: ArrayList[SyntaxError], message: String) {
     errors.add(new SyntaxError(message, this))
   }
+
 
 
   def getNamedChildNode(name: Symbol): Option[AstNode] = None

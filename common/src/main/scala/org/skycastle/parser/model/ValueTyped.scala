@@ -22,4 +22,9 @@ trait ValueTyped extends SyntaxNode {
   }
 
   protected def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef
+
+  override def checkForErrors(errors: Errors) {
+    if (valueType == null) errors.addError("Type could not be determined", this)
+  }
+
 }

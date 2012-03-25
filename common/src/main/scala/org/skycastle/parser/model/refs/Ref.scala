@@ -13,19 +13,13 @@ case class Ref(path: PathRef) extends Expr {
 
   var definition: ValueTyped = null
 
-  def output(s: StringBuilder, indent: Int) {
-    s.append(path)
-  }
-
   override def subNodes = singleIt(valueType)
 
   def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef =
     if (definition != null) definition.valueType(visitedNodes) else null
 
-  def calculate(context: Context): Value = {
-    context.getValue(path.path) match {
-      case Some(v) => v
-      case None => throw new RunError("Could not find reference '"+path+"'", this)
-    }
+
+  def generateJavaCode(s: StringBuilder, indent: Indenter) {
+    s.append(path)
   }
 }

@@ -10,6 +10,5 @@ import org.skycastle.parser.{Context, ResolverContext}
  */
 trait Expr extends ValueTyped {
 
-  def calculate(context: Context): Value
-  
+
 }

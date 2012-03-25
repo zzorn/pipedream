@@ -1,6 +1,7 @@
 package org.skycastle.parser.syntaxtree
 
 import java.util.ArrayList
+import org.skycastle.parser.model.SyntaxError
 
 /**
  *

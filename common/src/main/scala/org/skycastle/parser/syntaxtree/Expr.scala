@@ -1,7 +1,8 @@
 package org.skycastle.parser.syntaxtree
 
-import org.skycastle.parser.model.{SyntaxNode, TypeDef}
 import java.util.ArrayList
+import runtime.{Value, DynamicContext}
+import org.skycastle.parser.model.{SyntaxError, SyntaxNode, TypeDef}
 
 
 /**
@@ -26,6 +27,11 @@ trait Expr extends AstNode {
   }
 
   protected def determineValueType(visitedNodes: Set[AstNode]): Option[TypeDef]
+
+
+  def calculate(): Value
+
+  def calculate(dynamicContext: DynamicContext): Value
 
   
   def checkForErrors(errors: ArrayList[SyntaxError]) {

@@ -15,56 +15,49 @@ case class FunDef(name: Symbol,
                   declaredReturnType: Option[TypeDef],
                   expression: Expr) extends Def with Callable {
 
-  private var value: Closure = null
-
-  def output(s: StringBuilder, indent: Int) {
-    createIndent(s, indent)
-    s.append("fun ")
-      .append(name.name)
-      .append("(")
-
-    outputSeparatedList(parameters, s, indent + 1)
-    s.append(")")
-
-    if (returnType != null) {
-      s.append(": ")
-      returnType.output(s, indent)
-    }
-    s.append(" = ")
-
-    expression.output(s, indent + 1)
-  }
+  // TODO: Use identifier case class for names, that checks that they are valid java identifiers.
 
   override def subNodes = parameters.iterator ++ declaredReturnType.iterator ++ singleIt(expression)
 
-  def getMember(name: Symbol) = None
-
-  override def hasContext = true
-  override def getContextNamedDef(name: Symbol): Option[Def] = parametersByName.get(name)
-
-  def nameAndSignature = name.name + "("+parameters.mkString(", ")+"): " + (if (returnType == null) "[UnknownType]" else returnType.toString)
-
-
-
-  def getParameterDefaultValue(parameterName: Symbol): Option[Value] = {
-    parametersByName.get(parameterName).flatMap(_.defaultValue).map(_.calculate(this))
-  }
-
-
-  def calculate(context: Context): Closure = {
-    if (value == null) value = Closure(context, parameters, expression, valueType)
-    value
-  }
-
   protected def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
-    if (declaredReturnType.isDefined) {
-      FunType(parameters.map(p => p.valueType(visitedNodes)), declaredReturnType.get)
-    }
-    else {
-      val retType = expression.valueType(visitedNodes)
-      if (retType == null) null
-      else FunType(parameters.map(p => p.valueType(visitedNodes)), retType)
-    }
+    val retType = returnType
+    if (retType == null) null
+    else FunType(parameters.map(p => p.valueType(visitedNodes)), retType)
   }
 
+  override def checkForErrors(errors: Errors) {
+    super.checkForErrors(errors)
+    
+    // TODO
+  }
+
+  def funJavaName = name.name
+  
+  def generateJavaCode(s: StringBuilder, indent: Indenter) {
+    // Header
+    s.append(indent).append("public final ").append(returnType.javaType).append(" ").append(funJavaName).append("(")
+    val bodyIndent: Indenter = indent.increase()
+
+    // Parameters
+    outputSeparatedList(parameters, s, bodyIndent, ", ")
+
+    s.append(") {\n")
+
+    // Initialize default parameters with no value provided (=null value)
+    val defaultValueIndent: Indenter = bodyIndent.increase()
+    parameters foreach {p =>
+      if (p.defaultValue.isDefined) {
+        s.append(bodyIndent).append("if (" + p.parameterJavaName + " == null) {\n" +
+          defaultValueIndent + p.parameterJavaName + " = ")
+        p.defaultValue.get.generateJavaCode(s, defaultValueIndent)
+        s.append(";\n").append(bodyIndent).append("}\n")
+      }
+    }  
+
+    // Expression
+    expression.generateJavaCode(s, bodyIndent)
+
+    // Close
+    s.append(indent).append("}\n")
+  }
 }

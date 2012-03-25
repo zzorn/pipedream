@@ -9,14 +9,11 @@ import org.skycastle.parser.Context
  */
 trait Callable extends ReturnTyped {
 
-  def nameAndSignature: String
-
   def expression: Expr
 
   def parameters: List[Parameter]
-  lazy val parametersByName: Map[Symbol, Parameter] = parameters.map(p => p.name -> p).toMap
-  def getParameterDefaultValue(parameterName: Symbol): Option[Value]
 
+  lazy val parametersByName: Map[Symbol, Parameter] = parameters.map(p => p.name -> p).toMap
   def parameterByName(name: Symbol): Option[Parameter] = parametersByName.get(name)
   def parameterByIndex(index: Int): Option[Parameter] = if (index < 0 || index >= parameters.size) None else Some(parameters(index))
 

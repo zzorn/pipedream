@@ -1,6 +1,5 @@
 package org.skycastle.parser.syntaxtree.runtime
 
-import org.skycastle.parser.syntaxtree.DynamicContext
 
 /**
  * Instance of a class.

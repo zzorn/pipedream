@@ -16,7 +16,7 @@ case class ConstantExpr[T <: Any](value: T, kind: Class[_], output: T => String)
 
   override def subNodes = singleIt(valueType)
 
-  def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = SimpleType(Symbol(kind.getName), kind)
+  def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = ClassType(Symbol(kind.getName), kind)
 
   override def calculate(context: Context): Value = constantValue
 

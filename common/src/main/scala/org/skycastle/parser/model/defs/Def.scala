@@ -5,14 +5,14 @@ import org.skycastle.parser.Context
 
 
 /**
- * Some kind of definitions
+ * Some kind of definition
  */
 trait Def extends SyntaxNode {
 
-
-
   def name: Symbol
 
+/*
+  override def getNestedValue(name: Symbol) = null
 
   def getMember(name: Symbol): Option[Def]
   def getMemberByPath(path: PathRef): Option[Def] = getMemberByPath(path.path)
@@ -23,7 +23,8 @@ trait Def extends SyntaxNode {
       case head :: tail => getMember(head).flatMap( m => m.getMemberByPath(tail) )
     }
   }
+*/
 
-  
-  def calculate(context: Context): Value
+
+
 }

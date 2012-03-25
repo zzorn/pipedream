@@ -230,7 +230,7 @@ class ModuleLoader {
     }
     
     checkTypes[FunDef](classOf[FunDef], "Type of function expression", ref => ref.expression.valueType)
-    checkTypes[ValDef](classOf[ValDef], "Type of val expression", ref => ref.value.valueType)
+    checkTypes[ValDef](classOf[ValDef], "Type of val expression", ref => ref.expression.valueType)
     checkTypes[FunExpr](classOf[FunExpr], "Type of function expression value", ref => ref.expression.valueType)
     checkTypes[Parameter](classOf[Parameter], "Type of parameter default value", ref => ref.defaultValue.map(p => p.valueType).getOrElse(ref.returnType))
 

@@ -6,31 +6,21 @@ import org.skycastle.parser.model._
 /**
  *
  */
-case class Parameter(name: Symbol, declaredReturnType: Option[TypeDef], defaultValue: Option[Expr]) extends Def  with ValueTyped with ReturnTyped {
+case class Parameter(name: Symbol, declaredReturnType: Option[TypeDef], defaultValue: Option[Expr]) extends ValueTyped with ReturnTyped {
 
-  def output(s: StringBuilder, indent: Int) {
-    s.append(name.name)
-
-    if (valueType != null) {
-      s.append(": ")
-      valueType.output(s, indent)
-    }
-
-    if (defaultValue.isDefined) {
-      s.append(" = ")
-      defaultValue.get.output(s, indent)
-    }
-  }
-
+  val parameterNamePrefix = "PARAM_"
+  
   protected def determineValueType(visitedNodes: Set[SyntaxNode]): TypeDef = {
     if (declaredReturnType.isDefined) declaredReturnType.get
     else if (defaultValue.isDefined) defaultValue.get.valueType(visitedNodes)
     else null
   }
 
-  def getMember(name: Symbol) = None
-  def getNestedValue(name: Symbol) = None
+  def parameterJavaName: String = parameterNamePrefix + name.name
+  
+  override def subNodes = declaredReturnType.iterator ++ defaultValue.iterator
 
-  override def subNodes = singleIt(valueType) ++ declaredReturnType.iterator ++ defaultValue.iterator
-
+  def generateJavaCode(s: StringBuilder, indent: Indenter) {
+    s.append(valueType.javaType).append(" ").append(parameterJavaName)
+  }
 }

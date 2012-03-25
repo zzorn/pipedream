@@ -16,10 +16,10 @@ trait ReturnTyped extends ValueTyped {
   def returnType(visited: Set[SyntaxNode]): TypeDef = {
     if (declaredReturnType.isDefined) declaredReturnType.get
     else {
-      val vt: TypeDef = valueType(visited)
-      if (vt == null) null
-      else if (!vt.isInstanceOf[FunType]) null
-      else vt.asInstanceOf[FunType].returnType
+      valueType(visited) match {
+        case ft: FunType => ft.returnType
+        case _ => null
+      }
     }
   }
 

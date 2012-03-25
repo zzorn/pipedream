@@ -12,21 +12,25 @@ trait TypeDef extends SyntaxNode {
   def isAssignableFrom(other: TypeDef): Boolean = {
     mostSpecificCommonType(other) == this
   }
+  
+  def javaType: String
 
+  def generateJavaCode(s: StringBuilder, indent: Indenter) {
+    s.append(javaType)
+  }
 }
 
-case class SimpleType(typeName: Symbol, kind: Class[_]) extends TypeDef {
-  def output(s: StringBuilder, indent: Int) {
-    s.append(typeName.name)
-  }
+case class ClassType(typeName: Symbol, methodInfos: Map[Symbol,  MethodInfo], javaType: Class[_]) extends TypeDef {
+
+  def javaTypeName = javaType.getName
 
   def mostSpecificCommonType(other: TypeDef): TypeDef = {
     if (other == null) null
     else if (other == this) this
-    else if (other.isInstanceOf[SimpleType]) {
-      val otherST = other.asInstanceOf[SimpleType]
-      if (otherST.kind != null && otherST.kind.isAssignableFrom(kind)) otherST
-      else if (kind != null && kind.isAssignableFrom(otherST.kind)) this
+    else if (other.isInstanceOf[ClassType]) {
+      val otherST = other.asInstanceOf[ClassType]
+      if (otherST.javaType != null && otherST.javaType.isAssignableFrom(javaType)) otherST
+      else if (javaType != null && javaType.isAssignableFrom(otherST.javaType)) this
       else AnyType
     }
     else AnyType
@@ -35,26 +39,28 @@ case class SimpleType(typeName: Symbol, kind: Class[_]) extends TypeDef {
   def mostGeneralCommonSubType(other: TypeDef): TypeDef = {
     if (other == null) null
     else if (other == this) this
-    else if (other.isInstanceOf[SimpleType]) {
-      val otherST = other.asInstanceOf[SimpleType]
-      if (otherST.kind != null && otherST.kind.isAssignableFrom(kind)) this
-      else if (kind != null && kind.isAssignableFrom(otherST.kind)) other
+    else if (other.isInstanceOf[ClassType]) {
+      val otherST = other.asInstanceOf[ClassType]
+      if (otherST.javaType != null && otherST.javaType.isAssignableFrom(javaType)) this
+      else if (javaType != null && javaType.isAssignableFrom(otherST.javaType)) other
       else NothingType
     }
     else AnyType
   }
+
+  
+  def getMethod(name: Symbol): Option[MethodInfo] = methodInfos.get(name)
+
+  
 }
 
 case class FunType(parameterTypes: List[TypeDef], returnType: TypeDef) extends TypeDef {
-  def output(s: StringBuilder, indent: Int) {
-    s.append("(")
-    outputSeparatedList(parameterTypes, s, indent)
-    s.append(") -> ")
-    if (returnType != null) returnType.output(s, indent)
-    else s.append("[UnknownType]")
-  }
 
+  val functionTypeName: String = "org.skycastle.flowlang.FuncType"
+  
   override def subNodes = parameterTypes.iterator ++ singleIt(returnType)
+
+  def javaType = functionTypeName + "<" + returnType.javaType + ">"
 
   def mostSpecificCommonType(other: TypeDef): TypeDef = {
     if (other == null) null
@@ -100,6 +106,8 @@ case class FunType(parameterTypes: List[TypeDef], returnType: TypeDef) extends T
 
 case class ListType(elementType: TypeDef) extends TypeDef {
 
+  def javaType = "java.util.List<" + elementType.javaType + ">"
+
   def mostSpecificCommonType(other: TypeDef): TypeDef = {
     if (other == null) null
     else if (other == this) this
@@ -126,21 +134,15 @@ case class ListType(elementType: TypeDef) extends TypeDef {
   }
 
 
-  def output(s: StringBuilder, indent: Int) {
-    s.append("List[")
-    elementType.output(s, indent)
-    s.append("]")
-  }
 }
 
 abstract class SpecialType(val name: String) extends TypeDef {
-  def output(s: StringBuilder, indent: Int) {
-    s.append(name)
-  }
 }
 
 case object NumType extends SpecialType("Num") {
-  
+
+  def javaType = "java.lang.Double"
+
   def mostSpecificCommonType(other: TypeDef): TypeDef = {
     if (other == null) null
     else if (other == this) this
@@ -157,6 +159,8 @@ case object NumType extends SpecialType("Num") {
 
 case object BoolType extends SpecialType("Bool") {
 
+  def javaType = "java.lang.Boolean"
+
   def mostSpecificCommonType(other: TypeDef): TypeDef = {
     if (other == null) null
     else if (other == this) this
@@ -172,11 +176,15 @@ case object BoolType extends SpecialType("Bool") {
 
 
 case object AnyType extends SpecialType("Any") {
+  def javaType = "java.lang.Object"
+
   def mostSpecificCommonType(other: TypeDef) = AnyType
   def mostGeneralCommonSubType(other: TypeDef) = other
 }
 
 case object NothingType extends SpecialType("Nothing") {
+  def javaType = "java.lang.Object"
+
   def mostSpecificCommonType(other: TypeDef) = other
   def mostGeneralCommonSubType(other: TypeDef) = NothingType
 }

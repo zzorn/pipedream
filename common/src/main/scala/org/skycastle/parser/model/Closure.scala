@@ -6,8 +6,8 @@ import refs.Arg
 import org.skycastle.parser.{RunError, ChainedContext, Context}
 
 /**
- *
  */
+@Deprecated
 case class Closure(context: Context, parameters: List[Parameter], expression: Expr, functionType: TypeDef) extends Value {
 
   lazy val parametersByName: Map[Symbol, Parameter] = parameters.map(p => p.name -> p).toMap

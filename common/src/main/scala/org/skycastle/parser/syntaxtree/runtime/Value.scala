@@ -3,6 +3,6 @@ package org.skycastle.parser.syntaxtree.runtime
 /**
  *
  */
-trait Value {
+trait Value extends DynamicContext {
 
 }

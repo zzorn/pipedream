@@ -1,12 +1,17 @@
 package org.skycastle.parser.syntaxtree
 
 import java.util.ArrayList
-import org.skycastle.parser.model.{TypeDef, FunType}
+import org.skycastle.parser.model.refs.Arg
+import org.skycastle.parser.RunError
+import runtime._
+import org.skycastle.parser.model.{SyntaxError, TypeDef, FunType}
 
 /**
  *
  */
-case class Call(path: List[Symbol]) extends AstNode with Reference with Expr {
+case class Call(path: List[Symbol], arguments: List[Argument]) extends AstNode with Reference with Expr {
+
+  def childNodes = arguments.iterator
 
   override def checkForErrors(errors: ArrayList[SyntaxError]) {
     super.checkForErrors(errors)
@@ -42,4 +47,30 @@ case class Call(path: List[Symbol]) extends AstNode with Reference with Expr {
       case _ => None
     }
   }
+
+  def calculate(dynamicContext: DynamicContext): Value = {
+    val target: Invokable = referencedNode.get.asInstanceOf[Expr].calculate().asInstanceOf[Invokable]
+    
+    val argumentValues = new MutableDynamicContext()
+
+    // Bind argument names to argument values
+    var index = 0
+    arguments foreach {a: Argument =>
+      val paramValue: Value = a.valueExpr.calculate(dynamicContext)
+      if (a.paramName.isDefined) {
+        // Named argument
+        argumentValues.addBinding(a.paramName.get, paramValue)
+      }
+      else {
+        // Indexed argument
+        argumentValues.addBinding(target.parameters(index).name, paramValue)
+        index += 1
+      }
+    }
+
+    target.invoke(argumentValues)
+  }
+
+
+
 }

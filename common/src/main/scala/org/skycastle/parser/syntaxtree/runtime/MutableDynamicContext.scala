@@ -1,15 +1,10 @@
-package org.skycastle.parser.model
-
-import defs.{Def, ValDef, FunDef}
-import expressions.Expr
-import org.skycastle.parser.Context
+package org.skycastle.parser.syntaxtree.runtime
 
 
 /**
  * Keeps track of bound references in a context.
  */
-@Deprecated
-class MutableContext(parentContext: Context = null) extends Context {
+class MutableDynamicContext(parentContext: DynamicContext = null) extends DynamicContext {
 
   private var bindings: Map[Symbol, Value] = Map()
 
@@ -23,10 +18,9 @@ class MutableContext(parentContext: Context = null) extends Context {
     bindings.contains(name)
   }
 
-  def subContext(): MutableContext = {
-    new MutableContext(this)
+  def subContext(): MutableDynamicContext = {
+    new MutableDynamicContext(this)
   }
 
 
 }
-

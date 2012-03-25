@@ -15,7 +15,7 @@ class BeanFactory {
       case BoolType.name => BoolType
       case AnyType.name => AnyType
       case NothingType.name => NothingType
-      case _ => SimpleType(Symbol(name), null)
+      case _ => ClassType(Symbol(name), null)
       // TODO: Check registered allowed classes?
     }
   }
