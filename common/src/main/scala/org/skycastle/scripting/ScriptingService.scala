@@ -6,6 +6,8 @@ package org.skycastle.scripting
 
 trait ScriptingService {
 
-  def getScript(path: String): Script
+  def createScript(path: String): Script
+
+  // TODO: Add createScript method with expected script object type.
 
 }
