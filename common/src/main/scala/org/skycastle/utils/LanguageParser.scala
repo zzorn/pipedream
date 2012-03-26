@@ -1,8 +1,6 @@
 package org.skycastle.utils
 
 import util.parsing.combinator.syntactical.StandardTokenParsers
-import org.skycastle.parser.model.module.Module
-import org.skycastle.parser.{ParseError, BeanFactory}
 import util.parsing.input.{PagedSeqReader, CharSequenceReader}
 import collection.immutable.PagedSeq
 import java.io._
@@ -128,7 +126,7 @@ abstract class LanguageParser[T] extends StandardTokenParsers with PackratParser
     val parser = if (allowTrailingContent) rootParser else phrase(rootParser)
     parser(tokenScanner) match {
       case s: Success[T] =>  s.result
-      case f: NoSuccess => throw new ParseError(f.msg, f.next.pos, sourceName)
+      case f: NoSuccess => throw new IllegalArgumentException(f.msg + " at " + f.next.pos +" in "+ sourceName)
     }
   }
 
