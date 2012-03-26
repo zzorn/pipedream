@@ -22,6 +22,8 @@ case class Call(functionRef: PathRef, arguments: List[Arg]) extends Expr {
 
 
   def generateJavaCode(s: StringBuilder, indent: Indenter) {
+    if (functionDef.)
+
     s.append(functionRef)
 
     s.append("(")

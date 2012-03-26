@@ -33,7 +33,13 @@ case class Module(name: Symbol, imports: List[Import], definitions: List[Def]) e
   }
 
   def className: String = ModulePrefix + name.name
-  
+
+  final def generateJavaCode(): String = {
+    val s: StringBuilder = new StringBuilder()
+    generateJavaCode(s, new Indenter(0))
+    s.toString()
+  }
+
   def generateJavaCode(s: StringBuilder, indent: Indenter) {
     outputTerminatedList(imports, s, indent, "")
 

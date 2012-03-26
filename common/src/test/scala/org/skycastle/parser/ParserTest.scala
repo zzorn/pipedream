@@ -1,7 +1,7 @@
 package org.skycastle.parser
 
 import model.defs.FunDef
-import model.expressions.Expr
+import model.expressions.{Num, Expr}
 import model.expressions.math.Num
 import model.module.Module
 import model.refs.Arg
@@ -14,44 +14,50 @@ import org.scalatest.Assertions._
  */
 class ParserTest extends FunSuite {
 
-  test("Parse") {
+  def parseCode(flowCode: String): String = {
     val factory = new BeanFactory()
     val parser = new ModuleParser(factory)
-    val testString =
-      """
-      module ParseTest {
-        fun foo(a, b = 1) = a * -b * 4.3 / 3 + 1 - -(-a + -b) * 3 + zomg(x = {fun boo() = 5 return -boo() }) * 4
-        fun bar(f = (t: Num) => t^(t*2) )  { return f(1) + f(2, 3) + f(aasd = 1) + f(ae=1, basd=2) + f(1,b=3) + foo(f(1), b = f(2)) }
-        fun zap(g: (Num) -> Num) = bar(g, 3, 4, d, bar=3, foo=4, 5, g-h-1, 7-6) + bar( f = x => 2^x * x*3 + 1/x + g(x) + g(4) + 3.123E-12 )
-
-        fun tree(height = 1, apples: List[Model]): Model = {
-          fun leafCalculator(x: Num): Leaf = Leaf(2, 45*x)
-          val rootHeight = height / 2
-          return [
-            root(rootHeight),
-            apples.pickRandom(seed=2),
-            many(branch),
-            many([leafCalculator(1), leafCalculator(2), leafCalculator(3)])
-          ]
-        }
-      }
-      """
-    val module: Module = parser.parseString(testString, "test input")
-
-    println(testString)
-
-    assert(module.definitions.size === 4)
-
-    val s = module.toString()
-    println(s)
-
-    val module2: Module = parser.parse(new StringReader(s), "outputted test input")
-    val s2 = module2.toString()
-
-
-    assert(s === s2)
+    val module: Module = parser.parseString(flowCode, "test input")
+    module.generateJavaCode()
   }
-  
+
+  def shouldParseTo(flowCode: String, expectedJavaCode: String) {
+    assert(expectedJavaCode === parseCode(flowCode))
+  }
+
+  test("Empty module") {
+    shouldParseTo(
+    """
+      module Foo {
+      }
+    """,
+    """
+      public class Foo {
+
+      }
+    """
+    )
+  }
+/*
+  test("Import") {
+    shouldParseTo(
+    """
+    """,
+    """
+    """
+    )
+  }
+
+  test("Function") {
+    shouldParseTo(
+    """
+    """,
+    """
+    """
+    )
+  }
+*/
+  /*
   test ("Load packages") {
     val loader = new ModuleLoader()
     val root = loader.loadRootModule(new File("assets/testpackage"))
@@ -74,5 +80,5 @@ class ParserTest extends FunSuite {
     assert(result === Num(15.0))
 
   }
-
+*/
 }

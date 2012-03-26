@@ -1,4 +1,4 @@
-package org.skycastle.parser.model.expressions.math
+package org.skycastle.parser.model.expressions
 
 import org.skycastle.parser.model.expressions.{Expr, ConstantExpr}
 import org.skycastle.parser.model.SimpleValue._
