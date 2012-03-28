@@ -13,6 +13,8 @@ import org.skycastle.functions.{Abs, Noise1to3, Noise1to2, Noise1to1}
 /**
  *
  */
+// TODO: Support for expressions, and anonymous functions (parse with parser combinators and create janino expression)
+// TODO: Eventually, universal graphical editor
 class ModelLoader {
 
   private val constructor = new FilterConstructor(classOf[Tome])
