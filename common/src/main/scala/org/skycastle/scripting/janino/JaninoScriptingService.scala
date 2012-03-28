@@ -78,10 +78,10 @@ class JaninoScriptingService(allowedClasses: Set[String] = Set(), sourceFinder: 
     }
   }
   
-  def createScript(path: String): Script = {
+  def createInstance[T](path: String): T = {
 
     // Create and return a new instance
-    getScriptClass(path).newInstance()
+    getScriptClass(path).newInstance().asInstanceOf[T]
   }
 
 }

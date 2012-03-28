@@ -23,11 +23,3 @@
           sizeY: 0.51
           sizeZ: 0.31
 
-
-
-foo = {
-  p(t) = noise1to3(seed = 1111, frequency = 1.5, amplitude = 8)
-  s(t) = abs(noise1to1(seed = 3257, frequency = 1.15, amplitude = 4))
-
-  scatterAlong(0, 10, number=5000, path=p, scale = s, model=cube(0.21, 0.51, 0.31))
-}

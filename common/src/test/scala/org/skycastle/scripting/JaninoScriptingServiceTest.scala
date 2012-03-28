@@ -31,7 +31,7 @@ class JaninoScriptingServiceTest extends FunSuite {
       """
     )
 
-    val script = scriptingService.createScript("test.TestScript")
+    val script = scriptingService.createInstance[Script]("test.TestScript")
 
     val result = script.invoke(new Integer(3))
 
