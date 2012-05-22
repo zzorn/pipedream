@@ -76,8 +76,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     networking.setup();
 
-    networking.createAccount("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
-    //networking.login("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
+    //networking.createAccount("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
+    networking.login("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
 
     val settings: AppSettings = new AppSettings(true)
     if (limitFps) {
