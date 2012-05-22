@@ -1,23 +1,12 @@
 package org.skycastle.utils
 
-//import org.apache.log4j.PropertyConfigurator
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import org.slf4j.{Logger, LoggerFactory}
 import org.apache.log4j.PropertyConfigurator
 import java.util.Properties
 
 //import org.apache.log4j.PropertyConfigurator
 
-/**
- * A mixin that provides various logging methods that delegate to the SLF4J framework.
- */
-trait Logging {
-
-  def loggingPath = getClass
-
-  val log: Logger = LoggerFactory.getLogger(loggingPath)
-
+object Logging {
   /**
    * Should be called from entry point / main class one as the application starts up, to configure the logging used.
    */
@@ -38,6 +27,18 @@ trait Logging {
     // Setup log4j logging using config file
     //PropertyConfigurator.configure("log4j.properties")
   }
+}
+
+/**
+ * A mixin that provides various logging methods that delegate to the SLF4J framework.
+ */
+trait Logging {
+
+  def loggingPath = getClass
+
+  lazy val log: Logger = LoggerFactory.getLogger(loggingPath)
 
 }
+
+
 

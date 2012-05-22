@@ -53,7 +53,7 @@ object ShapeViewer extends SimpleApplication with Logging {
   private var fileChangeMonitor:  FileChangeMonitor = null
   
   def main(args: Array[String]) {
-    initializeLogging()
+    Logging.initializeLogging()
 
     modelLoader = new ModelLoader()
 

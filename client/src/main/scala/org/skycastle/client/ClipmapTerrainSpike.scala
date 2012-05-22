@@ -21,6 +21,8 @@ import com.jme3.util.SkyFactory
 import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
 import com.jme3.post.filters.FogFilter
+import network.protocol.Message
+import network.{ServerHandler, ClientNetworking}
 import sky.Sky
 import terrain._
 import com.jme3.light.{AmbientLight, DirectionalLight}
@@ -33,6 +35,7 @@ import com.jme3.bounding.BoundingSphere
 import com.jme3.texture.{Image, TextureCubeMap, Texture}
 import com.jme3.scene.control.AbstractControl
 import com.jme3.renderer.{RenderManager, ViewPort}
+import org.skycastle.utils.Logging
 
 /**
  *
@@ -51,7 +54,31 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
 
+  private var networking: ClientNetworking = null
+
   def main(args: Array[String]) {
+    Logging.initializeLogging()
+
+    networking = new ClientNetworking(new ServerHandler {
+      def onConnected() {
+        println("Connected")
+      }
+      def onDisconnected(reason: String, cause: Exception) {
+        println("Disconnected")
+      }
+      def onMessage(message: Message) {
+        println("Got message " + message)
+      }
+      def onConnectionFailed(reason: String, cause: Exception) {
+        println("Connection failed " + reason + ": " + cause.getMessage)
+      }
+    })
+
+    networking.setup();
+
+    networking.createAccount("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
+    //networking.login("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
+
     val settings: AppSettings = new AppSettings(true)
     if (limitFps) {
       settings.setFrameRate(60)

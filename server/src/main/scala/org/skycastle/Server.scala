@@ -16,7 +16,7 @@ object Server extends Logging {
 
   def main(args: Array[String]) {
 
-    initializeLogging()
+    Logging.initializeLogging()
 
     log.info("Starting Skycastle Server")
 

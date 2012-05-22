@@ -80,3 +80,6 @@ libraryDependencies ++= Seq(  // Core lib
 )
 
 
+// Networking
+
+libraryDependencies += "org.apache.mina" % "mina-core" % "2.0.4"
