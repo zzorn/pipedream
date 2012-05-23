@@ -1,30 +1,24 @@
 package org.skycastle.client.shapes
 
+import java.io.File
+
 import com.jme3.app.SimpleApplication
 import com.jme3.system.AppSettings
-import com.jme3.app.SimpleApplication._
 import com.jme3.asset.plugins.FileLocator
-import components.{Tome, Cube, Model}
-import loader.ModelLoader
-import org.skycastle.client.terrain.definition.GroundDef
-import org.skycastle.client.terrain.{SimpleGroundLodStrategy, FunctionalTerrainBlockSource, Ground, GroundSizeSettings}
 import com.jme3.material.Material
 import com.jme3.math.{ColorRGBA, Vector3f}
-import com.jme3.light.DirectionalLight
 import com.jme3.asset.AssetManager
-import com.jme3.scene.{Spatial, Node, Geometry}
-import com.jme3.scene.shape.{Sphere, Box}
-import com.jme3.renderer.queue.RenderQueue.Bucket
-import com.jme3.bounding.BoundingSphere
-import com.jme3.scene.control.AbstractControl
-import com.jme3.renderer.{RenderManager, ViewPort}
+import com.jme3.scene.{Spatial, Geometry}
+import com.jme3.scene.shape.Box
+import com.jme3.app.state.ScreenshotAppState
+import com.jme3.input.controls.KeyTrigger
+import com.jme3.input.KeyInput
+
 import org.skycastle.client.sky.Sky
-import com.jme3.app.state.{AbstractAppState, ScreenshotAppState}
-import com.jme3.app.Application._
-import com.jme3.input.controls.{ActionListener, KeyTrigger}
-import com.jme3.input.{ChaseCamera, KeyInput}
-import java.io.{FilenameFilter, File}
 import org.skycastle.utils.{Logging, FileChangeMonitor}
+
+import components.{Tome, Model}
+import loader.ModelLoader
 
 /**
  * Live preview of procedural shape defined in a config file.
@@ -66,7 +60,7 @@ object ShapeViewer extends SimpleApplication with Logging {
       settings.setFrameRate(-1)
       settings.setVSync(false)
     }
-    setSettings(settings);
+    setSettings(settings)
 
     setPauseOnLostFocus(false)
 

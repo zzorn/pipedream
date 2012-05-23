@@ -1,9 +1,7 @@
 package org.skycastle.utils
 
-import com.jme3.util.BufferUtils
 import com.jme3.scene.{VertexBuffer, Mesh}
 import java.util.ArrayList
-import java.nio.{IntBuffer, FloatBuffer}
 import collection.immutable.Stack
 import com.jme3.math._
 

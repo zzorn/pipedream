@@ -1,9 +1,7 @@
 package org.skycastle.client.shapes.components
 import reflect.BeanProperty
-import org.skycastle.functions.Noise1to3
-import com.jme3.scene.Mesh
 import org.skycastle.utils.MeshBuilder
-import com.jme3.math.{Matrix4f, Transform}
+import com.jme3.math.Matrix4f
 
 
 /**
