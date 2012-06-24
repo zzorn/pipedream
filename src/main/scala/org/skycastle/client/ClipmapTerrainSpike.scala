@@ -2,11 +2,9 @@ package org.skycastle.client
 
 import com.jme3.app.SimpleApplication
 import com.jme3.material.Material
-import com.jme3.bullet.control.CharacterControl
 import com.jme3.terrain.noise.fractal.FractalSum
 import com.jme3.terrain.noise.filter.{IterativeFilter, SmoothFilter, OptimizedErode, PerturbFilter}
 import com.jme3.post.FilterPostProcessor
-import com.jme3.water.WaterFilter
 import com.jme3.system.AppSettings
 import com.jme3.app.Application._
 import com.jme3.app.SimpleApplication._
@@ -16,26 +14,19 @@ import com.jme3.terrain.noise.basis.FilteredBasis
 import com.jme3.terrain.geomipmap.grid.FractalTileLoader
 import com.jme3.terrain.geomipmap.{TerrainLodControl, TerrainGrid, TerrainQuad}
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
-import com.jme3.audio.AudioNode
-import com.jme3.util.SkyFactory
 import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
-import com.jme3.post.filters.FogFilter
 import network.protocol.Message
 import network.{ServerHandler, ClientNetworking}
 import sky.Sky
 import terrain._
-import com.jme3.light.{AmbientLight, DirectionalLight}
 import com.jme3.math.{ColorRGBA, Vector3f}
 import com.jme3.asset.plugins.FileLocator
 import definition._
-import com.jme3.renderer.queue.RenderQueue.Bucket
 import com.jme3.scene.shape.{Sphere, Dome, Box}
-import com.jme3.bounding.BoundingSphere
-import com.jme3.texture.{Image, TextureCubeMap, Texture}
-import com.jme3.scene.control.AbstractControl
-import com.jme3.renderer.{RenderManager, ViewPort}
 import org.skycastle.utils.Logging
+import com.jme3.texture.Texture
+import com.jme3.water.WaterFilter
 
 /**
  *
@@ -74,10 +65,10 @@ object ClipmapTerrainSpike extends SimpleApplication  {
       }
     })
 
-    networking.setup();
+    networking.setup()
 
     //networking.createAccount("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
-    networking.login("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
+//    networking.login("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
 
     val settings: AppSettings = new AppSettings(true)
     if (limitFps) {
@@ -88,7 +79,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
       settings.setFrameRate(-1)
       settings.setVSync(false)
     }
-    setSettings(settings);
+    setSettings(settings)
     start()
   }
 
@@ -101,7 +92,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     getCamera.setFrustumFar(320000)
 
     // Allow screenshots
-    this.stateManager.attach(new ScreenshotAppState());
+    this.stateManager.attach(new ScreenshotAppState())
 
     // Terrain
     /*
@@ -124,10 +115,10 @@ object ClipmapTerrainSpike extends SimpleApplication  {
       new SimpleGroundLodStrategy(2, 0.25),
       assetManager)
 
-    this.rootNode.attachChild(terrain);
+    this.rootNode.attachChild(terrain)
 
     // Water
-    if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0));
+    if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0))
 
 
 
@@ -146,13 +137,13 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     // Start pos
     val startPos: Vector3f = new Vector3f(startX, groundDef.getHeight(startX, startZ, 1).toFloat + 2, startZ)
-    this.getCamera.setLocation(startPos);
+    this.getCamera.setLocation(startPos)
 
     // Refpoint
     val box = new Geometry("box", new Box(1, 1, 1))
     box.setLocalTranslation(startPos)
-    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    mat.setColor("Color", ColorRGBA.Red);
+    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md")
+    mat.setColor("Color", ColorRGBA.Red)
     box.setMaterial(mat)
     rootNode.attachChild(box)
 
@@ -268,30 +259,30 @@ object ClipmapTerrainSpike extends SimpleApplication  {
       //mat_terrain = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md")
       //mat_terrain.setTexture("DiffuseMap", texture1);
       mat_terrain = new Material(assetManager, "shaders/GroundTest.j3md")
-      mat_terrain.setTexture("Ecotope1Map", texture1);
-      mat_terrain.setTexture("Ecotope2Map", texture2);
-      mat_terrain.setTexture("Ecotope3Map", texture3);
+      mat_terrain.setTexture("Ecotope1Map", texture1)
+      mat_terrain.setTexture("Ecotope2Map", texture2)
+      mat_terrain.setTexture("Ecotope3Map", texture3)
     }
     else {
       mat_terrain = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md")
-      mat_terrain.setTexture("ColorMap", texture1);
+      mat_terrain.setTexture("ColorMap", texture1)
     }
 
     mat_terrain
   }
 
   def createWireframeMaterial(assetManager: AssetManager): Material =  {
-    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-    mat.setColor("Color", ColorRGBA.Green);
+    val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md")
+    mat.setColor("Color", ColorRGBA.Green)
 
     // Wireframe mode
-    mat.getAdditionalRenderState.setWireframe(true);
+    mat.getAdditionalRenderState.setWireframe(true)
     mat
   }
 
   def createTerrainMaterial(assetManager: AssetManager, grassScale: Float, dirtScale: Float, rockScale: Float): Material = {
     // TERRAIN TEXTURE material
-    val mat_terrain = new Material(assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md");
+    val mat_terrain = new Material(assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md")
 
 
     // Parameters to material:
@@ -306,35 +297,35 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     // terrainSize: the total size of the terrain (used for scaling the texture)
     // GRASS texture
     val grass = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg")
-    grass.setWrap(WrapMode.Repeat);
-    mat_terrain.setTexture("region1ColorMap", grass);
-    mat_terrain.setVector3("region1", new Vector3f(15, 200, grassScale));
+    grass.setWrap(WrapMode.Repeat)
+    mat_terrain.setTexture("region1ColorMap", grass)
+    mat_terrain.setVector3("region1", new Vector3f(15, 200, grassScale))
 
     // DIRT texture
-    val dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg");
-    dirt.setWrap(WrapMode.Repeat);
-    mat_terrain.setTexture("region2ColorMap", dirt);
-    mat_terrain.setVector3("region2", new Vector3f(0, 20, dirtScale));
+    val dirt = assetManager.loadTexture("Textures/Terrain/splat/dirt.jpg")
+    dirt.setWrap(WrapMode.Repeat)
+    mat_terrain.setTexture("region2ColorMap", dirt)
+    mat_terrain.setVector3("region2", new Vector3f(0, 20, dirtScale))
 
     // ROCK texture
-    val rock = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg");
-    rock.setWrap(WrapMode.Repeat);
-    mat_terrain.setTexture("region3ColorMap", rock);
-    mat_terrain.setVector3("region3", new Vector3f(198, 260, rockScale));
+    val rock = assetManager.loadTexture("Textures/Terrain/Rock2/rock.jpg")
+    rock.setWrap(WrapMode.Repeat)
+    mat_terrain.setTexture("region3ColorMap", rock)
+    mat_terrain.setVector3("region3", new Vector3f(198, 260, rockScale))
 
-    mat_terrain.setTexture("region4ColorMap", rock);
-    mat_terrain.setVector3("region4", new Vector3f(198, 260, rockScale));
+    mat_terrain.setTexture("region4ColorMap", rock)
+    mat_terrain.setVector3("region4", new Vector3f(198, 260, rockScale))
 
-    mat_terrain.setTexture("slopeColorMap", rock);
-    mat_terrain.setFloat("slopeTileFactor", 32);
+    mat_terrain.setTexture("slopeColorMap", rock)
+    mat_terrain.setFloat("slopeTileFactor", 32)
 
-    mat_terrain.setFloat("terrainSize", 513);
+    mat_terrain.setFloat("terrainSize", 513)
     mat_terrain
   }
 
   def createWater(assetManager: AssetManager, rootNode: Node, lightDir: Vector3f, initialWaterHeight: Float): FilterPostProcessor = {
-    val water = new WaterFilter(rootNode, lightDir);
-    water.setWaterHeight(initialWaterHeight);
+    val water = new WaterFilter(rootNode, lightDir)
+    water.setWaterHeight(initialWaterHeight)
     //water.setSpeed(0.6f)
     //water.setWaveScale(0.001f)
     //water.setDeepWaterColor(new ColorRGBA(0.0001f, 0.00196f, 0.145f, 1.0f))
@@ -343,8 +334,8 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     //water.setUseFoam(false)
     water.setFoamIntensity(1f)
 
-    val fpp = new FilterPostProcessor(assetManager);
-    fpp.addFilter(water);
+    val fpp = new FilterPostProcessor(assetManager)
+    fpp.addFilter(water)
     fpp
   }
 

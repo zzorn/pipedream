@@ -2,8 +2,6 @@ package org.skycastle.client.terrain
 
 import com.jme3.asset.AssetManager
 import com.jme3.scene.Node
-import com.jme3.terrain.geomipmap.TerrainLodControl
-import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
 import com.jme3.renderer.Camera
 import com.jme3.math.Vector3f
 import definition.GroundDef
@@ -61,10 +59,10 @@ class Ground(sizeSettings: GroundSizeSettings,
     checkRootBlocksToBeRemoved()
 
     // Check if new root blocks should be added
-    checkRootBlocksToAdd
+    checkRootBlocksToAdd()
     
     // Update internal structure of current root blocks
-    updateRootBlocks
+    updateRootBlocks()
   }
 
   private def checkRootBlocksToBeRemoved() {
@@ -85,7 +83,7 @@ class Ground(sizeSettings: GroundSizeSettings,
     rootBlocksToRemove.clear()
   }
 
-  private def checkRootBlocksToAdd {
+  private def checkRootBlocksToAdd() {
     val newRootBlocks = groundLodStrategy.getRootBlocks(cameraPos, rootGrid.keySet(), sizeSettings)
     newRootBlocks foreach {
       newBlockPos =>
@@ -95,7 +93,7 @@ class Ground(sizeSettings: GroundSizeSettings,
     }
   }
 
-  private def updateRootBlocks {
+  private def updateRootBlocks() {
     rootGrid.values() foreach {
       rootTree =>
         rootTree.update(cameraPos, groundLodStrategy, terrainFunction, sizeSettings)

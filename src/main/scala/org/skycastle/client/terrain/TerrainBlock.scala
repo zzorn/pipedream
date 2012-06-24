@@ -31,7 +31,7 @@ class TerrainBlock(
 
   lazy val placeholderMaterial: GroundMaterial = new GroundMaterial('placeholderium, assetManager.loadTexture("textures/placeholder.png"))
 
-  private var block: Geometry = null;
+  private var block: Geometry = null
 
   block = createBlock()
   attachChild(block)
@@ -42,7 +42,7 @@ class TerrainBlock(
   
   private def createBlock(): Geometry = {
 
-    val tempTextureScale = 1.0/100;
+    val tempTextureScale = 1.0/100
 
     val maxNumberOfGroundMaterials = 4
 

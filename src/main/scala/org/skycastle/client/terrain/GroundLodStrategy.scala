@@ -5,7 +5,7 @@ import javax.vecmath.Vector3d
 import java.util.{HashSet, HashMap}
 
 /**
- * Check wether to split or merge or do nothing for a block at a specific level of detail and position, given the camera position.
+ * Check whether to split or merge or do nothing for a block at a specific level of detail and position, given the camera position.
  */
 trait GroundLodStrategy {
 

@@ -81,11 +81,11 @@ class GroundTree(val pos: BlockPos, parentNode: Node, source: TerrainBlockSource
   }
 
   def remove() {
-    removeChildren
-    removeBlock
+    removeChildren()
+    removeBlock()
   }
 
-  private def removeBlock {
+  private def removeBlock() {
     if (block != null) {
       block.freeResources()
       parentNode.detachChild(block)

@@ -1,7 +1,5 @@
 package org.skycastle.client.terrain.definition
 
-import javax.vecmath.Vector2f
-import java.util.Random
 import org.skycastle.utils.{SimplexGradientNoise}
 import org.skycastle.utils.{RandomUtils}
 
