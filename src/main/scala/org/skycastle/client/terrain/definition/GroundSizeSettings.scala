@@ -1,6 +1,7 @@
-package org.skycastle.client.terrain
+package org.skycastle.client.terrain.definition
 
 import javax.vecmath.Vector3d
+import org.skycastle.client.terrain.{BlockPosCache, BlockPos}
 
 /**
  * Settings for terrain size and resolution.
@@ -33,18 +34,19 @@ case class GroundSizeSettings(blockCellCount: Int = 32,
   def powScale(lodLevel: Int): Double = {
     math.pow(2, lodLevel)
   }
-/*
-  def calculateCenterPos(blockPos: BlockPos, terrainFunction: Terrain): Vector3d = {
-    calculateCenterPos(blockPos, terrainFunction, calculateBlockSize(blockPos))
-  }
 
-  def calculateCenterPos(blockPos: BlockPos, terrainFunction: Terrain, blockSize: Double): Vector3d = {
-    val centerX = blockSize * (blockPos.xPos + 0.5)
-    val centerZ = blockSize * (blockPos.zPos + 0.5)
-    val centerY = terrainFunction.getHeight(centerX, centerZ)
-    new Vector3d(centerX, centerY, centerZ)
-  }
-*/
+  /*
+    def calculateCenterPos(blockPos: BlockPos, terrainFunction: Terrain): Vector3d = {
+      calculateCenterPos(blockPos, terrainFunction, calculateBlockSize(blockPos))
+    }
+
+    def calculateCenterPos(blockPos: BlockPos, terrainFunction: Terrain, blockSize: Double): Vector3d = {
+      val centerX = blockSize * (blockPos.xPos + 0.5)
+      val centerZ = blockSize * (blockPos.zPos + 0.5)
+      val centerY = terrainFunction.getHeight(centerX, centerZ)
+      new Vector3d(centerX, centerY, centerZ)
+    }
+  */
   def calculateTopLeft(blockPos: BlockPos, blockSize: Double): (Double, Double) = {
     val x = blockSize * blockPos.xPos
     val z = blockSize * blockPos.zPos

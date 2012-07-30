@@ -1,5 +1,6 @@
-package org.skycastle.client.terrain
+package org.skycastle.client.terrain.view
 
+import org.skycastle.client.terrain.definition
 import definition.GroundDef
 import javax.vecmath.Vector3d
 import java.util.{HashSet, HashMap}
@@ -17,7 +18,6 @@ trait GroundLodStrategy {
   def getRootBlocks(cameraPos: Vector3d, existingBlocks: java.util.Set[BlockPos], sizeSettings: GroundSizeSettings): java.util.Set[BlockPos]
 
 }
-
 
 sealed trait LodCheckResult
 

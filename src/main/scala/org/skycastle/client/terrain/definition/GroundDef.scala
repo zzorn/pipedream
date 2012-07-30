@@ -4,7 +4,7 @@ import scala.collection.JavaConversions._
 import java.util.{ArrayList, Collections}
 
 /**
- *
+ * Defines a ground consisting of a number of layers with different thickness functions.
  */
 class GroundDef {
 

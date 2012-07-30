@@ -1,9 +1,13 @@
 package org.skycastle.client.network
 
+import org.skycastle.client.messaging.Message
+import org.skycastle.utils.Service
+import org.skycastle.client.Service
+
 /**
  * Interface for client side networking.
  */
-trait ClientNetworking {
+trait ClientNetworking extends Service {
 
   /**
    * Attempts to connect to the specified server, using an existing account.
@@ -22,13 +26,8 @@ trait ClientNetworking {
                     password: String)
 
   /**
-   * Initialize networking service.
+   * Sends a message to the connected server.
    */
-  def setup()
-
-  /**
-   * Close any open session.
-   */
-  def shutdown()
+  def sendMessage(message: Message)
 
 }

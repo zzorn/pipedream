@@ -1,4 +1,4 @@
-package org.skycastle.client.terrain
+package org.skycastle.client.terrain.view
 
 import com.jme3.asset.AssetManager
 import com.jme3.scene.Node
@@ -27,12 +27,12 @@ class Ground(sizeSettings: GroundSizeSettings,
              camera: Camera = null,
              groundLodStrategy: GroundLodStrategy = new SimpleGroundLodStrategy(),
              assetManager: AssetManager
-              ) extends Node { 
+              ) extends Node {
 
   private val rootGrid = new HashMap[BlockPos, GroundTree]()
   private val rootBlocksToRemove = new HashSet[BlockPos]()
-  private val cameraPos = new Vector3d(0,0,0)
-  private val lastUpdatePos = new Vector3d(0,0,0)
+  private val cameraPos = new Vector3d(0, 0, 0)
+  private val lastUpdatePos = new Vector3d(0, 0, 0)
 
   var minUpdateDistance: Double = sizeSettings.finestCellSize
 
@@ -60,7 +60,7 @@ class Ground(sizeSettings: GroundSizeSettings,
 
     // Check if new root blocks should be added
     checkRootBlocksToAdd()
-    
+
     // Update internal structure of current root blocks
     updateRootBlocks()
   }

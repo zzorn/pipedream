@@ -2,6 +2,7 @@ package org.skycastle.client.network
 
 import org.apache.mina.transport.socket.nio.NioSocketConnector
 import protocol.binary.BinaryProtocol
+import org.skycastle.client.messaging.{Message, MessageHandler}
 import protocol.Message
 import org.apache.mina.core.session.{IdleStatus, IoSession}
 import java.net.InetSocketAddress
@@ -11,13 +12,14 @@ import org.apache.mina.filter.logging.LoggingFilter
 import org.apache.mina.core.service.{IoHandlerAdapter, IoHandler}
 import com.sun.deploy.util.ArrayUtil
 import java.util.Arrays
+import org.skycastle.client.messaging.MessageHandler
 
 /**
  * Client side network logic.
  * Takes a ServerHandler as parameter.  For now a client can only be connected to one server.
  */
 // NOTE: If we want to connect to several servers from one client, pass in some ServerHandlerFactory instead.
-class ClientNetworkingImpl(serverHandler: ServerHandler) extends ClientNetworking with Logging {
+class ClientNetworkingImpl(serverHandler: MessageHandler) extends ClientNetworking with Logging {
 
   private var connector: NioSocketConnector = null
   private var session: IoSession = null
@@ -25,7 +27,7 @@ class ClientNetworkingImpl(serverHandler: ServerHandler) extends ClientNetworkin
   val connectionTimeout = 10 // conf[Int]("ti", "timeout", 10, "Seconds before aborting a connection attempt when there is no answer.")
   val logMessages = true //conf[Boolean]("lm", "log-messages", false, "Wether to log all network messages.  Only recommended for debugging purposes.")
 
-  private class SessionHandler(serverHandler: ServerHandler) extends IoHandlerAdapter {
+  private class SessionHandler(serverHandler: MessageHandler) extends IoHandlerAdapter {
     override def sessionOpened(session: IoSession) { serverHandler.onConnected() }
     override def messageReceived(session: IoSession, message: Any) { serverHandler.onMessage(message.asInstanceOf[Message]) }
     override def sessionClosed(session: IoSession) { serverHandler.onDisconnected("Session closed", null) }
@@ -79,7 +81,8 @@ class ClientNetworkingImpl(serverHandler: ServerHandler) extends ClientNetworkin
     session.write(message)
   }
 
-  def setup() {
+
+  override def startup() {
     connector = new NioSocketConnector()
     connector.setConnectTimeoutMillis(connectionTimeout * 1000)
     // TODO: Add encryption filter
@@ -89,7 +92,7 @@ class ClientNetworkingImpl(serverHandler: ServerHandler) extends ClientNetworkin
     connector.setHandler(new SessionHandler(serverHandler))
   }
 
-  def shutdown() {
+  override def shutdown() {
     if (session != null) {
       val closeFuture = session.close(true)
       closeFuture.awaitUninterruptibly

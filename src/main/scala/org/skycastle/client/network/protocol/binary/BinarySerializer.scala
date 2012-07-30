@@ -3,6 +3,7 @@ package org.skycastle.client.network.protocol.binary
 import org.apache.mina.core.buffer.IoBuffer
 import java.nio.charset.Charset
 import org.skycastle.utils.Logging
+import org.skycastle.client.messaging.Message
 import org.skycastle.client.network.protocol.Message
 import org.skycastle.client.network.EntityId
 

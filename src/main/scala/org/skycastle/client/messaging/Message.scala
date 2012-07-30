@@ -1,4 +1,4 @@
-package org.skycastle.client.network.protocol
+package org.skycastle.client.messaging
 
 import org.skycastle.utils.ParameterChecker
 

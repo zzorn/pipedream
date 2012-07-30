@@ -1,4 +1,4 @@
-package org.skycastle.client.terrain
+package org.skycastle.client.terrain.view
 
 import com.jme3.scene.Spatial
 import com.jme3.renderer.{Camera, ViewPort, RenderManager}

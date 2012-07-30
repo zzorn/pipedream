@@ -1,4 +1,4 @@
-package org.skycastle.client.terrain
+package org.skycastle.client.terrain.view
 
 import definition.GroundDef
 import javax.vecmath.Vector3d
@@ -31,7 +31,7 @@ class SimpleGroundLodStrategy(blocksToTransition: Double = 2, hysteresis: Double
 
 
   def getRootBlocks(cameraPos: Vector3d, existingBlocks: java.util.Set[BlockPos], sizeSettings: GroundSizeSettings): java.util.Set[BlockPos] = {
-    
+
     val newFoundBlocks = new HashSet[BlockPos]()
 
     val blockScanRadius = math.ceil(blocksToTransition).toInt
@@ -47,7 +47,7 @@ class SimpleGroundLodStrategy(blocksToTransition: Double = 2, hysteresis: Double
       while (x < endX) {
         val blockPos = BlockPosCache(sizeSettings.maxLodLevel, x, z)
         if (!existingBlocks.contains(blockPos)) newFoundBlocks.add(blockPos)
-        
+
         x += 1
       }
 

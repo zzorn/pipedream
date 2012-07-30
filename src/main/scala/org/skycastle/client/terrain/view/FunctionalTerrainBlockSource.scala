@@ -1,8 +1,11 @@
-package org.skycastle.client.terrain
+package org.skycastle.client.terrain.view
 
 import com.jme3.material.Material
-import definition.GroundDef
+import definition.{GroundSizeSettings, GroundDef}
 import com.jme3.asset.AssetManager
+import org.skycastle.client.terrain.definition.{GroundSizeSettings, GroundDef}
+import org.skycastle.client.terrain.view.TerrainBlockSource
+import org.skycastle.client.terrain.{BlockPos, TerrainBlockSource}
 
 /**
  *
@@ -10,7 +13,7 @@ import com.jme3.asset.AssetManager
 class FunctionalTerrainBlockSource(terrainFunction: GroundDef,
                                    material: Material,
                                    sizeSettings: GroundSizeSettings) extends TerrainBlockSource {
-  
+
   def createBlock(pos: BlockPos, assetManager: AssetManager): TerrainBlock = {
 
     new TerrainBlock(
@@ -18,9 +21,9 @@ class FunctionalTerrainBlockSource(terrainFunction: GroundDef,
       material,
       terrainFunction,
       sizeSettings,
-    assetManager = assetManager
+      assetManager = assetManager
     )
-    
+
   }
-  
+
 }

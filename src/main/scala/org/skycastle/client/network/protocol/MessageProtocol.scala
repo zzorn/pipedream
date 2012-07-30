@@ -4,6 +4,7 @@ import org.apache.mina.core.buffer.IoBuffer
 import org.apache.mina.core.session.IoSession
 import org.apache.mina.filter.codec._
 import org.skycastle.utils.Logging
+import org.skycastle.client.messaging.Message
 
 /**
  * A way of encoding and decoding Messages to and from a stream of bytes.

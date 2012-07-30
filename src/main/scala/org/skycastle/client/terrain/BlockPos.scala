@@ -1,6 +1,5 @@
 package org.skycastle.client.terrain
 
-import javax.vecmath.Vector3d
 import java.util.{HashMap, HashSet}
 
 /**

@@ -1,4 +1,4 @@
-package org.skycastle.client.terrain
+package org.skycastle.client.terrain.view
 
 import com.jme3.scene.VertexBuffer.Type
 import com.jme3.util.BufferUtils
@@ -16,12 +16,12 @@ import java.util._
  *
  */
 class TerrainBlock(
-      val blockPos: BlockPos,
-      terrainMaterial: Material,
-      groundDef: GroundDef,
-      sizeSettings: GroundSizeSettings,
-      sleeveDownPullFactor: Float = 0.1f,
-      assetManager: AssetManager) extends Node("TerrainBlock") {
+                    val blockPos: BlockPos,
+                    terrainMaterial: Material,
+                    groundDef: GroundDef,
+                    sizeSettings: GroundSizeSettings,
+                    sleeveDownPullFactor: Float = 0.1f,
+                    assetManager: AssetManager) extends Node("TerrainBlock") {
 
   def freeResources() {
     detachAllChildren()
@@ -39,10 +39,10 @@ class TerrainBlock(
   def getGeometry(assetManager: AssetManager): Spatial = {
     this
   }
-  
+
   private def createBlock(): Geometry = {
 
-    val tempTextureScale = 1.0/100
+    val tempTextureScale = 1.0 / 100
 
     val maxNumberOfGroundMaterials = 4
 
@@ -58,7 +58,7 @@ class TerrainBlock(
 
     // Determine the textures to use for this block, by a coarse sampling of them
     val (centerX, centerZ) = sizeSettings.calculateCenterAtZeroHeight(blockPos, blockSize)
-    val layerMaterials   = new ArrayList[GroundMaterial]()
+    val layerMaterials = new ArrayList[GroundMaterial]()
     val layerThicknesses = new ArrayList[Double]()
     val blockCenterHeight = groundDef.calculate(centerX, centerZ, blockSize, layerMaterials, layerThicknesses)
 
@@ -69,7 +69,7 @@ class TerrainBlock(
 
 
 
-    def createMaterial(name: Symbol,  textureFile: String): GroundMaterial = {
+    def createMaterial(name: Symbol, textureFile: String): GroundMaterial = {
       val texture: Texture = assetManager.loadTexture(textureFile)
       texture.setWrap(Texture.WrapMode.Repeat)
       new GroundMaterial(name, texture)
@@ -81,26 +81,26 @@ class TerrainBlock(
     }
 
     setMaterialIndex(0, createMaterial('grass, "textures/twisty_grass.png"))
-    setMaterialIndex(1, createMaterial('sand,  "textures/sand.png"))
+    setMaterialIndex(1, createMaterial('sand, "textures/sand.png"))
     setMaterialIndex(2, createMaterial('stone, "textures/regolith.png"))
-    setMaterialIndex(3, createMaterial('bedrock,"textures/grey_rock-diffuse.png"))
+    setMaterialIndex(3, createMaterial('bedrock, "textures/grey_rock-diffuse.png"))
 
-/*
-    var li = 0
-    while (li < maxNumberOfGroundMaterials &&
-           li < materialCount) {
-      val groundMaterial = layerMaterials.get(li)
-      materialIndexes.put(groundMaterial.name, li)
-      materials(li) = groundMaterial
-      li += 1
-    }
+    /*
+        var li = 0
+        while (li < maxNumberOfGroundMaterials &&
+               li < materialCount) {
+          val groundMaterial = layerMaterials.get(li)
+          materialIndexes.put(groundMaterial.name, li)
+          materials(li) = groundMaterial
+          li += 1
+        }
 
-    // Fill up rest of the slots with placeholder
-    while (li < maxNumberOfGroundMaterials) {
-      materials(li) = placeholderMaterial
-      li += 1
-    }
-*/
+        // Fill up rest of the slots with placeholder
+        while (li < maxNumberOfGroundMaterials) {
+          materials(li) = placeholderMaterial
+          li += 1
+        }
+    */
 
     // 3D Mesh
     val mesh = new Mesh()
@@ -113,7 +113,7 @@ class TerrainBlock(
     val vertices = new Array[Vector3f](totalVertexCount)
     val texCoords = new Array[Vector2f](totalVertexCount)
     val normals = new Array[Vector3f](totalVertexCount)
-    val textureStrengths = new Array[Float](totalVertexCount*4)
+    val textureStrengths = new Array[Float](totalVertexCount * 4)
 
     def wrap(c: Int): Int = (c + vertexSize) % vertexSize
     def index(xi: Int, zi: Int): Int = wrap(zi) * vertexSize + wrap(xi)
@@ -129,18 +129,18 @@ class TerrainBlock(
     val wzd = cellSize
 
     // Texture coords
-    val tud = (cellSize*tempTextureScale).toFloat
-    val tvd = (cellSize*tempTextureScale).toFloat
-    var tu = (wx*tempTextureScale).toFloat
-    var tv = (wz*tempTextureScale).toFloat
+    val tud = (cellSize * tempTextureScale).toFloat
+    val tvd = (cellSize * tempTextureScale).toFloat
+    var tu = (wx * tempTextureScale).toFloat
+    var tv = (wz * tempTextureScale).toFloat
 
     var i = 0
     var x: Int = 0
     var z: Int = 0
     while (z < vertexSize) {
       x = 0
-      wx =  wxStart
-      tu = (wx*tempTextureScale).toFloat
+      wx = wxStart
+      tu = (wx * tempTextureScale).toFloat
       while (x < vertexSize) {
 
         // Get point data
@@ -193,11 +193,11 @@ class TerrainBlock(
     }
 
 
-    require(index( 0,0) == 0)
-    require(index( 1,0) == 1)
-    require(index(-1,0) == vertexSize-1)
-    require(index(-2,0) == vertexSize-2)
-    require(index(-1,-1) == vertexSize*vertexSize-1)
+    require(index(0, 0) == 0)
+    require(index(1, 0) == 1)
+    require(index(-1, 0) == vertexSize - 1)
+    require(index(-2, 0) == vertexSize - 2)
+    require(index(-1, -1) == vertexSize * vertexSize - 1)
 
     // Calculate normals
     val invCellSize = (1.0 / cellSize).toFloat
@@ -208,9 +208,9 @@ class TerrainBlock(
       xn = 1
       normalIndex = zn * vertexSize + xn
       while (xn < vertexSize - 1) {
-        
-        val xd = vertices(normalIndex + 1).y           - vertices(normalIndex - 1).y
-        val zd = vertices(normalIndex + vertexSize).y  - vertices(normalIndex - vertexSize).y
+
+        val xd = vertices(normalIndex + 1).y - vertices(normalIndex - 1).y
+        val zd = vertices(normalIndex + vertexSize).y - vertices(normalIndex - vertexSize).y
 
         normals(normalIndex) = new Vector3f(-xd * invCellSize, 2, zd * invCellSize).normalizeLocal()
 
@@ -224,12 +224,12 @@ class TerrainBlock(
     // Sleeves
     val edgeStartX = wxOffset
     val edgeStartZ = wzOffset
-    val edgeEndX   = wxOffset + blockSize
-    val edgeEndZ   = wzOffset + blockSize
+    val edgeEndX = wxOffset + blockSize
+    val edgeEndZ = wzOffset + blockSize
 
     val sleeveDownPull = (cellSize * sleeveDownPullFactor).toFloat
 
-    def copySleeveVertex(targetX: Int, targetZ: Int, sourceX : Int, sourceZ : Int, posX: Double, posZ: Double) {
+    def copySleeveVertex(targetX: Int, targetZ: Int, sourceX: Int, sourceZ: Int, posX: Double, posZ: Double) {
       vertices(index(targetX, targetZ)) = new Vector3f(posX.toFloat, vertices(index(sourceX, sourceZ)).y - sleeveDownPull, posZ.toFloat)
       normals(index(targetX, targetZ)) = normals(index(sourceX, sourceZ))
     }
@@ -237,8 +237,8 @@ class TerrainBlock(
     z = 0
     wz = edgeStartZ
     while (z < vertexSize) {
-      copySleeveVertex( 0, z, 1, z, edgeStartX, wz)
-      copySleeveVertex(-1, z,-2, z, edgeEndX, wz)
+      copySleeveVertex(0, z, 1, z, edgeStartX, wz)
+      copySleeveVertex(-1, z, -2, z, edgeEndX, wz)
       z += 1
       wz += wzd
     }
@@ -246,8 +246,8 @@ class TerrainBlock(
     x = 0
     wx = edgeStartX
     while (x < vertexSize) {
-      copySleeveVertex( x,  0, x,  1, wx, edgeStartZ)
-      copySleeveVertex( x, -1, x, -2, wx, edgeEndZ)
+      copySleeveVertex(x, 0, x, 1, wx, edgeStartZ)
+      copySleeveVertex(x, -1, x, -2, wx, edgeEndZ)
       x += 1
       wx += wxd
     }
@@ -333,14 +333,14 @@ class TerrainBlock(
     }
 
 
-    assert(indexCount == triangleIndex, "Triangle index ("+triangleIndex+") should equal the calculated index count "+indexCount)
+    assert(indexCount == triangleIndex, "Triangle index (" + triangleIndex + ") should equal the calculated index count " + indexCount)
 
 
     // Store in buffer
-    mesh.setBuffer(Type.Position, 3,  BufferUtils.createFloatBuffer(vertices: _*));
-    mesh.setBuffer(Type.TexCoord, 2,  BufferUtils.createFloatBuffer(texCoords: _*));
-    mesh.setBuffer(Type.Index,    1,  BufferUtils.createIntBuffer(indexes: _*));
-    mesh.setBuffer(Type.Normal,   3,  BufferUtils.createFloatBuffer(normals: _*));
+    mesh.setBuffer(Type.Position, 3, BufferUtils.createFloatBuffer(vertices: _*));
+    mesh.setBuffer(Type.TexCoord, 2, BufferUtils.createFloatBuffer(texCoords: _*));
+    mesh.setBuffer(Type.Index, 1, BufferUtils.createIntBuffer(indexes: _*));
+    mesh.setBuffer(Type.Normal, 3, BufferUtils.createFloatBuffer(normals: _*));
 
     // NOTE: JME3 doesn't support custom vertex shader attributes, so we have to resort to misusing the ones it defines...
     mesh.setBuffer(Type.TexCoord2, 4, BufferUtils.createFloatBuffer(textureStrengths: _*));
@@ -373,13 +373,12 @@ class TerrainBlock(
     while (i < materials.length) {
       val groundMaterial = materials(i)
 
-      mat_terrain.setTexture("Ecotope"+i+"Map", groundMaterial.texture);
+      mat_terrain.setTexture("Ecotope" + i + "Map", groundMaterial.texture);
       i += 1
     }
 
     mat_terrain
   }
-
 
 
 }

@@ -16,6 +16,7 @@ import com.jme3.terrain.geomipmap.{TerrainLodControl, TerrainGrid, TerrainQuad}
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
 import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
+import messaging.{Message, MessageHandler}
 import network.protocol.Message
 import network.{ServerHandler, ClientNetworkingImpl}
 import sky.Sky
@@ -27,6 +28,7 @@ import com.jme3.scene.shape.{Sphere, Dome, Box}
 import org.skycastle.utils.Logging
 import com.jme3.texture.Texture
 import com.jme3.water.WaterFilter
+import view.FunctionalTerrainBlockSource
 
 /**
  *
