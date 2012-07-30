@@ -17,7 +17,7 @@ import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
 import com.jme3.asset.AssetManager
 import com.jme3.scene.{Geometry, Node, Spatial}
 import network.protocol.Message
-import network.{ServerHandler, ClientNetworking}
+import network.{ServerHandler, ClientNetworkingImpl}
 import sky.Sky
 import terrain._
 import com.jme3.math.{ColorRGBA, Vector3f}
