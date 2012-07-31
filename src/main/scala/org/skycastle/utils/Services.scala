@@ -3,11 +3,16 @@ package org.skycastle.utils
 /**
  * Base class for a simple service registry.
  */
-trait Services {
+trait Services extends Logging {
 
   private var _started = false
   private var _stopped = false
   private var _services: List[Service] = Nil
+
+  /**
+   * @return name of application.  For logging etc.
+   */
+  protected def appName: String
 
   /**
    * @return true if the services have been started, but not stopped.
@@ -35,9 +40,18 @@ trait Services {
     if (_started) throw new IllegalStateException("Services have already been started.")
     _started = true
 
+    setupLogging()
+
+    log.info(appName  + " starting up")
+
     onStartup()
 
-    _services foreach {_.startup()}
+    _services foreach {service =>
+      log.info("Starting service " + service.serviceName)
+      service.startup()
+    }
+
+    log.info(appName  + " started")
   }
 
 
@@ -48,9 +62,20 @@ trait Services {
     if (_stopped) throw new IllegalStateException("Services have already been stopped.")
     _stopped = true
 
-    _services foreach {_.shutdown()}
+    log.info(appName  + " shutting down")
+
+    _services foreach {service =>
+      log.info("Stopping service " + service.serviceName)
+      service.shutdown()
+    }
 
     onShutdown()
+
+    log.info(appName  + " shut down")
+  }
+
+  protected def setupLogging() {
+    Logging.initializeLogging()
   }
 
   /**

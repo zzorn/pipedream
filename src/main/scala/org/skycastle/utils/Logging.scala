@@ -7,6 +7,7 @@ import java.util.Properties
 //import org.apache.log4j.PropertyConfigurator
 
 object Logging {
+
   /**
    * Should be called from entry point / main class one as the application starts up, to configure the logging used.
    */

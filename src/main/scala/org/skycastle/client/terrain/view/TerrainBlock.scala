@@ -344,7 +344,7 @@ class TerrainBlock(
     // NOTE: JME3 doesn't support custom vertex shader attributes, so we have to resort to misusing the ones it defines...
     mesh.setBuffer(Type.TexCoord2, 4, BufferUtils.createFloatBuffer(textureStrengths: _*));
 
-    mesh.updateBound();
+    mesh.updateBound()
 
     mesh.setStatic()
 

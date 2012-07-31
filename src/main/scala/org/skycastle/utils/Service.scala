@@ -6,6 +6,11 @@ package org.skycastle.utils
 trait Service {
 
   /**
+   * @return name of the service.  For logging etc.
+   */
+  def serviceName: String = getClass.getSimpleName
+
+  /**
    * Called when the application starts up.
    */
   def startup() {}

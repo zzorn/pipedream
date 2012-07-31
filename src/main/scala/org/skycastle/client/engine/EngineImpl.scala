@@ -30,6 +30,7 @@ import com.jme3.asset.AssetManager
 import com.jme3.texture.Texture.WrapMode
 import com.jme3.post.FilterPostProcessor
 import com.jme3.water.WaterFilter
+import java.util.logging.{Level, Logger}
 
 /**
  * JMonkey based 3D engine implementation.
@@ -50,6 +51,7 @@ class EngineImpl extends SimpleApplication with Engine {
     assetManager.registerLocator("assets", classOf[FileLocator])
 
     flyCam.setMoveSpeed(movementSpeed)
+    flyCam.setDragToRotate(true)
     getCamera.setFrustumFar(320000)
 
     // Allow screenshots
@@ -93,6 +95,9 @@ class EngineImpl extends SimpleApplication with Engine {
   }
 
   override def startup() {
+    // Tune jme logging level
+    Logger.getLogger("com.jme3").setLevel(Level.WARNING)
+
     // Settings
     val settings: AppSettings = new AppSettings(true)
     if (limitFps) {
