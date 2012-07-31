@@ -2,7 +2,6 @@ package org.skycastle.client.network
 
 import org.skycastle.client.messaging.Message
 import org.skycastle.utils.Service
-import org.skycastle.client.Service
 
 /**
  * Interface for client side networking.

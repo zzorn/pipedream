@@ -1,9 +1,8 @@
 package org.skycastle.client.terrain.view
 
-import org.skycastle.client.terrain.definition
-import definition.GroundDef
+import org.skycastle.client.terrain.{BlockPos, definition}
+import definition.{GroundSizeSettings, GroundDef}
 import javax.vecmath.Vector3d
-import java.util.{HashSet, HashMap}
 
 /**
  * Check whether to split or merge or do nothing for a block at a specific level of detail and position, given the camera position.

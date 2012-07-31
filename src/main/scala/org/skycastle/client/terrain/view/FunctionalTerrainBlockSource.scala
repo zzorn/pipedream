@@ -1,11 +1,9 @@
 package org.skycastle.client.terrain.view
 
 import com.jme3.material.Material
-import definition.{GroundSizeSettings, GroundDef}
 import com.jme3.asset.AssetManager
 import org.skycastle.client.terrain.definition.{GroundSizeSettings, GroundDef}
-import org.skycastle.client.terrain.view.TerrainBlockSource
-import org.skycastle.client.terrain.{BlockPos, TerrainBlockSource}
+import org.skycastle.client.terrain.BlockPos
 
 /**
  *

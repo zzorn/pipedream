@@ -1,9 +1,11 @@
 package org.skycastle.client
 
+import engine.Engine
+import entity.EntityService
 import messaging.MessageHandler
 import network.ClientNetworking
 import org.skycastle.utils.Services
-import terrain.TerrainService
+import region.RegionService
 
 /**
  * The services that the client is composed of.
@@ -14,8 +16,10 @@ trait ClientServices extends Services {
 
   def messageHandler: MessageHandler
 
-  def terrain: TerrainService
+  def entityService: EntityService
 
+  def regionService: RegionService
 
+  def engine: Engine
 
 }

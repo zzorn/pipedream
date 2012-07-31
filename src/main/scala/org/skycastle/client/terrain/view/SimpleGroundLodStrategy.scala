@@ -1,9 +1,10 @@
 package org.skycastle.client.terrain.view
 
-import definition.GroundDef
 import javax.vecmath.Vector3d
 import org.skycastle.utils.MathUtils
 import java.util.HashSet
+import org.skycastle.client.terrain.{BlockPosCache, BlockPos}
+import org.skycastle.client.terrain.definition.{GroundSizeSettings, GroundDef}
 
 /**
  *

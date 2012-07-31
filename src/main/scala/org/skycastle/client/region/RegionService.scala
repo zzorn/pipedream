@@ -1,6 +1,8 @@
 package org.skycastle.client.region
 
-import javax.vecmath.Matrix4f
+import org.skycastle.client.ActionMethod
+import org.skycastle.utils.Service
+
 
 /**
  * A region is a space that uses an own coordinate system, and which is typically managed by just one server.
@@ -22,12 +24,40 @@ import javax.vecmath.Matrix4f
  */
 // TODO: Maybe most practical if portals between regions are special entities?
 // TODO: For maximum non-navigability, make region id:s random when they appear, maintain mapping on server side.
-trait RegionService {
+trait RegionService extends Service {
+
+  /**
+   * @return the currently active region.
+   */
+  def currentRegion: Region
+
+  def getRegion(regionId: Symbol): Region
+
+  /**
+   * @return the currently available regions.
+   */
+  def regions: Map[Symbol, Region]
+
+  /**
+   * Indicates that a new region is visible.
+   * Visible entities in the region will be specified with entityAppearance messages.
+   * @param regionId
+   * @param regionData TODO: Should contain some basic info about the region, if needed?
+   */
+  @ActionMethod
+  def regionAppeared(regionId: Symbol, regionData: Any)
+
+  /**
+   * Indicates that a region is no longer visible.  Any entities located in it are no longer visible either.
+   */
+  @ActionMethod
+  def regionDisappeared(regionId: Symbol)
 
   /**
    * Called when the region that the actively controlled player character is in changed.
    * @param regionId the id of the new current region.
    */
+  @ActionMethod
   def currentRegionChanged(regionId: Symbol)
 
   /**
@@ -44,26 +74,26 @@ trait RegionService {
   // The higher the density / proximity, the higher the slowdown, up to some max (so after finding the 5 closest persons no point in finding more,
   // as it would not change the slowdown - or just keep track of nr of people / softly blocking things in a tile) - also slower to walk towards someone than away from them.
   // Same approach can be used for thick under-vegetation, branches, etc)
-  def entityAppeared(regionId: Symbol, entityId: String, entityData: Any)
+  @ActionMethod
+  def entityAppeared(regionId: Symbol, entityId: Symbol, entityData: Map[Symbol, Any])
+
+  /**
+   * Called when an entity moves from one region to another.
+   */
+  @ActionMethod
+  def entityChangedRegion(oldRegionId: Symbol, newRegionId: Symbol, entityId: Symbol)
+
+  /**
+   * Called when an entity changes in some way.
+   */
+  @ActionMethod
+  def entityUpdated(regionId: Symbol, entityId: Symbol, changeData: Map[Symbol, Any])
 
   /**
    * Called when an entity is no longer perceivable.
    */
-  def entityDisappeared(regionId: Symbol, entityId: String)
-
-
-  /**
-   * Indicates that a new region is visible.
-   * Visible entities in the region will be specified with entityAppearance messages.
-   * @param regionId
-   * @param regionData TODO: Should contain some basic info about the region, if needed?
-   */
-  def regionAppeared(regionId: Symbol, regionData: Any)
-
-  /**
-   * Indicates that a region is no longer visible.  Any entities located in it are no longer visible either.
-   */
-  def regionDisappeared(regionId: Symbol)
+  @ActionMethod
+  def entityDisappeared(regionId: Symbol, entityId: Symbol)
 
 
 }

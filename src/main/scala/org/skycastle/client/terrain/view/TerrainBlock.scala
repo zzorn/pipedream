@@ -4,13 +4,12 @@ import com.jme3.scene.VertexBuffer.Type
 import com.jme3.util.BufferUtils
 import com.jme3.material.Material
 import com.jme3.asset.AssetManager
-import definition.{GroundDef, GroundMaterial}
-import javax.vecmath.Vector3d
 import com.jme3.scene.{Node, Spatial, Geometry, Mesh}
 import com.jme3.texture.Texture
-import com.jme3.math.{Vector4f, Vector3f, ColorRGBA, Vector2f}
-import java.nio.FloatBuffer
+import com.jme3.math.{Vector3f, Vector2f}
 import java.util._
+import org.skycastle.client.terrain.BlockPos
+import org.skycastle.client.terrain.definition.{GroundMaterial, GroundSizeSettings, GroundDef}
 
 /**
  *

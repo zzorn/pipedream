@@ -24,7 +24,7 @@ trait Services {
    * @return the added service.
    */
   protected def addService[T <: Service](service: T): T = {
-    _services ::= List(service)
+    _services :::= List(service)
     service
   }
 

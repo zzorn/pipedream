@@ -34,15 +34,20 @@ libraryDependencies += "com.dyuproject.protostuff" % "protostuff-collectionschem
 
 libraryDependencies += "org.yaml" % "snakeyaml" % "1.11-SNAPSHOT"
 
+libraryDependencies += "org.scalastuff" % "scalabeans" % "0.3"
+
+libraryDependencies += "com.thoughtworks.paranamer" % "paranamer" % "0.3"
+
 
 // Akka for parallel signals and messaging
-libraryDependencies ++= Seq(
-  "se.scalablesolutions.akka" % "akka-actor"       % "1.1.3",
-  "se.scalablesolutions.akka" % "akka-slf4j"       % "1.1.3",
-  "se.scalablesolutions.akka" % "akka-typed-actor" % "1.1.3",
-  "se.scalablesolutions.akka" % "akka-amqp"        % "1.1.3",
-  "se.scalablesolutions.akka" % "akka-testkit"     % "1.1.3"
-)
+//libraryDependencies ++= Seq(
+//  "se.scalablesolutions.akka" % "akka-actor"       % "1.1.3",
+//  "se.scalablesolutions.akka" % "akka-slf4j"       % "1.1.3",
+//  "se.scalablesolutions.akka" % "akka-typed-actor" % "1.1.3",
+//  "se.scalablesolutions.akka" % "akka-amqp"        % "1.1.3",
+//  "se.scalablesolutions.akka" % "akka-testkit"     % "1.1.3"
+//)
+
 
 // JMonkey Engine 3.0 for 3D gfx
 libraryDependencies ++= Seq(  // Core lib

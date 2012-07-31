@@ -1,12 +1,10 @@
 package org.skycastle.client.terrain.view
 
 import com.jme3.scene.Node
-import definition.{GroundSizeSettings, GroundDef}
 import scala.collection.JavaConversions._
 import javax.vecmath.Vector3d
 import com.jme3.asset.AssetManager
-import org.skycastle.client.terrain.view.TerrainBlockSource
-import org.skycastle.client.terrain.{TerrainBlockSource, BlockPos}
+import org.skycastle.client.terrain.BlockPos
 import org.skycastle.client.terrain.definition.{GroundSizeSettings, GroundDef}
 
 /**

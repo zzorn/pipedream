@@ -2,16 +2,13 @@ package org.skycastle.client.network
 
 import org.apache.mina.transport.socket.nio.NioSocketConnector
 import protocol.binary.BinaryProtocol
-import org.skycastle.client.messaging.{Message, MessageHandler}
-import protocol.Message
-import org.apache.mina.core.session.{IdleStatus, IoSession}
+import org.skycastle.client.messaging.Message
+import org.apache.mina.core.session.IoSession
 import java.net.InetSocketAddress
 import org.skycastle.utils.Logging
 import org.apache.mina.filter.codec.ProtocolCodecFilter
 import org.apache.mina.filter.logging.LoggingFilter
-import org.apache.mina.core.service.{IoHandlerAdapter, IoHandler}
-import com.sun.deploy.util.ArrayUtil
-import java.util.Arrays
+import org.apache.mina.core.service.IoHandlerAdapter
 import org.skycastle.client.messaging.MessageHandler
 
 /**

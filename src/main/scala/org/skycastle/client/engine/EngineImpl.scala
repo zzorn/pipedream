@@ -1,91 +1,50 @@
-package org.skycastle.client
+package org.skycastle.client.engine
 
 import com.jme3.app.SimpleApplication
-import com.jme3.material.Material
-import com.jme3.terrain.noise.fractal.FractalSum
-import com.jme3.terrain.noise.filter.{IterativeFilter, SmoothFilter, OptimizedErode, PerturbFilter}
-import com.jme3.post.FilterPostProcessor
-import com.jme3.system.AppSettings
-import com.jme3.app.Application._
-import com.jme3.app.SimpleApplication._
+import com.jme3.asset.plugins.FileLocator
 import com.jme3.app.state.ScreenshotAppState
-import com.jme3.texture.Texture.WrapMode
+import org.skycastle.client.terrain.definition._
+import org.skycastle.client.terrain.view.{SimpleGroundLodStrategy, Ground, FunctionalTerrainBlockSource}
+import org.skycastle.client.sky.Sky
+import com.jme3.math.{ColorRGBA, Vector3f}
+import com.jme3.scene.{Node, Geometry}
+import com.jme3.scene.shape.Box
+import com.jme3.material.Material
+import com.jme3.system.AppSettings
+import com.jme3.texture.Texture
+import org.skycastle.client.terrain.definition.MaterialLayer
+import org.skycastle.client.terrain.definition.GroundMaterial
+import org.skycastle.client.terrain.definition.MountainFun
+import org.skycastle.client.terrain.definition.TurbulenceFun
+import org.skycastle.client.terrain.definition.NoiseFun
+import org.skycastle.client.terrain.definition.FoundationLayer
+import org.skycastle.client.terrain.definition.GroundSizeSettings
 import com.jme3.terrain.noise.basis.FilteredBasis
-import com.jme3.terrain.geomipmap.grid.FractalTileLoader
+import com.jme3.terrain.noise.fractal.FractalSum
+import org.skycastle.client.ClampingNoiseModulator
+import com.jme3.terrain.noise.filter.{IterativeFilter, SmoothFilter, OptimizedErode, PerturbFilter}
 import com.jme3.terrain.geomipmap.{TerrainLodControl, TerrainGrid, TerrainQuad}
+import com.jme3.terrain.geomipmap.grid.FractalTileLoader
 import com.jme3.terrain.geomipmap.lodcalc.DistanceLodCalculator
 import com.jme3.asset.AssetManager
-import com.jme3.scene.{Geometry, Node, Spatial}
-import messaging.{Message, MessageHandler}
-import network.protocol.Message
-import network.{ServerHandler, ClientNetworkingImpl}
-import sky.Sky
-import terrain._
-import com.jme3.math.{ColorRGBA, Vector3f}
-import com.jme3.asset.plugins.FileLocator
-import definition._
-import com.jme3.scene.shape.{Sphere, Dome, Box}
-import org.skycastle.utils.Logging
-import com.jme3.texture.Texture
+import com.jme3.texture.Texture.WrapMode
+import com.jme3.post.FilterPostProcessor
 import com.jme3.water.WaterFilter
-import view.FunctionalTerrainBlockSource
 
 /**
- *
+ * JMonkey based 3D engine implementation.
  */
-object ClipmapTerrainSpike extends SimpleApplication  {
+class EngineImpl extends SimpleApplication with Engine {
 
-  private val waterOn = false
-  private val wireframe = false
   private val limitFps= true
-  private val lightingOn = !waterOn
-
   private val movementSpeed: Float = 400
+  private val lightingOn = true
 
   private val startX = 0
   private val startZ = 0
 
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
 
-  private var networking: ClientNetworking = null
-
-  def main(args: Array[String]) {
-    Logging.initializeLogging()
-
-    networking = new ClientNetworking(new ServerHandler {
-      def onConnected() {
-        println("Connected")
-      }
-      def onDisconnected(reason: String, cause: Exception) {
-        println("Disconnected")
-      }
-      def onMessage(message: Message) {
-        println("Got message " + message)
-      }
-      def onConnectionFailed(reason: String, cause: Exception) {
-        println("Connection failed " + reason + ": " + cause.getMessage)
-      }
-    })
-
-    networking.setup()
-
-    //networking.createAccount("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
-//    networking.login("localhost", 6283, "TestUser1", "testPass%31# 32sdf");
-
-    val settings: AppSettings = new AppSettings(true)
-    if (limitFps) {
-      settings.setFrameRate(60)
-      settings.setVSync(true)
-    }
-    else {
-      settings.setFrameRate(-1)
-      settings.setVSync(false)
-    }
-    setSettings(settings)
-    start()
-  }
-
-  @Override
   def simpleInitApp() {
 
     assetManager.registerLocator("assets", classOf[FileLocator])
@@ -97,12 +56,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     this.stateManager.attach(new ScreenshotAppState())
 
     // Terrain
-    /*
-   val terrainMaterial = createTerrainMaterial(assetManager, grassScale, dirtScale, rockScale)
-   val groundFunction = createGround
-   val terrain = createTerrain(groundFunction, terrainMaterial)
-    */
-    val terrainMaterial = if (wireframe) createWireframeMaterial(assetManager) else createSimpleTerrainMaterial(getAssetManager)
+    val terrainMaterial = createSimpleTerrainMaterial(getAssetManager)
 
     //    val block= new TerrainBlock(terrainMaterial, new TestTerrain(), 1000, 1000, 1000, 1000)
     //    val terrain = block.getGeometry(assetManager)
@@ -119,18 +73,6 @@ object ClipmapTerrainSpike extends SimpleApplication  {
 
     this.rootNode.attachChild(terrain)
 
-    // Water
-    if (waterOn) viewPort.addProcessor(createWater(assetManager, rootNode, lightDir, 0))
-
-
-
-    // Sound
-    // Chops on ubuntu 11.10
-    /*
-    val waves = new AudioNode(assetManager, "Sound/Environment/Ocean Waves.ogg", false);
-    waves.setLooping(true);
-    audioRenderer.playSource(waves);
-    */
 
     // Sky
     val sky = new Sky(getCamera, assetManager)
@@ -148,8 +90,32 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     mat.setColor("Color", ColorRGBA.Red)
     box.setMaterial(mat)
     rootNode.attachChild(box)
-
   }
+
+  override def startup() {
+    // Settings
+    val settings: AppSettings = new AppSettings(true)
+    if (limitFps) {
+      settings.setFrameRate(60)
+      settings.setVSync(true)
+    }
+    else {
+      settings.setFrameRate(-1)
+      settings.setVSync(false)
+    }
+    setSettings(settings)
+
+    // Start the 3D engine
+    start()
+  }
+
+  override def shutdown() {
+    // Stop the engine, wait until it is fully destroyed.
+    stop(true)
+  }
+
+
+
 
   private def createTestTerrain: GroundDef = {
     def createMaterial(name: Symbol,  textureFile: String): GroundMaterial = {
@@ -166,31 +132,31 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     val groundDef: GroundDef = new GroundDef()
     groundDef.addLayer(new FoundationLayer(-1.0, bedrock,
       MountainFun(size = 1000000, altitude = 10000, sharpness = 4, offset=0.98213)
-      - MountainFun(size = 50000, altitude = 7000, sharpness = 3, offset=0.9843211233)
-      - NoiseFun(sizeScale = 10000, seed=342123, amplitude = 1000)))
+        - MountainFun(size = 50000, altitude = 7000, sharpness = 3, offset=0.9843211233)
+        - NoiseFun(sizeScale = 10000, seed=342123, amplitude = 1000)))
     groundDef.addLayer(new MaterialLayer(0.0, stone,
       //NoiseFun(sizeScale = 1000, seed=2356451, amplitude = 100)
       MountainFun(size = 100000, altitude = 1000, sharpness = 4, offset=0.98213)
-      + MountainFun(size = 1000, altitude = 100, sharpness = 2)
-      + MountainFun(size = 10000, altitude = 1000, sharpness = 4, offset = 1.0123)  ))
+        + MountainFun(size = 1000, altitude = 100, sharpness = 2)
+        + MountainFun(size = 10000, altitude = 1000, sharpness = 4, offset = 1.0123)  ))
     groundDef.addLayer(new MaterialLayer(0.5, sand,
       //NoiseFun(sizeScale = 200, seed=453242, amplitude = 10) /*
       TurbulenceFun(2, sizeX = 2000, sizeZ= 2000, amplitude = 20, offsetZ = 34123.123)
-      + NoiseFun(sizeX= 21234, sizeZ= 12433, amplitude= 10, offsetZ = 32335.12)
-      + NoiseFun(sizeX= 13412, sizeZ= 42313,  amplitude= 5, offsetZ = 335.12)
-      + MountainFun(size = 5100, altitude = 10,  sharpness = 2, offset = 1.123)
-      + NoiseFun(offsetX = 764.12, amplitude = 0.2, sizeX = 1.3f, sizeZ = 1)))
+        + NoiseFun(sizeX= 21234, sizeZ= 12433, amplitude= 10, offsetZ = 32335.12)
+        + NoiseFun(sizeX= 13412, sizeZ= 42313,  amplitude= 5, offsetZ = 335.12)
+        + MountainFun(size = 5100, altitude = 10,  sharpness = 2, offset = 1.123)
+        + NoiseFun(offsetX = 764.12, amplitude = 0.2, sizeX = 1.3f, sizeZ = 1)))
     groundDef.addLayer(new MaterialLayer(1.0, grass,
       //NoiseFun(sizeScale = 50, seed=123545, amplitude = 1) /*
       TurbulenceFun(sizeX = 1000, sizeZ = 1000, amplitude = 2, offsetZ = 5423.123)
-      + NoiseFun(offsetX = 1235.12, amplitude = 2, sizeX = 100, sizeZ = 200)
-      + NoiseFun(offsetX = 2335.12, amplitude = 0.4, sizeX = 2, sizeZ = 2)
-      - ConstFun(0.4)  ))
+        + NoiseFun(offsetX = 1235.12, amplitude = 2, sizeX = 100, sizeZ = 200)
+        + NoiseFun(offsetX = 2335.12, amplitude = 0.4, sizeX = 2, sizeZ = 2)
+        - ConstFun(0.4)  ))
     groundDef
   }
 
 
-  def createGround: FilteredBasis = {
+  private def createGround: FilteredBasis = {
     val base = new FractalSum();
     base.setRoughness(0.7f);
     base.setFrequency(1.0f);
@@ -232,7 +198,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     ground
   }
 
-  def createTerrain(ground: FilteredBasis, material: Material): TerrainQuad = {
+  private def createTerrain(ground: FilteredBasis, material: Material): TerrainQuad = {
     val patchSize: Int = 32 + 1
     val maxVisibleSize: Int = 128 + 1
     val terrain = new TerrainGrid("terrain", patchSize, maxVisibleSize, new FractalTileLoader(ground, 256f));
@@ -247,7 +213,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     terrain
   }
 
-  def createSimpleTerrainMaterial(assetManager: AssetManager): Material = {
+  private def createSimpleTerrainMaterial(assetManager: AssetManager): Material = {
     //val texture1: Texture = assetManager.loadTexture("Textures/Terrain/splat/grass.jpg")
     val texture1: Texture = assetManager.loadTexture("textures/twisty_grass.png")
     val texture2: Texture = assetManager.loadTexture("textures/regolith.png")
@@ -273,7 +239,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     mat_terrain
   }
 
-  def createWireframeMaterial(assetManager: AssetManager): Material =  {
+  private def createWireframeMaterial(assetManager: AssetManager): Material =  {
     val mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md")
     mat.setColor("Color", ColorRGBA.Green)
 
@@ -282,7 +248,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     mat
   }
 
-  def createTerrainMaterial(assetManager: AssetManager, grassScale: Float, dirtScale: Float, rockScale: Float): Material = {
+  private def createTerrainMaterial(assetManager: AssetManager, grassScale: Float, dirtScale: Float, rockScale: Float): Material = {
     // TERRAIN TEXTURE material
     val mat_terrain = new Material(assetManager, "Common/MatDefs/Terrain/HeightBasedTerrain.j3md")
 
@@ -325,7 +291,7 @@ object ClipmapTerrainSpike extends SimpleApplication  {
     mat_terrain
   }
 
-  def createWater(assetManager: AssetManager, rootNode: Node, lightDir: Vector3f, initialWaterHeight: Float): FilterPostProcessor = {
+  private def createWater(assetManager: AssetManager, rootNode: Node, lightDir: Vector3f, initialWaterHeight: Float): FilterPostProcessor = {
     val water = new WaterFilter(rootNode, lightDir)
     water.setWaterHeight(initialWaterHeight)
     //water.setSpeed(0.6f)
@@ -344,6 +310,4 @@ object ClipmapTerrainSpike extends SimpleApplication  {
   override def simpleUpdate(tpf: Float) {
   }
 
-
 }
-

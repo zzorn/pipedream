@@ -4,11 +4,12 @@ import com.jme3.asset.AssetManager
 import com.jme3.scene.Node
 import com.jme3.renderer.Camera
 import com.jme3.math.Vector3f
-import definition.GroundDef
 import javax.vecmath.Vector3d
 import scala.collection.JavaConversions._
 import org.skycastle.utils.MathUtils
 import java.util.{Collections, HashSet, ArrayList, HashMap}
+import org.skycastle.client.terrain.definition.{GroundDef, GroundSizeSettings}
+import org.skycastle.client.terrain.BlockPos
 
 /**
  *
