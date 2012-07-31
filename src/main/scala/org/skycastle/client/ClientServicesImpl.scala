@@ -22,6 +22,6 @@ class ClientServicesImpl extends ClientServices {
 
   val regionService = addService(new RegionServiceImpl(this))
 
-  val engine = addService(new EngineImpl())
+  val engine = addService(new EngineImpl(this))
 
 }

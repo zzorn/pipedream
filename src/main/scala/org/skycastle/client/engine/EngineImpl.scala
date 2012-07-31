@@ -21,7 +21,7 @@ import org.skycastle.client.terrain.definition.FoundationLayer
 import org.skycastle.client.terrain.definition.GroundSizeSettings
 import com.jme3.terrain.noise.basis.FilteredBasis
 import com.jme3.terrain.noise.fractal.FractalSum
-import org.skycastle.client.ClampingNoiseModulator
+import org.skycastle.client.{ClientServices, ClampingNoiseModulator}
 import com.jme3.terrain.noise.filter.{IterativeFilter, SmoothFilter, OptimizedErode, PerturbFilter}
 import com.jme3.terrain.geomipmap.{TerrainLodControl, TerrainGrid, TerrainQuad}
 import com.jme3.terrain.geomipmap.grid.FractalTileLoader
@@ -31,11 +31,13 @@ import com.jme3.texture.Texture.WrapMode
 import com.jme3.post.FilterPostProcessor
 import com.jme3.water.WaterFilter
 import java.util.logging.{Level, Logger}
+import com.jme3.input.controls.{ActionListener, InputListener, KeyTrigger}
+import com.jme3.input.KeyInput
 
 /**
  * JMonkey based 3D engine implementation.
  */
-class EngineImpl extends SimpleApplication with Engine {
+class EngineImpl(services: ClientServices) extends SimpleApplication with Engine {
 
   private val limitFps= true
   private val movementSpeed: Float = 400
@@ -56,6 +58,15 @@ class EngineImpl extends SimpleApplication with Engine {
 
     // Allow screenshots
     this.stateManager.attach(new ScreenshotAppState())
+
+    // Remap escape to close application
+    inputManager.deleteMapping(SimpleApplication.INPUT_MAPPING_EXIT)
+    inputManager.addMapping("SkycastleClientExit", new KeyTrigger(KeyInput.KEY_ESCAPE))
+    inputManager.addListener(new ActionListener {
+      def onAction(name: String, isPressed: Boolean, tpf: Float) {
+        services.shutdown()
+      }
+    }, "SkycastleClientExit")
 
     // Terrain
     val terrainMaterial = createSimpleTerrainMaterial(getAssetManager)
@@ -116,7 +127,9 @@ class EngineImpl extends SimpleApplication with Engine {
 
   override def shutdown() {
     // Stop the engine, wait until it is fully destroyed.
-    stop(true)
+
+    // stop(true) // TODO: Stays hanging open, never exists?
+    stop(false)
   }
 
 

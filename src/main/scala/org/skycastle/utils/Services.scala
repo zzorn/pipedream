@@ -64,7 +64,8 @@ trait Services extends Logging {
 
     log.info(appName  + " shutting down")
 
-    _services foreach {service =>
+    // Shut down in reverse order
+    _services.reverse foreach {service =>
       log.info("Stopping service " + service.serviceName)
       service.shutdown()
     }
