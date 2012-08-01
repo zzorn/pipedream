@@ -3,9 +3,6 @@ package org.skycastle.client.region
 import org.skycastle.client.ClientServices
 import org.skycastle.utils.ParameterChecker
 
-/**
- *
- */
 class RegionServiceImpl(services: ClientServices) extends RegionService {
 
   var regions: Map[Symbol, Region] = Map()

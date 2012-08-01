@@ -4,9 +4,6 @@ import org.skycastle.client.entity.Entity
 import java.util
 import org.skycastle.utils.ParameterChecker
 
-/**
- *
- */
 class RegionImpl(regionId: Symbol) extends Region {
 
   private val entities = new util.HashMap[Symbol, Entity]()

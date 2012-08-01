@@ -7,7 +7,7 @@ import com.jme3.material.Material
 import com.jme3.math.ColorRGBA
 
 /**
- *
+ * Simple placeholder appearance.
  */
 case class PlaceholderAppearance(radius: Float = 1, color: ColorRGBA = ColorRGBA.Red) extends Appearance {
 

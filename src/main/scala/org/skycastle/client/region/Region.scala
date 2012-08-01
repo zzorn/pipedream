@@ -4,7 +4,7 @@ import org.skycastle.client.entity.Entity
 
 
 /**
- *
+ * Some section or volume of game world, containing entities and portals to other regions.
  */
 trait Region {
 

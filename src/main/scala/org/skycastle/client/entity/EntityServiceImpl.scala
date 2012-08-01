@@ -2,9 +2,6 @@ package org.skycastle.client.entity
 
 import org.skycastle.utils.ParameterChecker
 
-/**
- *
- */
 class EntityServiceImpl extends EntityService {
 
   def createEntity(regionId: Symbol, entityId: Symbol, data: Map[Symbol, Any]): Entity = {

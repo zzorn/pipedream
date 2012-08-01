@@ -43,7 +43,7 @@ class MessageHandlerImpl(services: ClientServices) extends MessageHandler with L
 
 
   override def startup() {
-    // Find any message handler methods in any services
+    // Find all message handler methods in all services
     services.services foreach {service =>
       val serviceClass = service.getClass
       serviceClass.getMethods foreach {method =>
