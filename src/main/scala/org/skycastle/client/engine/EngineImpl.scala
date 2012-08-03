@@ -33,6 +33,9 @@ import com.jme3.water.WaterFilter
 import java.util.logging.{Level, Logger}
 import com.jme3.input.controls.{ActionListener, InputListener, KeyTrigger}
 import com.jme3.input.KeyInput
+import org.skycastle.client.region.Region
+import org.skycastle.client.entity.Entity
+import org.skycastle.utils.PropertyListener
 
 /**
  * JMonkey based 3D engine implementation.
@@ -47,6 +50,29 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
   private val startZ = 0
 
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
+
+  private var visibleRegions: Set[Region] = Set()
+  private var focusedEntity: Entity = null
+
+
+  def setFocusEntity(entity: Entity) {
+    focusedEntity = entity
+
+    if (focusedEntity != null) {
+      // Add listener that is notified when the entity changes regions
+      focusedEntity.location.addListener('regionId, new PropertyListener {
+        def apply(propertyName: Symbol, obj: Any, oldValue: Any, newValue: Any) {
+          // Change active region
+          changeRegion(newValue.asInstanceOf[Symbol])
+        }
+      })
+    }
+
+  }
+
+  private def changeRegion(newRegion: Symbol) {
+    // TODO
+  }
 
   def simpleInitApp() {
 

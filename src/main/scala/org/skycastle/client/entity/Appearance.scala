@@ -2,11 +2,12 @@ package org.skycastle.client.entity
 
 import org.skycastle.client.ClientServices
 import com.jme3.scene.Spatial
+import org.skycastle.utils.Updateable
 
 /**
  *
  */
-trait Appearance {
+trait Appearance extends Updateable {
 
   private var spatial: Spatial = null
 

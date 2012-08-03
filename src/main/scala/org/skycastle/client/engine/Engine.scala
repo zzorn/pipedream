@@ -20,15 +20,4 @@ trait Engine extends Service {
    */
   def setFocusEntity(entity: Entity)
 
-  /**
-   * Shows the region and all entities in it.
-   */
-  def addRegion(region: Region)
-
-  /**
-   * Removes the specified region from view.
-   */
-  def removeRegion(region: Region)
-
-
 }

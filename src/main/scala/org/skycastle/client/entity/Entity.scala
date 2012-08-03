@@ -1,5 +1,8 @@
 package org.skycastle.client.entity
 
+import org.skycastle.utils.Updateable
+import org.skycastle.client.UpdatingField
+
 /**
  * Some usually visible in-game object.
  *
@@ -15,9 +18,14 @@ package org.skycastle.client.entity
  * - whether it has any interface that can be controlled
  *
  */
-case class Entity(id: Symbol,
-                  appearance: Appearance,
-                  location: Location) {
+case class Entity(var id: Symbol,
+                  @UpdatingField var appearance: Appearance,
+                  @UpdatingField var location: Location) extends Updateable {
+
+  //private var listeners: Set[EntityListener] = Set()
+
+
+  //def addListener(listener: EntityListener)
 
 
 
