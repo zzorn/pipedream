@@ -1,5 +1,7 @@
 package org.skycastle.utils
 
+import org.skycastle.client.{ClientServicesImpl, ClientServices}
+
 /**
  * Base class for a simple service registry.
  */
@@ -23,6 +25,15 @@ trait Services extends Logging {
    * @return a list of the registered services, in order of registration.
    */
   def services: List[Service] = _services
+
+  /**
+   * Default main method that starts up services
+   */
+  def main(args: Array[String]) {
+    // TODO: Read command line arguments
+    startup()
+  }
+
 
   /**
    * Use this to add a service, so that it gets automatically called by startup and shutdown.

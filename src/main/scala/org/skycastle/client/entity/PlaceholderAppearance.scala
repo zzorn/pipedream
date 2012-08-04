@@ -24,4 +24,6 @@ case class PlaceholderAppearance(@UpdatingField var radius: Float = 1,
     geometry.setMaterial(material)
     geometry
   }
+
+
 }

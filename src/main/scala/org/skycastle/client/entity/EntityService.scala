@@ -16,6 +16,7 @@ trait EntityService extends Service {
   // The higher the density / proximity, the higher the slowdown, up to some max (so after finding the 5 closest persons no point in finding more,
   // as it would not change the slowdown - or just keep track of nr of people / softly blocking things in a tile) - also slower to walk towards someone than away from them.
   // Same approach can be used for thick under-vegetation, branches, etc)
+
   @ActionMethod
   def addEntity(entityId: Symbol, data: Map[Symbol, Any])
 

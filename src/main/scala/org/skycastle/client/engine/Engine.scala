@@ -20,4 +20,17 @@ trait Engine extends Service {
    */
   def setFocusEntity(entity: Entity)
 
+
+  /**
+   * Add a callback that is called every logic update phase.
+   * The callback may manipulate spatials.
+   */
+  def addUpdateCallback(callback: (Float) => Unit)
+
+  /**
+   * Removes an update callback.
+   */
+  def removeUpdateCallback(callback: (Float) => Unit)
+
+
 }

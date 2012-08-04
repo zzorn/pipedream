@@ -54,6 +54,7 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
   private var visibleRegions: Set[Region] = Set()
   private var focusedEntity: Entity = null
 
+  private var updateCallbacks: List[(Float) => Unit] = Nil
 
   def setFocusEntity(entity: Entity) {
     focusedEntity = entity
@@ -72,6 +73,15 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
 
   private def changeRegion(newRegion: Symbol) {
     // TODO
+  }
+
+
+  def addUpdateCallback(callback: (Float) => Unit) {
+    updateCallbacks ::= callback
+  }
+
+  def removeUpdateCallback(callback: (Float) => Unit) {
+    updateCallbacks = updateCallbacks.filterNot(_ == callback)
   }
 
   def simpleInitApp() {
@@ -352,6 +362,7 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
   }
 
   override def simpleUpdate(tpf: Float) {
+    updateCallbacks foreach {cb => cb(tpf)}
   }
 
 }
