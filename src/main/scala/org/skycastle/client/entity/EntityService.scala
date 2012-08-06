@@ -25,4 +25,26 @@ trait EntityService extends Service {
 
   @ActionMethod
   def removeEntity(entityId: Symbol)
+
+  /**
+   * Specifies which entity is the players avatar in the game world.
+   * The avatar entity can already exist, or can be added later.
+   */
+  @ActionMethod
+  def setAvatarEntity(entityId: Symbol)
+
+  /**
+   * @return the entity that represents the player in the game world, or null if none yet specified.
+   */
+  def avatarEntity: Entity
+
+  /**
+   * Add listener that is notified when the avatar changes to another entity or null.
+   */
+  def addAvatarChangeListener(listener: (Entity) => Unit)
+
+  /**
+   * Remove avatar entity listener.
+   */
+  def removeAvatarChangeListener(listener: (Entity) => Unit)
 }

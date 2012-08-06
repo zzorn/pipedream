@@ -5,6 +5,6 @@ package org.skycastle.client.entity
  */
 trait EntityListener {
 
-  def onLocationChanged(newLocation: Location)
+  def onRemoved(entity: Entity)
 
 }

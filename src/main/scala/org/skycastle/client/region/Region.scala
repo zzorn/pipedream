@@ -13,7 +13,12 @@ trait Region {
   def getEntity(entityId: Symbol): Entity
 
   def removeEntity(entityId: Symbol)
+
   def removeAll()
 
+  def entities: java.util.Collection[Entity]
+
+  def addRegionListener(listener: RegionListener)
+  def removeRegionListener(listener: RegionListener)
 
 }

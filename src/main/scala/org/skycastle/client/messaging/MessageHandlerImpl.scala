@@ -2,16 +2,17 @@ package org.skycastle.client.messaging
 
 import handlers.{MethodActionHandler, ActionHandler}
 import org.skycastle.client.{ActionMethod, ClientServices}
-import org.skycastle.utils.{Logging}
-import com.thoughtworks.paranamer.CachingParanamer
+import org.skycastle.utils.{ReflectionUtils, Logging}
+import com.thoughtworks.paranamer.{BytecodeReadingParanamer, DefaultParanamer, CachingParanamer}
 import java.util.concurrent.ConcurrentLinkedQueue
 
 /**
  * A message handler that delegates messages to methods of services that are annotated to be callable with message.
+ * All handler calls happen during the game engine update phase.
  */
 class MessageHandlerImpl(services: ClientServices) extends MessageHandler with Logging {
 
-  private val paranamer = new CachingParanamer()
+  private val paranamer = new CachingParanamer(new BytecodeReadingParanamer)
   private var handlers: Map[Symbol, ActionHandler] = Map()
   private val messageQue: ConcurrentLinkedQueue[Message] = new ConcurrentLinkedQueue[Message]()
 
@@ -49,10 +50,12 @@ class MessageHandlerImpl(services: ClientServices) extends MessageHandler with L
     services.services foreach {service =>
       val serviceClass = service.getClass
       serviceClass.getMethods foreach {method =>
-        val handlerAnnotation: ActionMethod = method.getAnnotation(classOf[ActionMethod])
-        if (handlerAnnotation != null) {
+        val handlerAnnotation = ReflectionUtils.getInheritedAnnotation(method, classOf[ActionMethod])
+        if (handlerAnnotation.isDefined) {
           val actionName = Symbol(method.getName)
-          handlers += actionName -> MethodActionHandler(actionName, service, method, paranamer)
+          val handler: MethodActionHandler = MethodActionHandler(actionName, service, method, paranamer)
+          handlers += actionName -> handler
+          log.info("  Added message handler: " + handler)
         }
       }
     }

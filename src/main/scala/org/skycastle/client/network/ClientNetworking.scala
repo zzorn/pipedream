@@ -29,4 +29,8 @@ trait ClientNetworking extends Service {
    */
   def sendMessage(message: Message)
 
+  /**
+   * Disconnects from server.
+   */
+  def disconnect()
 }

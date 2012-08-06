@@ -1,11 +1,9 @@
 package org.skycastle.utils
 
-import org.skycastle.client.{ClientServicesImpl, ClientServices}
-
 /**
  * Base class for a simple service registry.
  */
-trait Services extends Logging {
+trait ServicesBase extends Logging {
 
   private var _started = false
   private var _stopped = false
@@ -55,12 +53,14 @@ trait Services extends Logging {
 
     log.info(appName  + " starting up")
 
-    onStartup()
+    onPreStartup()
 
     _services foreach {service =>
       log.info("Starting service " + service.serviceName)
       service.startup()
     }
+
+    onPostStartup()
 
     log.info(appName  + " started")
   }
@@ -75,13 +75,15 @@ trait Services extends Logging {
 
     log.info(appName  + " shutting down")
 
+    onPreShutdown()
+
     // Shut down in reverse order
     _services.reverse foreach {service =>
       log.info("Stopping service " + service.serviceName)
       service.shutdown()
     }
 
-    onShutdown()
+    onPostShutdown()
 
     log.info(appName  + " shut down")
   }
@@ -93,11 +95,21 @@ trait Services extends Logging {
   /**
    * Called before any service has been started.
    */
-  protected def onStartup() {}
+  protected def onPreStartup() {}
+
+  /**
+   * Called after all services have been started.
+   */
+  protected def onPostStartup() {}
+
+  /**
+   * Called before any services have been shut down.
+   */
+  protected def onPreShutdown() {}
 
   /**
    * Called after all services have been shut down.
    */
-  protected def onShutdown() {}
+  protected def onPostShutdown() {}
 
 }

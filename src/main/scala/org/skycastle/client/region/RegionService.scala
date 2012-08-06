@@ -2,6 +2,7 @@ package org.skycastle.client.region
 
 import org.skycastle.client.ActionMethod
 import org.skycastle.utils.Service
+import org.skycastle.client.entity.Entity
 
 
 /**
@@ -27,6 +28,14 @@ import org.skycastle.utils.Service
 trait RegionService extends Service {
 
   def getRegion(regionId: Symbol): Region
+
+  def hasRegion(regionId: Symbol): Boolean
+
+  /**
+   * Add entity to regions.
+   * Listens to changes in region for the entity, and moves it to the correct one.
+   */
+  def addEntity(entity: Entity)
 
   /**
    * @return the currently available regions.

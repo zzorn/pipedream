@@ -62,6 +62,7 @@ class ClientNetworkingImpl(serverHandler: MessageHandler) extends ClientNetworki
     if (session != null) throw new IllegalStateException("Session has already been created")
 
     val connectFuture = connector.connect(new InetSocketAddress(serverAddress, serverPort))
+    // TODO: Can't wait while game engine / ui is running - need to use listening, and some state management
     connectFuture.awaitUninterruptibly()
     session = connectFuture.getSession
   }
@@ -69,7 +70,7 @@ class ClientNetworkingImpl(serverHandler: MessageHandler) extends ClientNetworki
   def disconnect() {
     if (session != null) {
       val closeFuture = session.close(false)
-      closeFuture.awaitUninterruptibly
+      // closeFuture.awaitUninterruptibly // NOTE: Can't wait for session to close while in game engine update.
       session = null
     }
   }

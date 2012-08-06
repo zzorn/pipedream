@@ -33,9 +33,11 @@ import com.jme3.water.WaterFilter
 import java.util.logging.{Level, Logger}
 import com.jme3.input.controls.{ActionListener, InputListener, KeyTrigger}
 import com.jme3.input.KeyInput
-import org.skycastle.client.region.Region
+import org.skycastle.client.region.{RegionListener, Region}
 import org.skycastle.client.entity.Entity
 import org.skycastle.utils.PropertyListener
+
+import scala.collection.JavaConversions._
 
 /**
  * JMonkey based 3D engine implementation.
@@ -49,12 +51,20 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
   private val startX = 0
   private val startZ = 0
 
+  private val cameraStartOffset = new Vector3f(0, -100, -50)
+
+  private val worldUp = new Vector3f(0, -1, 0)
+
   private val lightDir = new Vector3f(-4.9f, -1.3f, 5.9f)
 
   private var visibleRegions: Set[Region] = Set()
+  private var currentRegion: Region = null
+
   private var focusedEntity: Entity = null
 
   private var updateCallbacks: List[(Float) => Unit] = Nil
+
+  private var currentRegionNode = new Node()
 
   def setFocusEntity(entity: Entity) {
     focusedEntity = entity
@@ -64,17 +74,12 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
       focusedEntity.location.addListener('regionId, new PropertyListener {
         def apply(propertyName: Symbol, obj: Any, oldValue: Any, newValue: Any) {
           // Change active region
-          changeRegion(newValue.asInstanceOf[Symbol])
+          setCurrentRegion(newValue.asInstanceOf[Symbol])
         }
       })
     }
 
   }
-
-  private def changeRegion(newRegion: Symbol) {
-    // TODO
-  }
-
 
   def addUpdateCallback(callback: (Float) => Unit) {
     updateCallbacks ::= callback
@@ -104,6 +109,7 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
       }
     }, "SkycastleClientExit")
 
+    /*
     // Terrain
     val terrainMaterial = createSimpleTerrainMaterial(getAssetManager)
 
@@ -121,8 +127,9 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
       assetManager)
 
     this.rootNode.attachChild(terrain)
+    */
 
-
+    /*
     // Sky
     val sky = new Sky(getCamera, assetManager)
     rootNode.attachChild(sky)
@@ -139,7 +146,78 @@ class EngineImpl(services: ClientServices) extends SimpleApplication with Engine
     mat.setColor("Color", ColorRGBA.Red)
     box.setMaterial(mat)
     rootNode.attachChild(box)
+    */
+
+    // Entities
+    this.rootNode.attachChild(currentRegionNode)
+
+
+    // Get our current avatar entity, focus the camera on it, and listen for changes to the avatar entity
+    setFocusedEntity(services.entityService.avatarEntity)
+    services.entityService.addAvatarChangeListener(setFocusedEntity)
+
+
+
   }
+
+  private def setFocusedEntity(entity: Entity) {
+    if (entity != focusedEntity) {
+      focusedEntity = entity
+      if (focusedEntity != null && focusedEntity.location != null) {
+
+        // Change to the region the entity is in
+        setCurrentRegion(focusedEntity.location.regionId)
+
+        // Move camera aside a bit from the entity
+        val camPos = new Vector3f(focusedEntity.location.pos)
+        camPos.addLocal(cameraStartOffset)
+        cam.setLocation(camPos)
+
+        // Look at entity
+        cam.lookAt(focusedEntity.location.pos, worldUp)
+
+        // Follow entity
+        // TODO
+
+      }
+    }
+  }
+
+  private val regionListener = new RegionListener {
+    def onEntityAdded(entity: Entity) {
+      currentRegionNode.attachChild(entity.appearance.getSpatial(services))
+    }
+    def onEntityRemoved(entity: Entity) {
+      currentRegionNode.detachChild(entity.appearance.getSpatial(services))
+    }
+    def onAllEntitiesRemoved() {
+      currentRegionNode.detachAllChildren()
+    }
+  }
+
+  private def setCurrentRegion(regionId: Symbol) {
+    val region = services.regionService.getRegion(regionId)
+    if (region != currentRegion) {
+      // Hide entities from the previous region
+      if (currentRegion != null) {
+        currentRegion.removeRegionListener(regionListener)
+        currentRegionNode.detachAllChildren()
+      }
+
+      currentRegion = region
+
+      if (currentRegion != null) {
+        // Show all entities in the region
+        currentRegion.entities foreach {e =>
+          currentRegionNode.attachChild(e.appearance.getSpatial(services))
+        }
+
+        // Listen to any added ore removed entities in the region
+        currentRegion.addRegionListener(regionListener)
+      }
+    }
+  }
+
 
   override def startup() {
     // Tune jme logging level

@@ -2,7 +2,7 @@ package org.skycastle.client
 
 import engine.EngineImpl
 import entity.EntityServiceImpl
-import messaging.MessageHandlerImpl
+import messaging.{Message, MessageHandlerImpl}
 import network.ClientNetworkingImpl
 import region.RegionServiceImpl
 
@@ -16,10 +16,20 @@ object Client extends ClientServices {
 
   val messageHandler = addService(new MessageHandlerImpl(this))
   val networking = addService(new ClientNetworkingImpl(messageHandler))
-  val entityService = addService(new EntityServiceImpl())
+  val entityService = addService(new EntityServiceImpl(this))
   val regionService = addService(new RegionServiceImpl(this))
   val engine = addService(new EngineImpl(this))
 
   //todo: network, ui widgets, perceived objects, actions on controlled obj, environment visualization & update
 
+
+  override protected def onPostStartup() {
+    // Add some test entities
+
+    Thread.sleep(4000)
+
+    messageHandler.onMessage(new Message('addEntity, Map('entityId -> 'ball1, 'data -> Map('appearance -> Map('radius -> 100)))))
+    messageHandler.onMessage(new Message('setAvatarEntity, Map('entityId -> 'ball1)))
+
+  }
 }

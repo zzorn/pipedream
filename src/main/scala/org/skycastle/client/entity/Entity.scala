@@ -22,12 +22,27 @@ case class Entity(var id: Symbol,
                   @UpdatingField var appearance: Appearance,
                   @UpdatingField var location: Location) extends Updateable {
 
-  //private var listeners: Set[EntityListener] = Set()
+  private var removalListeners: Set[(Entity) => Unit] = Set()
 
+  /**
+   * Add listener that is notified when entity is removed.
+   */
+  def addRemovalListener(removalListener: (Entity) => Unit) {
+    removalListeners += removalListener
+  }
 
-  //def addListener(listener: EntityListener)
+  /**
+   * Remove removal listener.
+   */
+  def removeRemovalListener(removalListener: (Entity) => Unit) {
+    removalListeners -= removalListener
+  }
 
-
-
+  /**
+   * Called when entity is removed.
+   */
+  def onRemoved() {
+    removalListeners foreach {rl => rl(this)}
+  }
 
 }
