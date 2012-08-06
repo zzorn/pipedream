@@ -20,6 +20,15 @@ object Client extends ClientServices {
   val regionService = addService(new RegionServiceImpl(this))
   val engine = addService(new EngineImpl(this))
 
-  //todo: network, ui widgets, perceived objects, actions on controlled obj, environment visualization & update
+  /* TODO:
+   *
+   * - UI updating, widgets, binging inputs
+   * - Actions on controlled object
+   * - Actions with controlled object on other entities
+   * - Client side predictive movement
+   * - Sound
+   * - Music
+   *
+   */
 
 }
