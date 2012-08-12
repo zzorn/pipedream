@@ -13,7 +13,7 @@ class UpdateableTest extends FunSuite {
     val t = TestBean(1, TestBean(2, null))
     t.cc = "foo"
 
-    t.update(Map('aa -> 10, 'bb -> Map('aa -> 20, 'cc -> "bar")))
+    t.update(Map('aa -> 10, 'bb -> Map('aa -> Integer.valueOf(20), 'cc -> "bar")))
 
     assert(t.aa === 10)
     assert(t.cc === "foo")

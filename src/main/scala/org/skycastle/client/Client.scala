@@ -37,7 +37,7 @@ object Client extends ClientServices {
 
     Thread.sleep(4000)
 
-    messageHandler.onMessage(new Message('addEntity, Map('entityId -> 'ball1, 'data -> Map('appearance -> Map('radius -> 100)))))
+    messageHandler.onMessage(new Message('addEntity, Map('entityId -> 'ball1, 'data -> Map('appearance -> Map('radius -> Integer.valueOf(100))))))
     messageHandler.onMessage(new Message('setAvatarEntity, Map('entityId -> 'ball1)))
 
   }
